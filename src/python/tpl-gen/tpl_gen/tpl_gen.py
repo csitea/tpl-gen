@@ -11,43 +11,39 @@ from colorama import Fore, Style
 
 def main():
     ORG_, ENV_, APP_, cnf, src_proj_dir, tgt_proj_dir = set_vars()
-    print(ORG_, APP_, ENV_, src_proj_dir, tgt_proj_dir)
-    # 2209060034 ::: support for early credentials
-    do_generate_early_credentials(ORG_)
     do_generate(ORG_, ENV_ , APP_ , cnf, src_proj_dir, tgt_proj_dir)
-
 
 def print_warn(msg):
     print(f"{Fore.YELLOW}{msg}{Style.RESET_ALL}")
 
-
 def print_error(msg):
     print(f"{Fore.RED}{msg}{Style.RESET_ALL}")
-
 
 def print_success(msg):
     print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
 
-def do_generate_early_credentials(org):
-    
-    # This path is enforced, not configurable. It is mounted when docker starts.
-    early_credentials_yaml = f"/home/appusr/.aws/.{org}/early-credentials.yaml"
-    early_credentials_json = early_credentials_yaml.replace("yaml", "json")  # to allow the use of jq tool later when needed
-    print_warn(f"Early credentials path: {early_credentials_yaml}")
+def render_yaml():
+    src = os.getenv("SRC")
+    tgt = os.getenv("TGT")
 
-    if os.path.exists(early_credentials_yaml):
-        print_success(f"Early credentials file does exist: {early_credentials_yaml}")
-
-        # render variables from yaml file
-        with open(early_credentials_yaml, encoding="utf-8") as file:
-            cnf = yaml.load(file, Loader=yaml.Loader)
-
-        # dump into json to be bash/jq friendly
-        with open(early_credentials_json, 'w', encoding="utf-8") as file:
-           json.dump(cnf, file, indent=4)
-    else:
-        print_error(f"Early credentials file does not exist: {early_credentials_yaml}")
+    if src == "" :
+        print_error("FATAL ::: SRC directory not specified")
         exit(1)
+    
+    if tgt == "" or tgt is None: 
+        tgt = src
+
+    for filename in os.listdir(src):
+        if filename.endswith("yaml"):
+            print(src, tgt, filename)
+            yaml_filename = os.path.join(src, filename)
+            json_filename = os.path.join(tgt, filename.replace(".yaml", ".json"))
+
+            with open(yaml_filename, encoding="utf-8") as file:
+                cnf = yaml.load(file, Loader=yaml.Loader)
+            
+            with open(json_filename, 'w') as file:
+                json.dump(cnf, file, indent=4)
 
 def set_vars():
     try:
@@ -62,9 +58,10 @@ def set_vars():
         SRC_ = os.getenv("SRC")
         TGT_ = os.getenv("TGT")
         
-        if SRC_ == "": SRC_ = "infra"
-        
-        src_proj_dir = os.path.join("/var", SRC_)
+        if SRC_ == "" or SRC_ is None: 
+            src_proj_dir = os.path.join("/var", "infra")
+        else:
+            src_proj_dir = os.path.join("/var", SRC_)
 
         json_cnf_file = f"{src_proj_dir}/cnf/env/{ORG_}/{APP_}/{ENV_}.env.json"
         yaml_cnf_file = json_cnf_file.replace('json', 'yaml')
@@ -82,6 +79,7 @@ def set_vars():
         else:  # otherwise use json
             with open(json_cnf_file, encoding="utf-8") as file:
                 cnf = json.load(file)
+        src_proj_dir = [os.path.join(src_proj_dir, "src", "tpl", "cnf")]
         
         #pprintjson(cnf)
 
@@ -92,9 +90,8 @@ def set_vars():
 
 
 def do_generate(ORG_, ENV_, APP_, cnf, src_proj_dir, tgt_proj_dir):
-    pathnames = [os.path.join(src_proj_dir, "src", "tpl", "cnf")]
 
-    for pathname in pathnames:
+    for pathname in src_proj_dir:
         for subdir, _dirs, files in os.walk(pathname):
             for file in files:
                 current_file_path = os.path.join(subdir, file)
@@ -110,11 +107,12 @@ def do_generate(ORG_, ENV_, APP_, cnf, src_proj_dir, tgt_proj_dir):
                             rendered = obj_tpl.render(args)
 
                             current_file = current_file_path.split('/')[-1].replace(".tpl", "")  # name of the file
-                            if tgt_proj_dir == "":
-                                tgt_file_path = current_file_path.replace(".tpl", "")\
+                            if tgt_proj_dir == "" or tgt_proj_dir is None:
+                                tgt_file_path = current_file_path.replace("/src/tpl", "", 1) \
+                                    .replace(".tpl", "") \
+                                    .replace(r"%env%", ENV_) \
                                     .replace(r"%org%", ORG_) \
-                                    .replace(r"%app%", APP_) \
-                                    .replace(r"%env%", ENV_)
+                                    .replace(r"%app%", APP_)
                             else:
                                 tgt_file_path = os.path.join(os.path.join("/var", tgt_proj_dir), current_file)
 
@@ -124,7 +122,7 @@ def do_generate(ORG_, ENV_, APP_, cnf, src_proj_dir, tgt_proj_dir):
                             with open(tgt_file_path, "w", encoding="utf-8") as tgt_file:
                                 tgt_file.write(rendered + os.linesep)
                                 msg = f"File \"{tgt_file_path}\" rendered with success."
-                                print_success(msg)
+                            print_success(msg)
 
                     except exceptions.UndefinedError as error:
                         msg = "WARNING: Missing variable in json config in file: " + \
