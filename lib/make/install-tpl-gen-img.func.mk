@@ -17,10 +17,6 @@ DOCKER_BUILDKIT := $(or 0,$(DOCKER_BUILDKIT))
 # iss-2209082055 https://pythonspeed.com/articles/docker-build-problems-mac/
 define install-tpl-gen-img
 	@clear
-	$(call demand-var,ORG)
-	$(call demand-var,APP)
-	$(call demand-var,ENV)
-
 	$(eval NO_CACHE=${2})
 	$(eval PORT_COMMAND=-p ${3}:${3})
 
@@ -35,9 +31,6 @@ define install-tpl-gen-img
 	@echo DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build . -t ${product}-$(1)-img $(NO_CACHE) \
 		--build-arg UID=$(shell id -u) \
 		--build-arg GID=$(shell id -g) \
-		--build-arg ORG=$(ORG) \
-        --build-arg APP=$(APP) \
-		--build-arg ENV=$(ENV) \
 		--build-arg PP_NAME=${PP_NAME} \
 		--build-arg PRODUCT=${PRODUCT} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE} 
@@ -48,9 +41,6 @@ define install-tpl-gen-img
 	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build . -t ${product}-$(1)-img $(NO_CACHE) \
 		--build-arg UID=$(shell id -u) \
 		--build-arg GID=$(shell id -g) \
-		--build-arg ORG=$(ORG) \
-        --build-arg APP=$(APP) \
-		--build-arg ENV=$(ENV) \
 		--build-arg PP_NAME=${PP_NAME} \
 		--build-arg PRODUCT=${PRODUCT} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE}
@@ -58,7 +48,7 @@ define install-tpl-gen-img
 	@echo -e "\n\n"
 	@sleep 1
 
-	$(call uninstall-img,$1) 
+	$(call uninstall-tpl-gen-img,$1) 
 	
 	
 	@clear

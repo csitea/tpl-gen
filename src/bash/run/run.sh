@@ -168,11 +168,7 @@ do_set_vars(){
    export RUN_UNIT=$(cd $unit_run_dir/../../.. ; basename `pwd`)
    export PRODUCT_DIR=$(cd $unit_run_dir/../../.. ; echo `pwd`)
    export PP_NAME=$(echo $PRODUCT_DIR|xargs dirname | xargs basename)
-   # ENV="${ENV:=lde}" # https://stackoverflow.com/a/2013589/65706
-   valid_envs=("lde dev tst stg prd all")
-   [[ " ${valid_envs[*]} " =~ " ${ENV:-} " ]] || {
-      echo -e "ENV must be one of the following : \n export ENV={lde dev stg prd all}" && exit 1
-   }
+   ENV="${ENV:=lde}"
 
    cd $PRODUCT_DIR
    # workaround for github actions running on docker

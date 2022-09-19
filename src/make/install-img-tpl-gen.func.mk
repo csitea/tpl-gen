@@ -5,11 +5,6 @@ SHELL = bash
 PRODUCT := $(shell basename $$PWD)
 product:= $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
 
-ORG := $(shell export ORG=$${ORG}; echo $${ORG})
-APP := $(shell export APP=$${APP}; echo $${APP})
-ENV := $(shell export ENV=$${ENV}; echo $${ENV})
-
-
 TPL_GEN_PORT=
 
 

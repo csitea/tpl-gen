@@ -19,5 +19,5 @@ PROCESSOR_ARCHITECTURE := $(shell uname -m)
 .PHONY: install ## @-> install both the devops-ter and the tpl-gen containers
 install:
 	@clear 
-	ORG=$(ORG) APP=$(APP) ENV=$(ENV) make clean-install-tpl-gen
+	make clean-install-tpl-gen
 

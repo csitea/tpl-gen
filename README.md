@@ -60,15 +60,20 @@ The tpl-gen docker has all the needed binaries create configuration files from t
 # always go to the project root dir - aka the product dir
 cd ~/opt/tpl-gen
 
-make clean-install-tpl-gen  # install without reusing layers
-make install-tpl-gen        # install from cached layers (faster)
-
-# generate the templates 
-ORG=org APP=app ENV=dev make do-tpl-gen
+make clean-install-tpl-gen                                   # install without reusing layers
+make install-tpl-gen                                         # install from cached layers (faster)
+make install                                                 # install without reusing layers
 ```
 
 ### CONFIGURE THE TGT PROJECT
 You call the tpl-gen "against" another projects by just passing the name of the target project root directrory. It IS obligatory for both project the tgl-gen and the target project to generate the templates for to be in the same directory (usually $HOME/opt )
+
+```bash 
+# generate the templates 
+ORG=org APP=app ENV=dev make do-tpl-gen                      # renders from /var/infra/src/tpl/cnf  into directory replacing wildcards %var%
+ORG=org APP=app ENV=dev TGT=tmp make do-tpl-gen              # renders from /var/infra/src/tpl/cnf  into /var/tmp
+ORG=org APP=app ENV=dev SRC=csitea TGT=tmp make do-tpl-gen   # renders from /var/csitea/src/tpl/cnf into /var/tmp
+```
 
 Typical ORG-APP-ENV set of files would look like this:
 ```bash

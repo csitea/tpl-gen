@@ -13,6 +13,7 @@ venv_path="/${PP_NAME}/${PRODUCT}/src/python/tpl-gen/.venv"
 test -d $venv_path && sudo rm -vr $venv_path
 cp -vr /home/$APPUSR$venv_path $venv_path
 perl -pi -e "s|/home/$APPUSR||g" $venv_path/bin/activate
+source /home/$APPUSR/opt/tpl-gen/src/python/tpl-gen/.venv/bin/python
 
 
 # /home/appusr/.local/share/pypoetry/venv/bin/activate 

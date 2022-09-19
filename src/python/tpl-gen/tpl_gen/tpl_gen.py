@@ -10,10 +10,11 @@ from colorama import Fore, Style
 
 
 def main():
-    ORG_, ENV_, APP_, cnf, tgt_proj_dir = set_vars()
+    ORG_, ENV_, APP_, cnf, src_proj_dir, tgt_proj_dir = set_vars()
+    print(ORG_, APP_, ENV_, src_proj_dir, tgt_proj_dir)
     # 2209060034 ::: support for early credentials
-    do_generate_early_credentials()
-    do_generate(ORG_, ENV_ , APP_ , cnf, tgt_proj_dir)
+    do_generate_early_credentials(ORG_)
+    do_generate(ORG_, ENV_ , APP_ , cnf, src_proj_dir, tgt_proj_dir)
 
 
 def print_warn(msg):
@@ -27,13 +28,10 @@ def print_error(msg):
 def print_success(msg):
     print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
 
-def do_generate_early_credentials():
-    ENV_ = os.getenv("ENV")
-    ORG_ = os.getenv("ORG")
-    APP_ = os.getenv("APP")
+def do_generate_early_credentials(org):
     
     # This path is enforced, not configurable. It is mounted when docker starts.
-    early_credentials_yaml = f"/home/appusr/.aws/.{ORG_}/early-credentials.yaml"
+    early_credentials_yaml = f"/home/appusr/.aws/.{org}/early-credentials.yaml"
     early_credentials_json = early_credentials_yaml.replace("yaml", "json")  # to allow the use of jq tool later when needed
     print_warn(f"Early credentials path: {early_credentials_yaml}")
 
@@ -53,16 +51,22 @@ def do_generate_early_credentials():
 
 def set_vars():
     try:
-        product_dir = os.path.join(__file__, "..", "..", "..", "..", "..")
-        product_dir = os.path.abspath(product_dir)
-        
-        # the tpl-gen and the target project MUST be in the same directory !!!
-        tgt_proj_dir = '/var/' + os.getenv("TGT")   
         ENV_ = os.getenv("ENV")
         ORG_ = os.getenv("ORG")
         APP_ = os.getenv("APP")
 
-        json_cnf_file = f"{tgt_proj_dir}/cnf/env/{ORG_}/{APP_}/{ENV_}.env.json"
+        product_dir = os.path.join(__file__, "..", "..", "..", "..", "..")
+        product_dir = os.path.abspath(product_dir)
+        
+        # the tpl-gen and the target project MUST be in the same directory !!!
+        SRC_ = os.getenv("SRC")
+        TGT_ = os.getenv("TGT")
+        
+        if SRC_ == "": SRC_ = "infra"
+        
+        src_proj_dir = os.path.join("/var", SRC_)
+
+        json_cnf_file = f"{src_proj_dir}/cnf/env/{ORG_}/{APP_}/{ENV_}.env.json"
         yaml_cnf_file = json_cnf_file.replace('json', 'yaml')
 
         print(f"tpl_gen.py ::: using config json file: {json_cnf_file}")
@@ -79,18 +83,16 @@ def set_vars():
             with open(json_cnf_file, encoding="utf-8") as file:
                 cnf = json.load(file)
         
-        pprintjson(cnf)
+        #pprintjson(cnf)
 
     except IndexError as error:
         raise Exception("ERROR in set_vars: ", str(error)) from error
 
-    return ORG_, ENV_, APP_, cnf, tgt_proj_dir
+    return ORG_, ENV_, APP_, cnf, src_proj_dir, TGT_
 
 
-def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
-    pathnames = [
-        f"{tgt_proj_dir}/src/tpl/",
-    ]
+def do_generate(ORG_, ENV_, APP_, cnf, src_proj_dir, tgt_proj_dir):
+    pathnames = [os.path.join(src_proj_dir, "src", "tpl", "cnf")]
 
     for pathname in pathnames:
         for subdir, _dirs, files in os.walk(pathname):
@@ -98,7 +100,7 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
                 current_file_path = os.path.join(subdir, file)
                 if current_file_path.endswith(".tpl"):
                     try:
-                        print (f"START ::: working on tpl file: ${current_file_path}")
+                        print (f"START ::: working on tpl file: {current_file_path}")
                         with open(current_file_path, "r", encoding="utf-8") as current_file:
                             str_tpl = current_file.read()
                             obj_tpl = Environment(loader=BaseLoader) \
@@ -107,12 +109,14 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
                             args.update(cnf["env"])
                             rendered = obj_tpl.render(args)
 
-                            tgt_file_path = current_file_path.replace("/src/tpl", "", 1) \
-                                .replace(".tpl", "") \
-                                .replace(r"%env%", ENV_) \
-                                .replace(r"%org%", ORG_) \
-                                .replace(r"%app%", APP_)
-
+                            current_file = current_file_path.split('/')[-1].replace(".tpl", "")  # name of the file
+                            if tgt_proj_dir == "":
+                                tgt_file_path = current_file_path.replace(".tpl", "")\
+                                    .replace(r"%org%", ORG_) \
+                                    .replace(r"%app%", APP_) \
+                                    .replace(r"%env%", ENV_)
+                            else:
+                                tgt_file_path = os.path.join(os.path.join("/var", tgt_proj_dir), current_file)
 
                             if not os.path.exists(os.path.dirname(tgt_file_path)):
                                 os.makedirs(os.path.dirname(tgt_file_path))
