@@ -54,6 +54,7 @@ define install-tpl-gen-img
 	@clear
 	@echo -e "\n\n START ::: spawning the docker container by:"
 	@echo docker run -it -d --restart=always $(PORT_COMMAND) \
+		-v $$HOME/opt:/var \
 		-v $$(pwd):/${PP_NAME}/${PRODUCT} \
 		-v $$HOME/.aws:/home/$(APPUSR)/.aws \
 		-v $$HOME/.ssh:/home/$(APPUSR)/.ssh \
@@ -64,7 +65,7 @@ define install-tpl-gen-img
 
 
 	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v $$HOME/${PP_NAME}:/var \
+		-v $$HOME/opt:/var \
 		-v $$(pwd):/${PP_NAME}/${PRODUCT} \
 		-v $$HOME/.aws:/home/${APPUSR}/.aws \
 		-v $$HOME/.ssh:/home/${APPUSR}/.ssh \

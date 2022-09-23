@@ -27,14 +27,25 @@ The model defines and operating IT environment, based on those 3 attributes. It 
 
 
 ## SETUP & INSTALL
-
+Read Carefully and follow these instructions - there is a single one-liner to setup the project, BUT should yo
 ## Pre-requesites
-You should have the following binaries natively - bash, make, perl, jq, docker, sed
+You should have the following binaries natively - bash, make, perl, jq, docker, sed. 
+
+``` ATTENTION !!! ```bash
+It IS REALLY IMPORTANT to ensure that the directly where you clone the  `tpl-gen` is: 
+- the same dir where your project having the templates residues
+- owned and read/writable by your native OS user and group 
+- configured in your Docker configuration to be a shared volume !!!
+
+Should ANY of those ^^^ you might not be able to use the `tpl-gen` for other projects !!!
+Thus bellow is the recommended way of deploying the `tpl-gen`:
 
 ## GET THE SOURCE
 You MUST clone this project on base directory containing your target project containing the `*.tpl` files to generate the configuration from. To avoid any file permissions errors use a conventional dir to clone the project into.
 ```bash
-mkdir -p ~/opt/ ; cd $_ # ~/opt/ is just a convention
+# ~/opt/ is just a convention, but does match the ^^^ requirements !!! 
+# So make sure you add it to your Docker volumes 
+mkdir -p ~/opt/ ; cd $_ 
 git clone git@github.com:csitea/tpl-gen.git
 cd ~/opt/tpl-gen
 find . | sort | less
@@ -105,8 +116,15 @@ You call the tpl-gen `"against"` another projects by just passing the name of th
 # call the tpl-gen against the infra project for the csi organisation, htr application and dev environment
 ORG=csi APP=htr ENV=dev TGT=infra make do-tpl-gen
 
+# specify where to get the configuration from ( the default is "infra")
+# specify where to generate the configuration files, produced from the templates
+```bash
+ORG=csi APP=htr ENV=dev SRC=infra TGT=htr-api make do-tpl-gen;
+```
+
 # call the tpl-gen against the infra project for all the environments
-for env in `echo dev tst stg prd all`; do ORG=spe APP=nba ENV=$env TGT=infra make do-tpl-gen; done
+for env in `echo dev tst stg prd all`; do ORG=csi APP=htr ENV=$env SRC=infra TGT=infra make do-tpl-gen; done
+for env in `echo dev tst stg prd all`; do ORG=csi APP=htr ENV=$env SRC=infra TGT=htr-api make do-tpl-gen; done
 ```
 
 

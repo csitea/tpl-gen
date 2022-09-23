@@ -50,8 +50,8 @@ def set_vars():
         ENV_ = os.getenv("ENV")
         ORG_ = os.getenv("ORG")
         APP_ = os.getenv("APP")
-        TGT_        = os.getenv("TGT")  # where we get tpl files
-        TPL_CONFIG_ = os.getenv("TPL_CONFIG")  # where we get the config file
+        TGT_ = os.getenv("TGT")         # where we get tpl files
+        SRC_ = os.getenv("SRC")  # where we get the config file
 
         product_dir = os.path.join(__file__, "..", "..", "..", "..", "..")
         product_dir = os.path.abspath(product_dir)
@@ -61,12 +61,12 @@ def set_vars():
         else:
             tgt_proj_dir = os.path.join("/var", f"{TGT_}")
 
-        if TPL_CONFIG_ == "" or TPL_CONFIG_ is None: 
-            tpl_config = os.path.join("/var", "infra", "cnf", "env", f"{ORG_}", f"{APP_}")
+        if SRC_ == "" or SRC_ is None: 
+            env_config_dir = os.path.join("/var", "infra", "cnf", "env", f"{ORG_}", f"{APP_}")
         else:
-            tpl_config = os.path.join("/var", f"{TPL_CONFIG_}")
+            env_config_dir = os.path.join("/var", f"{SRC_}", "cnf", "env", f"{ORG_}", f"{APP_}")
 
-        json_cnf_file = os.path.join(tpl_config, f"{ENV_}.env.json")
+        json_cnf_file = os.path.join(env_config_dir, f"{ENV_}.env.json")
         yaml_cnf_file = json_cnf_file.replace('json', 'yaml')
 
         # If YAML exists, dump it into JSON and use it.
