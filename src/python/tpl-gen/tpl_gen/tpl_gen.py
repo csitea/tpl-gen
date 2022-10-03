@@ -10,8 +10,10 @@ from colorama import Fore, Style
 
 
 def main():
-    ORG_, ENV_, APP_, cnf, tgt_proj_dir = set_vars()
+    ORG_, ENV_, APP_, env_config_dir, tgt_proj_dir  = set_vars()
+    cnf = get_cnf(env_config_dir,ENV_)
     do_generate(ORG_, ENV_ , APP_ , cnf, tgt_proj_dir)
+
 
 def print_warn(msg):
     print(f"{Fore.YELLOW}{msg}{Style.RESET_ALL}")
@@ -23,6 +25,7 @@ def print_success(msg):
     print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
 
 def render_yaml():
+    ORG_, ENV_, APP_, env_config_dir, tgt_proj_dir = set_vars()
     src = os.getenv("SRC")
     tgt = os.getenv("TGT")
 
@@ -33,17 +36,23 @@ def render_yaml():
     if tgt == "" or tgt is None: 
         tgt = src
 
-    for filename in os.listdir(src):
-        if filename.endswith("yaml"):
-            print(src, tgt, filename)
-            yaml_filename = os.path.join(src, filename)
-            json_filename = os.path.join(tgt, filename.replace(".yaml", ".json"))
 
-            with open(yaml_filename, encoding="utf-8") as file:
-                cnf = yaml.load(file, Loader=yaml.Loader)
-            
-            with open(json_filename, 'w') as file:
-                json.dump(cnf, file, indent=4)
+    for subdir, _dirs, files in os.walk(src):
+        for file in files:
+            current_file_path = os.path.join(subdir, file)
+            if current_file_path.endswith(".yaml"):
+                print("working on: " + current_file_path)
+                print(src, tgt, current_file_path)
+
+                yaml_filename = os.path.join(src, current_file_path)
+                json_filename = os.path.join(tgt, current_file_path.replace(".yaml", ".json"))
+
+                with open(yaml_filename, encoding="utf-8") as file:
+                    cnf = yaml.load(file, Loader=yaml.Loader)
+                
+                with open(json_filename, 'w') as file:
+                    json.dump(cnf, file, indent=4)
+
 
 def set_vars():
     try:
@@ -65,6 +74,16 @@ def set_vars():
             env_config_dir = os.path.join("/var", "infra", "cnf", "env", f"{ORG_}", f"{APP_}")
         else:
             env_config_dir = os.path.join("/var", f"{SRC_}", "cnf", "env", f"{ORG_}", f"{APP_}")
+
+
+    except IndexError as error:
+        raise Exception("ERROR in set_vars: ", str(error)) from error
+
+    return ORG_, ENV_, APP_, env_config_dir, tgt_proj_dir
+
+
+def get_cnf(env_config_dir,ENV_):
+    try:
 
         json_cnf_file = os.path.join(env_config_dir, f"{ENV_}.env.json")
         yaml_cnf_file = json_cnf_file.replace('json', 'yaml')
@@ -88,7 +107,9 @@ def set_vars():
     except IndexError as error:
         raise Exception("ERROR in set_vars: ", str(error)) from error
 
-    return ORG_, ENV_, APP_, cnf, tgt_proj_dir
+    return cnf
+
+
 
 
 def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
@@ -122,6 +143,7 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
                                 tgt_file.write(rendered + os.linesep)
                                 msg = f"File \"{tgt_file_path}\" rendered with success."
                             print_success(msg)
+
 
                     except exceptions.UndefinedError as error:
                         msg = "WARNING: Missing variable in json config in file: " + \
