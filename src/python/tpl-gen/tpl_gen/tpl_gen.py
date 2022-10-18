@@ -126,6 +126,10 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
                             str_tpl = current_file.read()
                             obj_tpl = Environment(loader=BaseLoader) \
                                 .from_string(str_tpl)
+
+                            # custom filters
+                            obj_tpl.globals["include_file"] = include_file
+
                             args = os.environ.copy()
                             args.update(cnf["env"])
                             rendered = obj_tpl.render(args)
@@ -155,6 +159,20 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
                         raise error
 
     print("STOP generating templates")
+
+
+# Jinja2 custom filters
+def include_file(filename):
+    '''
+    Include the raw contents of specified filename or return None if it doesn't exist.
+    '''
+    filepath = os.path.join(os.getcwd(), filename)
+    if os.path.exists(filepath):
+        fp = open(filename, "r")
+        content = fp.read()
+        fp.close()
+    return content
+
 
 
 if __name__ == "__main__":
