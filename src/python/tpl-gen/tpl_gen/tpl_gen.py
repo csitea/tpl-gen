@@ -129,6 +129,7 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
 
                             # custom filters
                             obj_tpl.globals["include_file"] = include_file
+                            obj_tpl.globals["load_yaml"]    = load_yaml
 
                             args = os.environ.copy()
                             args.update(cnf["env"])
@@ -173,6 +174,15 @@ def include_file(filename):
         fp.close()
     return content
 
+def load_yaml(filename):
+    '''
+    Return contents of yaml file as variables
+    '''
+    filepath  = os.path.join(os.getcwd(), filename)
+    with open(filepath, encoding="utf-8") as file:
+        yaml_file = yaml.load(file, Loader=yaml.Loader)
+    
+    return yaml_file
 
 
 if __name__ == "__main__":
