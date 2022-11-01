@@ -132,6 +132,7 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
                             obj_tpl.globals["load_yaml"]    = load_yaml
 
                             args = os.environ.copy()
+                            override_env(cnf)
                             args.update(cnf["env"])
                             rendered = obj_tpl.render(args)
 
@@ -161,6 +162,22 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
 
     print("STOP generating templates")
 
+# allow environment variables to override configuration
+# Warning: this is an important feature, users now need
+# to be aware of their environment.
+def override_env(cnf):
+    # it only makes sense to talk about overriding variables on step level
+    # since nested variables within steps are flattened to environment level
+    # variables, i.e. :
+    #     cnf["steps"]["001-step-name"]["AWS_PROFILE"]
+    #     becomes AWS_PROFILE, thus no need to override
+    #     cnf["aws"]["AWS_PROFILE"], since it won't be considered
+
+    for step in cnf["env"]["steps"]:
+        for step_var in cnf["env"]["steps"][step]:
+            # checks if it is defined as environment variable
+            # if it's not, preserves the value of itself.
+            cnf["env"]["steps"][step][step_var] = os.getenv(step_var, cnf["env"]["steps"][step][step_var])
 
 # Jinja2 custom filters
 def include_file(filename):
