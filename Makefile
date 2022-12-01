@@ -10,10 +10,12 @@ COMMIT_MESSAGE := $(if $(COMMIT_MESSAGE),$(COMMIT_MESSAGE),$$(git log -1  --pret
 
 SHELL = bash
 PRODUCT := $(shell basename $$PWD)
-PP_NAME := $(shell echo $$PWD|xargs dirname | xargs basename)
 PRODUCT_DIR := $(HOME)/$(PP_NAME)/$(PRODUCT)
 PROCESSOR_ARCHITECTURE := $(shell uname -m)
-
+product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
+ORG := $(shell basename $(dir $(abspath $(dir $$PWD))))
+PP_NAME := $(shell cd ../../ && basename $$PWD)
+PRODUCT_DIR := $(shell basename $$PWD)
 
 
 .PHONY: install ## @-> install both the devops-ter and the tpl-gen containers
