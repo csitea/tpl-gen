@@ -33,7 +33,7 @@ define install-tpl-gen-img
 		--build-arg GID=$(shell id -g) \
 		--build-arg PP_NAME=${PP_NAME} \
 		--build-arg PRODUCT=${PRODUCT} \
-		--build-arg ORG=${ORG} \
+    	--build-arg ORG_DIR=${ORG_DIR} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE} 
 	@echo -e "\n\n"
 	@sleep 3
@@ -44,7 +44,7 @@ define install-tpl-gen-img
 		--build-arg GID=$(shell id -g) \
 		--build-arg PP_NAME=${PP_NAME} \
 		--build-arg PRODUCT=${PRODUCT} \
-		--build-arg ORG=${ORG} \
+    	--build-arg ORG_DIR=${ORG_DIR} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE}
 	@echo -e "\n\n STOP  ::: running the docker build."
 	@echo -e "\n\n"
@@ -56,8 +56,8 @@ define install-tpl-gen-img
 	@clear
 	@echo -e "\n\n START ::: spawning the docker container by:"
 	@echo docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v /opt/${ORG}:/var/ \
-		-v $$(pwd):/${PP_NAME}/${ORG}/${PRODUCT} \
+		-v $$HOME/opt:/var \
+		-v $$(pwd):/${PP_NAME}/$(ORG_DIR)/${PRODUCT} \
 		-v $$HOME/.aws:/home/$(APPUSR)/.aws \
 		-v $$HOME/.ssh:/home/$(APPUSR)/.ssh \
 		-v $$HOME/.kube:/home/$(APPUSR)/.kube \
@@ -67,8 +67,8 @@ define install-tpl-gen-img
 
 
 	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v /opt/${ORG}:/var/ \
-		-v $$(pwd):/${PP_NAME}/${ORG}/${PRODUCT} \
+		-v $$HOME/opt:/var \
+		-v $$(pwd):/${PP_NAME}/$(ORG_DIR)/${PRODUCT} \
 		-v $$HOME/.aws:/home/${APPUSR}/.aws \
 		-v $$HOME/.ssh:/home/${APPUSR}/.ssh \
 		-v $$HOME/.kube:/home/${APPUSR}/.kube \

@@ -4,13 +4,15 @@ ARG UID
 ARG GID
 ARG PP_NAME
 ARG PRODUCT
+ARG ORG_DIR
 
 ENV PRODUCT=$PRODUCT
 ENV APPUSR=appusr
 ENV APPGRP=appgrp
 ENV PS1='`date "+%F %T"` \u@\h  \w \n\n  '
 ENV PP_NAME=$PP_NAME
-ENV PRODUCT_DIR="/$PP_NAME/$PRODUCT"
+ENV ORG_DIR=$ORG_DIR
+ENV PRODUCT_DIR="/$PP_NAME/$ORG_DIR/$PRODUCT"
 ENV EDITOR="vim"
 
 VOLUME $PRODUCT_DIR
@@ -23,7 +25,7 @@ RUN apk update && apk upgrade && apk add --no-cache \
 # install backend-utils
 RUN apk update && apk upgrade && apk add --no-cache \
     build-base gcc openssl-dev python3-dev libmagic ttf-freefont \
-    python3-dev jpeg-dev zlib-dev coreutils libffi-dev
+    python3-dev jpeg-dev zlib-dev coreutils libffi-dev util-linux
 
 
 # start ::: adding OS APPUSR and APPGRP
