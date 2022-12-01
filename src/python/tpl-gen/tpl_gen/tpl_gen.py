@@ -58,6 +58,7 @@ def set_vars():
     try:
         ENV_ = os.getenv("ENV")
         ORG_ = os.getenv("ORG")
+        ORG_DIR_ = os.getenv("ORG_DIR")
         APP_ = os.getenv("APP")
         TGT_ = os.getenv("TGT")         # where we get tpl files
         SRC_ = os.getenv("SRC")  # where we get the config file
@@ -66,14 +67,14 @@ def set_vars():
         product_dir = os.path.abspath(product_dir)
         
         if TGT_ == "" or TGT_ is None: 
-            tgt_proj_dir = os.path.join("/var", "infra")
+            tgt_proj_dir = os.path.join(f"/var/{ORG_DIR_}", "infra")
         else:
-            tgt_proj_dir = os.path.join("/var", f"{TGT_}")
+            tgt_proj_dir = os.path.join(f"/var/{ORG_DIR_}", f"{TGT_}")
 
         if SRC_ == "" or SRC_ is None: 
-            env_config_dir = os.path.join("/var", "infra", "cnf", "env", f"{ORG_}", f"{APP_}")
+            env_config_dir = os.path.join(f"/var/{ORG_DIR_}", "infra", "cnf", "env", f"{ORG_}", f"{APP_}")
         else:
-            env_config_dir = os.path.join("/var", f"{SRC_}", "cnf", "env", f"{ORG_}", f"{APP_}")
+            env_config_dir = os.path.join(f"/var/{ORG_DIR_}", f"{SRC_}", "cnf", "env", f"{ORG_}", f"{APP_}")
 
 
     except IndexError as error:
@@ -185,6 +186,7 @@ def include_file(filename):
     Include the raw contents of specified filename or return None if it doesn't exist.
     '''
     filepath = os.path.join(os.getcwd(), filename)
+    content  = ""
     if os.path.exists(filepath):
         fp = open(filename, "r")
         content = fp.read()

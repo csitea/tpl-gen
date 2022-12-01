@@ -69,7 +69,7 @@ The `./run` is usually used for oneliners to run quick actions
 The tpl-gen docker has all the needed binaries create configuration files from templates.
 ```bash
 # always go to the project root dir - aka the product dir
-cd ~/opt/tpl-gen
+cd /opt/tpl-gen
 
 make clean-install-tpl-gen                                   # install without reusing layers
 make install-tpl-gen                                         # install from cached layers (faster)
@@ -89,21 +89,21 @@ ORG=org APP=app ENV=dev SRC=csitea TGT=tmp make do-tpl-gen   # renders from /var
 Typical ORG-APP-ENV set of files would look like this:
 ```bash
 
-~/opt/<<target-project>>/cnf/env/<<org>>/<app>>/all.env.yaml
-~/opt/<<target-project>/cnf/env/<<org>>/<app>>/dev.env.yaml
-~/opt/<<target-project>/cnf/env/<<org>>/<app>>/prd.env.yaml
-~/opt/<<target-project>/cnf/env/<<org>>/<app>>/tst.env.yaml
+/opt/<<target-project>>/cnf/env/<<org>>/<app>>/all.env.yaml
+/opt/<<target-project>/cnf/env/<<org>>/<app>>/dev.env.yaml
+/opt/<<target-project>/cnf/env/<<org>>/<app>>/prd.env.yaml
+/opt/<<target-project>/cnf/env/<<org>>/<app>>/tst.env.yaml
 
 ```
 for example:
 
 ```bash
 
-~/opt/infra/cnf/env/spe/nba/all.env.yaml
-~/opt/infra/cnf/env/spe/nba/dev.env.yaml
-~/opt/infra/cnf/env/spe/nba/prd.env.yaml
-~/opt/infra/cnf/env/spe/nba/stg.env.yaml
-~/opt/infra/cnf/env/spe/nba/tst.env.yaml
+/opt/infra/cnf/env/spe/nba/all.env.yaml
+/opt/infra/cnf/env/spe/nba/dev.env.yaml
+/opt/infra/cnf/env/spe/nba/prd.env.yaml
+/opt/infra/cnf/env/spe/nba/stg.env.yaml
+/opt/infra/cnf/env/spe/nba/tst.env.yaml
 
 ```
 The configuration files are plain yaml files - check the tpl-gen own configuration files ( they are just copy paste example )

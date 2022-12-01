@@ -9,16 +9,16 @@
 
 include lib/make/demand-var.func.mk
 
-PRODUCT := $(shell basename $$PWD)
-PP_NAME := $(shell echo $$PWD|xargs dirname | xargs basename)
-product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
-DOCKER_BUILDKIT := $(or 0,$(DOCKER_BUILDKIT))
+# PRODUCT := $(shell basename $$PWD)
+DOCKER_BUILDKIT := $(or 1,$(DOCKER_BUILDKIT))
 
 # iss-2209082055 https://pythonspeed.com/articles/docker-build-problems-mac/
-define install-tpl-gen-img
+# $(call demand-file,$$HOME/.m2/settings.xml)
+define install-img
 	@clear
 	$(eval NO_CACHE=${2})
 	$(eval PORT_COMMAND=-p ${3}:${3})
+	$(call fix-docker-sock-permissions)
 
 	NO_CACHE=$(or $(2),$(2))
 	PORT_COMMAND=$(or $(3),$(3))
@@ -32,60 +32,60 @@ define install-tpl-gen-img
 		--build-arg UID=$(shell id -u) \
 		--build-arg GID=$(shell id -g) \
 		--build-arg PP_NAME=${PP_NAME} \
+		--build-arg ORG_DIR=${ORG_DIR} \
 		--build-arg PRODUCT=${PRODUCT} \
-    	--build-arg ORG_DIR=${ORG_DIR} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE} 
 	@echo -e "\n\n"
 	@sleep 3
 	
 
-	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build . -t ${product}-$(1)-img $(NO_CACHE) \
+	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build .. -t ${product}-$(1)-img $(NO_CACHE) \
 		--build-arg UID=$(shell id -u) \
 		--build-arg GID=$(shell id -g) \
 		--build-arg PP_NAME=${PP_NAME} \
+		--build-arg ORG_DIR=${ORG_DIR} \
 		--build-arg PRODUCT=${PRODUCT} \
-    	--build-arg ORG_DIR=${ORG_DIR} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE}
 	@echo -e "\n\n STOP  ::: running the docker build."
 	@echo -e "\n\n"
 	@sleep 1
 
-	$(call uninstall-tpl-gen-img,$1) 
-	
-	
 	@clear
+	$(call uninstall-img,$1) 
+	
+	
+
 	@echo -e "\n\n START ::: spawning the docker container by:"
 	@echo docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v /opt:/var \
-		-v $$(pwd):/${PP_NAME}/$(ORG_DIR)/${PRODUCT} \
-		-v $$HOME/.aws:/home/$(APPUSR)/.aws \
-		-v $$HOME/.ssh:/home/$(APPUSR)/.ssh \
-		-v $$HOME/.kube:/home/$(APPUSR)/.kube \
-		--name ${product}-$(1)-con ${product}-${1}-img ;
-	@echo -e "\n\n"
-	@sleep 1
-
-
-	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v /opt:/var \
-		-v $$(pwd):/${PP_NAME}/$(ORG_DIR)/${PRODUCT} \
+		-v $$(pwd):/${PP_NAME}/${ORG_DIR}/${PRODUCT} \
 		-v $$HOME/.aws:/home/${APPUSR}/.aws \
 		-v $$HOME/.ssh:/home/${APPUSR}/.ssh \
 		-v $$HOME/.kube:/home/${APPUSR}/.kube \
+		-v "/var/run/docker.sock:/var/run/docker.sock:rw" \
+		--name ${product}-$(1)-con ${product}-${1}-img ;
+	@sleep 1
+
+
+	DOCKER_BUILDKIT=0 docker run -it -d --restart=always $(PORT_COMMAND) \
+		-v $$(pwd):/${PP_NAME}/${ORG_DIR}/${PRODUCT} \
+		-v $$HOME/.aws:/home/${APPUSR}/.aws \
+		-v $$HOME/.ssh:/home/${APPUSR}/.ssh \
+		-v $$HOME/.kube:/home/${APPUSR}/.kube \
+		-v "/var/run/docker.sock:/var/run/docker.sock:rw" \
 		--name ${product}-$(1)-con ${product}-${1}-img ;
 	@echo -e "\nSTOP  ::: spawnning the docker container \n"
 
-
+	@clear
 	@echo -e "to get help run: \ndocker exec -it ${product}-${1}-con ./run --help"
 	@echo -e "some containers are slow to start !!! Thus, use :\n docker logs ${product}-$(1)-con"
 	@echo -e "to check the container's logs "
 	@echo -e "to attach run: \ndocker exec -it ${product}-${1}-con /bin/bash"
+	@echo -e "to debug re-run using DOCKER_BUILDKIT=0"
 	@echo -e "\n\n"
 endef
 
 
-define uninstall-tpl-gen-img
-	@clear
+define uninstall-img
 	-@docker container stop $$(docker ps -aqf "name=${product}-${1}-con") 2> /dev/null
 	-@docker container rm $$(docker ps -aqf "name=${product}-${1}-con") 2> /dev/null
 endef

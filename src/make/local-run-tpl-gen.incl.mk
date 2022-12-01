@@ -3,7 +3,7 @@
 
 .PHONY: tpl-gen ## @-> apply the environment cnf file into the templates
 tpl-gen: demand_var-ENV demand_var-ORG demand_var-APP
-	cd /opt/$(PRODUCT)/src/python/tpl-gen && poetry run start
+	cd /opt/$(ORG_DIR)/$(PRODUCT)/src/python/tpl-gen && poetry run start
 
 .PHONY: do-tpl-gen ## @-> apply the environment cnf file into the templates on the tpl-gen container
 do-tpl-gen: demand_var-ORG demand_var-ENV demand_var-APP
@@ -11,7 +11,7 @@ do-tpl-gen: demand_var-ORG demand_var-ENV demand_var-APP
 
 .PHONY: render-yaml ## @-> render yaml file
 render-yaml: 
-	cd /opt/$(PRODUCT)/src/python/tpl-gen && poetry run render
+	cd /opt/$(ORG_DIR)/$(PRODUCT)/src/python/tpl-gen && poetry run render
 
 .PHONY: do-render-yaml ## @-> renders yaml file
 do-render-yaml:
