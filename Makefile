@@ -15,7 +15,6 @@ ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
 PRODUCT_DIR := $(HOME)/$(PP_NAME)/$(PRODUCT)
 PROCESSOR_ARCHITECTURE := $(shell uname -m)
 product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
-ORG := $(shell basename $(dir $(abspath $(dir $$PWD))))
 
 
 .PHONY: install ## @-> install both the devops-ter and the tpl-gen containers
