@@ -41,6 +41,7 @@ src/python/**/tests_report/
 # vim tmp files
 **/*.swp
 **/*.swo
+./.gitignore
 
 # vim confs
 .vimrc

@@ -10,7 +10,7 @@
 include lib/make/demand-var.func.mk
 
 PRODUCT := $(shell basename $$PWD)
-PP_NAME := $(shell echo $$PWD|xargs dirname | xargs basename)
+BASE_DIR := $(shell echo $$PWD|xargs dirname | xargs basename)
 product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
 DOCKER_BUILDKIT := $(or 0,$(DOCKER_BUILDKIT))
 
@@ -31,7 +31,7 @@ define install-tpl-gen-img
 	@echo DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build . -t ${product}-$(1)-img $(NO_CACHE) \
 		--build-arg UID=$(shell id -u) \
 		--build-arg GID=$(shell id -g) \
-		--build-arg PP_NAME=${PP_NAME} \
+		--build-arg BASE_DIR=${BASE_DIR} \
 		--build-arg PRODUCT=${PRODUCT} \
     	--build-arg ORG_DIR=${ORG_DIR} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE} 
@@ -42,7 +42,7 @@ define install-tpl-gen-img
 	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build . -t ${product}-$(1)-img $(NO_CACHE) \
 		--build-arg UID=$(shell id -u) \
 		--build-arg GID=$(shell id -g) \
-		--build-arg PP_NAME=${PP_NAME} \
+		--build-arg BASE_DIR=${BASE_DIR} \
 		--build-arg PRODUCT=${PRODUCT} \
     	--build-arg ORG_DIR=${ORG_DIR} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE}
@@ -56,8 +56,7 @@ define install-tpl-gen-img
 	@clear
 	@echo -e "\n\n START ::: spawning the docker container by:"
 	@echo docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v /opt:/var \
-		-v $$(pwd):/${PP_NAME}/$(ORG_DIR)/${PRODUCT} \
+		-v ${BASE_DIR}:/var \
 		-v $$HOME/.aws:/home/$(APPUSR)/.aws \
 		-v $$HOME/.ssh:/home/$(APPUSR)/.ssh \
 		-v $$HOME/.kube:/home/$(APPUSR)/.kube \
@@ -67,8 +66,8 @@ define install-tpl-gen-img
 
 
 	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v /opt:/var \
-		-v $$(pwd):/${PP_NAME}/$(ORG_DIR)/${PRODUCT} \
+		-v ${BASE_DIR}:/var \
+		-v $$(pwd):/${BASE_DIR}/$(ORG_DIR)/${PRODUCT} \
 		-v $$HOME/.aws:/home/${APPUSR}/.aws \
 		-v $$HOME/.ssh:/home/${APPUSR}/.ssh \
 		-v $$HOME/.kube:/home/${APPUSR}/.kube \

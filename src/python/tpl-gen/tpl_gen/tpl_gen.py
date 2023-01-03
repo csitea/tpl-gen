@@ -61,7 +61,7 @@ def set_vars():
         ORG_DIR_ = os.getenv("ORG_DIR")
         APP_ = os.getenv("APP")
         TGT_ = os.getenv("TGT")         # where we get tpl files
-        SRC_ = os.getenv("SRC")  # where we get the config file
+        SRC_ = os.getenv("SRC")         # where we get the config file
 
         product_dir = os.path.join(__file__, "..", "..", "..", "..", "..")
         product_dir = os.path.abspath(product_dir)

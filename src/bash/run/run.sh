@@ -167,7 +167,7 @@ do_set_vars(){
    unit_run_dir=$(perl -e 'use File::Basename; use Cwd "abs_path"; print dirname(abs_path(@ARGV[0]));' -- "$0")
    export RUN_UNIT=$(cd $unit_run_dir/../../.. ; basename `pwd`)
    export PRODUCT_DIR=$(cd $unit_run_dir/../../.. ; echo `pwd`)
-   export PP_NAME=$(echo $PRODUCT_DIR|xargs dirname | xargs basename)
+   export BASE_DIR=$(echo $PRODUCT_DIR|xargs dirname | xargs basename)
    ENV="${ENV:=lde}"
 
    cd $PRODUCT_DIR

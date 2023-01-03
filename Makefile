@@ -10,9 +10,9 @@ COMMIT_MESSAGE := $(if $(COMMIT_MESSAGE),$(COMMIT_MESSAGE),$$(git log -1  --pret
 
 SHELL = bash
 PRODUCT := $(shell basename $$PWD)
-PP_NAME := $(shell cd ../../ && basename $$PWD)
+BASE_DIR := $(shell cd ../../ && echo $$PWD)
 ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
-PRODUCT_DIR := $(HOME)/$(PP_NAME)/$(PRODUCT)
+PRODUCT_DIR := $(BASE_DIR)/$(ORG_DIR)/$(PRODUCT)
 PROCESSOR_ARCHITECTURE := $(shell uname -m)
 product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
 

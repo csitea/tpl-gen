@@ -31,7 +31,7 @@ define install-img
 	@echo DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build . -t ${product}-$(1)-img $(NO_CACHE) \
 		--build-arg UID=$(shell id -u) \
 		--build-arg GID=$(shell id -g) \
-		--build-arg PP_NAME=${PP_NAME} \
+		--build-arg BASE_DIR=${BASE_DIR} \
 		--build-arg ORG_DIR=${ORG_DIR} \
 		--build-arg PRODUCT=${PRODUCT} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE} 
@@ -42,7 +42,7 @@ define install-img
 	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build .. -t ${product}-$(1)-img $(NO_CACHE) \
 		--build-arg UID=$(shell id -u) \
 		--build-arg GID=$(shell id -g) \
-		--build-arg PP_NAME=${PP_NAME} \
+		--build-arg BASE_DIR=${BASE_DIR} \
 		--build-arg ORG_DIR=${ORG_DIR} \
 		--build-arg PRODUCT=${PRODUCT} \
 		-f src/docker/$(1)/Dockerfile.${PROCESSOR_ARCHITECTURE}
@@ -57,7 +57,7 @@ define install-img
 
 	@echo -e "\n\n START ::: spawning the docker container by:"
 	@echo docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v $$(pwd):/${PP_NAME}/${ORG_DIR}/${PRODUCT} \
+		-v $$(pwd):/${BASE_DIR}/${ORG_DIR}/${PRODUCT} \
 		-v $$HOME/.aws:/home/${APPUSR}/.aws \
 		-v $$HOME/.ssh:/home/${APPUSR}/.ssh \
 		-v $$HOME/.kube:/home/${APPUSR}/.kube \
@@ -67,7 +67,7 @@ define install-img
 
 
 	DOCKER_BUILDKIT=0 docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v $$(pwd):/${PP_NAME}/${ORG_DIR}/${PRODUCT} \
+		-v $$(pwd):/${BASE_DIR}/${ORG_DIR}/${PRODUCT} \
 		-v $$HOME/.aws:/home/${APPUSR}/.aws \
 		-v $$HOME/.ssh:/home/${APPUSR}/.ssh \
 		-v $$HOME/.kube:/home/${APPUSR}/.kube \
