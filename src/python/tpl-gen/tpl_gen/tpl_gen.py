@@ -112,7 +112,6 @@ def get_cnf(env_config_dir,ENV_):
 
 
 
-
 def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
 
     for pathname in [os.path.join(tgt_proj_dir, "src", "tpl")]:  # directory this structure is enforced
@@ -145,10 +144,12 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
 
                             if not os.path.exists(os.path.dirname(tgt_file_path)):
                                 os.makedirs(os.path.dirname(tgt_file_path))
+                            
+                            print (f"START ::: generating tgt_file_path:  {tgt_file_path}")
 
                             with open(tgt_file_path, "w", encoding="utf-8") as tgt_file:
                                 tgt_file.write(rendered + os.linesep)
-                                msg = f"File \"{tgt_file_path}\" rendered with success."
+                                msg = f"STOP  ::: File \"{tgt_file_path}\" rendered with success."
                             print_success(msg)
 
 

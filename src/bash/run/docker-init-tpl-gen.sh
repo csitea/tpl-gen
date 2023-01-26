@@ -15,7 +15,7 @@ cp -vr /home/$APPUSR$venv_path $venv_path
 perl -pi -e "s|/home/$APPUSR||g" $venv_path/bin/activate
 # source /home/$APPUSR/opt/spe/tpl-gen/src/python/tpl-gen/.venv/bin/python
 
-echo "source /${BASE_DIR}/${ORG_DIR}/${PRODUCT}/src/python/${PRODUCT}/.venv/bin/activate" >> /home/$APPUSR/.bashrc
+echo "source ${BASE_DIR}/${ORG_DIR}/${PRODUCT}/src/python/${PRODUCT}/.venv/bin/activate" >> /home/$APPUSR/.bashrc
 # /home/appusr/.local/share/pypoetry/venv/bin/activate 
 # -> /home/appusr/.local/share/pypoetry/venv/bin/activate
 

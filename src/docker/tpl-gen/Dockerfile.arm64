@@ -12,13 +12,13 @@ ENV APPGRP=appgrp
 ENV PS1='`date "+%F %T"` \u@\h  \w \n\n  '
 ENV BASE_DIR=$BASE_DIR
 ENV ORG_DIR=$ORG_DIR
-ENV PRODUCT_DIR="/$BASE_DIR/$ORG_DIR/$PRODUCT"
+ENV PRODUCT_DIR="$BASE_DIR/$ORG_DIR/$PRODUCT"
 ENV EDITOR="vim"
 ENV HOME_PRODUCT_DIR="/home/$APPUSR/$BASE_DIR/$ORG_DIR/$PRODUCT"
 
 
 VOLUME $PRODUCT_DIR
-VOLUME /$BASE_DIR
+VOLUME $BASE_DIR
 
 # install OS utils
 RUN apk update && apk upgrade && apk add --no-cache \
