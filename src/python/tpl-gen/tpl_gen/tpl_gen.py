@@ -25,6 +25,7 @@ def print_success(msg):
     print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
 
 def render_yaml():
+    print ("START ::: render_yaml")
     ORG_, ENV_, APP_, env_config_dir, tgt_proj_dir = set_vars()
     src = os.getenv("SRC")
     tgt = os.getenv("TGT")
@@ -46,6 +47,7 @@ def render_yaml():
 
                 yaml_filename = os.path.join(src, current_file_path)
                 json_filename = os.path.join(tgt, current_file_path.replace(".yaml", ".json"))
+                print ( f"STOP  ::: rendered yaml for json_filename: ${json_filename}" )
 
                 with open(yaml_filename, encoding="utf-8") as file:
                     cnf = yaml.load(file, Loader=yaml.Loader)
