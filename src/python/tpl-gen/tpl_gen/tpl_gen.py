@@ -73,10 +73,11 @@ def set_vars():
         else:
             tgt_proj_dir = os.path.join(f"/var/{ORG_DIR_}", f"{TGT_}")
 
+        
         if SRC_ == "" or SRC_ is None: 
-            env_config_dir = os.path.join(f"/var/{ORG_DIR_}", "infra", "cnf", "env", f"{ORG_}", f"{APP_}")
+            env_config_dir = os.path.join(f"/var/{ORG_DIR_}", f"{ORG_}-infra-conf", f"{APP_}")
         else:
-            env_config_dir = os.path.join(f"/var/{ORG_DIR_}", f"{SRC_}", "cnf", "env", f"{ORG_}", f"{APP_}")
+            env_config_dir = os.path.join(SRC_ , f"{APP_}")
 
 
     except IndexError as error:

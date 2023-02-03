@@ -27,7 +27,8 @@ The model defines and operating IT environment, based on those 3 attributes. It 
 
 
 ## SETUP & INSTALL
-Read Carefully and follow these instructions - there is a single one-liner to setup the project, BUT should yo
+Read Carefully and follow these instructions - there is a single one-liner to setup the project.
+
 ## Pre-requesites
 You should have the following binaries natively - bash, make, perl, jq, docker, sed. 
 
