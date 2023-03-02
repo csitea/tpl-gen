@@ -21,7 +21,7 @@ A template generator following the OAE IT Systems configurability model. OAE sta
 
 The model defines and operating IT environment, based on those 3 attributes. It is a simple, but powerful realization of the fact that each IT environment belongs to : 
 - at least 1 Organisation ( and preferably there should be 1 Organisation being responsible for it )
-- 1..1 Application from an IT System / Architecture / Operational Perspective
+- 1..1 Application from an IT System / Architecture / Operational Per$ORGctive
 - 1..1 Environment - as by definition and IT Best Practices the environments must be segregated
 
 
@@ -70,7 +70,7 @@ The `./run` is usually used for oneliners to run quick actions
 The tpl-gen docker has all the needed binaries create configuration files from templates.
 ```bash
 # always go to the project root dir - aka the product dir
-cd /opt/tpl-gen
+cd /opt/$ORG/tpl-gen
 
 make clean-install-tpl-gen                                   # install without reusing layers
 make install-tpl-gen                                         # install from cached layers (faster)
@@ -82,9 +82,9 @@ You call the tpl-gen "against" another projects by just passing the name of the 
 
 ```bash 
 # generate the templates 
-ORG=org APP=app ENV=dev make do-tpl-gen                      # renders from /var/infra/src/tpl/cnf  into directory replacing wildcards %var%
-ORG=org APP=app ENV=dev TGT=tmp make do-tpl-gen              # renders from /var/infra/src/tpl/cnf  into /var/tmp
-ORG=org APP=app ENV=dev SRC=csitea TGT=tmp make do-tpl-gen   # renders from /var/csitea/src/tpl/cnf into /var/tmp
+ORG=org APP=app ENV=dev make do-tpl-gen                      # renders from ${BASE_DIR}/$ORG-$APP-infra/src/tpl/cnf  into directory replacing wildcards %var%
+ORG=org APP=app ENV=dev TGT=tmp make do-tpl-gen              # renders from ${BASE_DIR}/$ORG-$APP-infra/src/tpl/cnf  into ${BASE_DIR}/tmp
+ORG=org APP=app ENV=dev SRC=csitea TGT=tmp make do-tpl-gen   # renders from ${BASE_DIR}/$ORG/src/tpl/cnf into ${BASE_DIR}/tmp
 ```
 
 Typical ORG-APP-ENV set of files would look like this:
@@ -100,11 +100,11 @@ for example:
 
 ```bash
 
-/opt/infra/cnf/env/spe/nba/all.env.yaml
-/opt/infra/cnf/env/spe/nba/dev.env.yaml
-/opt/infra/cnf/env/spe/nba/prd.env.yaml
-/opt/infra/cnf/env/spe/nba/stg.env.yaml
-/opt/infra/cnf/env/spe/nba/tst.env.yaml
+/opt/$ORG-$APP-infra/cnf/env/$ORG/$APP/all.env.yaml
+/opt/$ORG-$APP-infra/cnf/env/$ORG/$APP/dev.env.yaml
+/opt/$ORG-$APP-infra/cnf/env/$ORG/$APP/prd.env.yaml
+/opt/$ORG-$APP-infra/cnf/env/$ORG/$APP/stg.env.yaml
+/opt/$ORG-$APP-infra/cnf/env/$ORG/$APP/tst.env.yaml
 
 ```
 The configuration files are plain yaml files - check the tpl-gen own configuration files ( they are just copy paste example )
@@ -117,8 +117,8 @@ You call the tpl-gen `"against"` another projects by just passing the name of th
 # call the tpl-gen against the infra project for the csi organisation, htr application and dev environment
 ORG=csi APP=htr ENV=dev TGT=infra make do-tpl-gen
 
-# specify where to get the configuration from ( the default is "infra")
-# specify where to generate the configuration files, produced from the templates
+# $ORGcify where to get the configuration from ( the default is "infra")
+# $ORGcify where to generate the configuration files, produced from the templates
 ```bash
 ORG=csi APP=htr ENV=dev SRC=infra TGT=htr-api make do-tpl-gen;
 ```

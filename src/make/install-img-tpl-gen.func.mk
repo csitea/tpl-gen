@@ -11,8 +11,10 @@ TPL_GEN_PORT=
 
 .PHONY: clean-install-tpl-gen  ## @-> setup the whole local tpl-gen environment for python no cache
 clean-install-tpl-gen:
-	$(call install-tpl-gen-img,tpl-gen,--no-cache,${TPL_GEN_PORT})
+	$(call install-img,tpl-gen,--no-cache,${TPL_GEN_PORT})
+
+
 
 .PHONY: install-tpl-gen  ## @-> setup the whole local tpl-gen environment for python
 install-tpl-gen:
-	$(call install-tpl-gen-img,tpl-gen,,${TPL_GEN_PORT})
+	$(call install-img,tpl-gen,,${TPL_GEN_PORT})

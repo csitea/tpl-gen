@@ -24,6 +24,7 @@ def print_error(msg):
 def print_success(msg):
     print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
 
+# generate the *.json files from the *.yaml files
 def render_yaml():
     print ("START ::: render_yaml")
     ORG_, ENV_, APP_, env_config_dir, tgt_proj_dir = set_vars()
@@ -67,15 +68,19 @@ def set_vars():
 
         product_dir = os.path.join(__file__, "..", "..", "..", "..", "..")
         product_dir = os.path.abspath(product_dir)
+
+        base_dir = os.path.join(__file__, "..", "..", "..", "..", "..","..", "..")
+        base_dir = os.path.abspath(base_dir)
+
         
         if TGT_ == "" or TGT_ is None: 
-            tgt_proj_dir = os.path.join(f"/var/{ORG_DIR_}", "infra")
+            tgt_proj_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", "infra")
         else:
-            tgt_proj_dir = os.path.join(f"/var/{ORG_DIR_}", f"{TGT_}")
+            tgt_proj_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{TGT_}")
 
         
         if SRC_ == "" or SRC_ is None: 
-            env_config_dir = os.path.join(f"/var/{ORG_DIR_}", f"{ORG_}-infra-conf", f"{APP_}")
+            env_config_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-infra-conf", f"{APP_}")
         else:
             env_config_dir = os.path.join(SRC_ , f"{APP_}")
 

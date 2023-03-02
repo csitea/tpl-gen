@@ -10,15 +10,15 @@ COMMIT_MESSAGE := $(if $(COMMIT_MESSAGE),$(COMMIT_MESSAGE),$$(git log -1  --pret
 
 SHELL = bash
 PRODUCT := $(shell basename $$PWD)
-BASE_DIR := $(shell cd ../../ && echo $$PWD)
-ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
-PRODUCT_DIR := $(BASE_DIR)/$(ORG_DIR)/$(PRODUCT)
 PROCESSOR_ARCHITECTURE := $(shell uname -m)
 product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
+ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
+BASE_DIR := $(shell cd ../../ && echo $$PWD)
+PRODUCT_DIR := $(shell basename $$PWD)
 
 
-.PHONY: install ## @-> install both the devops-ter and the tpl-gen containers
+.PHONY: install ## @-> install both the tpl-gen and the tpl-gen containers
 install:
-	@clear 
+	@clear
 	make clean-install-tpl-gen
 
