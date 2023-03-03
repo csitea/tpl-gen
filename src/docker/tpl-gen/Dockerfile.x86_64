@@ -7,11 +7,11 @@ ARG BASE_DIR
 ARG PRODUCT
 ARG ORG_DIR
 
-ENV PRODUCT=$PRODUCT
-ENV ORG=$ORG
 ENV BASE_DIR=$BASE_DIR
+ENV ORG=$ORG
+ENV PRODUCT=$PRODUCT
 ENV ORG_DIR=$ORG_DIR
-ENV PRODUCT_DIR="/$BASE_DIR/$ORG_DIR/$PRODUCT"
+ENV PRODUCT_DIR="$BASE_DIR/$ORG_DIR/$PRODUCT"
 ENV EDITOR="vim"
 ENV APPUSR="appusr"
 ENV APPGRP="appgrp"
@@ -19,9 +19,8 @@ ENV PS1='`date "+%F %T"` \u@\h  \w \n\n  '
 ENV HOME_PRODUCT_DIR="/home/$APPUSR/$BASE_DIR/$ORG_DIR/$PRODUCT"
 
 
+VOLUME $BASE_DIR/$ORG_DIR
 
-VOLUME $PRODUCT_DIR
-VOLUME $BASE_DIR
 
 # install backend-utils
 RUN apk update && apk upgrade && apk add --no-cache \
@@ -32,10 +31,10 @@ RUN apk update && apk upgrade && apk add --no-cache \
 RUN apk update && apk upgrade && apk add --no-cache \
     bash binutils vim perl jq wget curl zip unzip busybox-extras su-exec sudo shadow
 
+# isntall python pip
+RUN wget https://bootstrap.pypa.io/get-pip.py ; sudo python3 get-pip.py ; sudo rm -v get-pip.py
 
-
-
-# start ::: adding OS APPUSR and APPGRP
+# START ::: adding OS APPUSR and APPGRP
 RUN test -z $(getent group $GID | cut -d: -f1) || \
         groupmod -g $((GID+1000)) $(getent group $GID | cut -d: -f1)
 
@@ -56,7 +55,7 @@ RUN echo "export PS1=\"$PS1\"" >> /home/$APPUSR/.bashrc && \
   sudo chmod -R 0775 /home/$APPUSR
 
 
-RUN wget https://bootstrap.pypa.io/get-pip.py ; sudo python3 get-pip.py ; sudo rm -v get-pip.py
+
 
 USER $APPUSR
 ADD --chown=$APPUSR:$APPGRP "." $HOME_PRODUCT_DIR

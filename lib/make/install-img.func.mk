@@ -52,12 +52,10 @@ define install-img
 	@echo -e "\n\n"
 	@sleep 1
 
-	
-
-
+	@echo -e "\n\n You MIGHT have even up to 1min for the container to start properly !!!"
 	@echo -e "\n\n START ::: spawning the docker container by:"
 	@echo docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v $$(pwd):$(PRODUCT_DIR) \
+		-v $(BASE_DIR)/$(ORG_DIR):$(BASE_DIR)/$(ORG_DIR) \
 		-v $$HOME/.aws:/home/$(APPUSR)/.aws \
 		-v $$HOME/.ssh:/home/$(APPUSR)/.ssh \
 		-v $$HOME/.kube:/home/$(APPUSR)/.kube \
@@ -67,7 +65,7 @@ define install-img
 
 
 	DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker run -it -d --restart=always $(PORT_COMMAND) \
-		-v $$(pwd):$(PRODUCT_DIR) \
+		-v $(BASE_DIR)/$(ORG_DIR):$(BASE_DIR)/$(ORG_DIR) \
 		-v $$HOME/.aws:/home/${APPUSR}/.aws \
 		-v $$HOME/.ssh:/home/${APPUSR}/.ssh \
 		-v $$HOME/.kube:/home/${APPUSR}/.kube \

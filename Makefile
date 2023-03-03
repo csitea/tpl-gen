@@ -14,7 +14,7 @@ PROCESSOR_ARCHITECTURE := $(shell uname -m)
 product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
 ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
 BASE_DIR := $(shell cd ../../ && echo $$PWD)
-PRODUCT_DIR := $(shell basename $$PWD)
+PRODUCT_DIR := $(shell echo $$PWD)
 
 
 .PHONY: install ## @-> install both the tpl-gen and the tpl-gen containers
