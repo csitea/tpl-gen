@@ -4,6 +4,7 @@
 SHELL = bash
 PRODUCT := $(shell basename $$PWD)
 product:= $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
+org_dir:= $(shell echo `basename $$ORG_DIR`|tr '[:upper:]' '[:lower:]')
 
 TPL_GEN_PORT=
 

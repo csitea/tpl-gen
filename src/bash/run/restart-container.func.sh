@@ -5,8 +5,8 @@ do_restart_container(){
   product=$(echo `basename $PRODUCT_DIR`|tr '[:upper:]' '[:lower:]')
   MODULE=${MODULE:-$product}
 
-  docker container stop $(docker ps -aqf "name=${product}-${product}-con") 2> /dev/null
-  docker container rm $(docker ps -aqf "name=${product}-${product}-con") 2> /dev/null
+  docker container stop $(docker ps -aqf "name=${org_dir}-${product}-${product}-con") 2> /dev/null
+  docker container rm $(docker ps -aqf "name=${org_dir}-${product}-${product}-con") 2> /dev/null
 
    PORT_COMMAND=""
    docker container ls
@@ -16,14 +16,14 @@ do_restart_container(){
 		-v $HOME/.aws:/home/${USER}/.aws \
 		-v $HOME/.ssh:/home/${USER}/.ssh \
 		-v $HOME/.kube:/home/${USER}/.kube \
-		--name ${product}-${MODULE}-con ${product}-${MODULE}-img ;
+		--name ${product}-${MODULE}-con ${org_dir}-${product}-${MODULE}-img ;
 	echo -e "\nSTOP  ::: spawnning the docker container \n"
 
 
-	echo -e "to get help run: \ndocker exec -it ${product}-${MODULE}-con ./run --help"
-	echo -e "some containers are slow to start !!! Thus, use :\n docker logs ${product}-${MODULE}-con"
+	echo -e "to get help run: \ndocker exec -it ${org_dir}-${product}-${MODULE}-con ./run --help"
+	echo -e "some containers are slow to start !!! Thus, use :\n docker logs ${org_dir}-${product}-${MODULE}-con"
 	echo -e "to check the container's logs "
-	echo -e "to attach run: \ndocker exec -it ${product}-${MODULE}-con /bin/bash"
+	echo -e "to attach run: \ndocker exec -it ${org_dir}-${product}-${MODULE}-con /bin/bash"
 	echo -e "to debug re-run using DOCKER_BUILDKIT=0"
 	echo -e "\n\n"
 

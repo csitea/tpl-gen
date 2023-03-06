@@ -64,6 +64,5 @@ ADD --chown=$APPUSR:$APPGRP "." $HOME_PRODUCT_DIR
 
 RUN MODULE=tpl-gen bash $HOME_PRODUCT_DIR/run -a do_check_install_py_modules
 
-WORKDIR $PRODUCT_DIR
 
-CMD exec /bin/bash -c $PRODUCT_DIR/src/bash/run/docker-init-${MODULE}.sh
+CMD exec /bin/bash -c $HOME_PRODUCT_DIR/src/bash/run/docker-init-${MODULE}.sh
