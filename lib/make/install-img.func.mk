@@ -67,15 +67,14 @@ define install-img
 		-v $$HOME/.aws:/home/${APPUSR}/.aws \
 		-v $$HOME/.ssh:/home/${APPUSR}/.ssh \
 		-v $$HOME/.kube:/home/${APPUSR}/.kube \
-		--name ${org_dir}-${product}-$(1)-con ${product}-${1}-img ;
+		--name ${org_dir}-${product}-$(1)-con ${org_dir}-${product}-${1}-img ;
 	@echo -e "\nSTOP  ::: spawnning the docker container \n"
 
 
-	@echo -e "to get help run: \ndocker exec -it ${product}-${1}-con ./run --help"
-	@echo -e "some containers are slow to start !!! Thus, use :\n docker logs ${org_dir}-${product}-$(1)-con"
-	@echo -e "to check the container's logs "
-	@echo -e "to attach run: \ndocker exec -it ${product}-${1}-con /bin/bash"
-	@echo -e "to debug re-run using DOCKER_BUILDKIT=0"
+	@echo -e "before attaching run: docker logs ${org_dir}-${product}-${1}-con \| tail -n 10"
+	@echo -e "to attach run: \ndocker exec -it ${org_dir}-${product}-${1}-con /bin/bash"
+	@echo -e "to get help run: \ndocker exec -it ${org_dir}-${product}-${1}-con ./run --help"
+	@echo -e "to suppress docker build logging: export DOCKER_BUILDKIT=0"
 	@echo -e "\n\n"
 endef
 

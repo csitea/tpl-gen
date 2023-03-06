@@ -21,7 +21,4 @@ install-tpl-gen:
 	$(call install-img,tpl-gen,,${TPL_GEN_PORT})
 
 
-.PHONY: restart-container ## @-> install both the tpl-gen and the tpl-gen containers
-restart-container:
-	@clear
-	make $(call restart-docker-container,tpl-gen)
+
