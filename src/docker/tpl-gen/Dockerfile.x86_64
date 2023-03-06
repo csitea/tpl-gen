@@ -7,6 +7,7 @@ ARG BASE_DIR
 ARG PRODUCT
 ARG ORG_DIR
 
+ENV MODULE='tpl-gen'
 ENV BASE_DIR=$BASE_DIR
 ENV ORG=$ORG
 ENV PRODUCT=$PRODUCT
@@ -61,10 +62,8 @@ USER $APPUSR
 ADD --chown=$APPUSR:$APPGRP "." $HOME_PRODUCT_DIR
 # stop ::: adding OS APPUSR and APPGRP
 
-# Note: using $APPUSR/$PRODUCT_DIR will result in /home/appusr//pp-name/product/r
-#                                                         ~~~^^^~~~
-RUN SUB_COMPONENT=tpl-gen bash $HOME_PRODUCT_DIR/run -a do_check_install_py_modules
+RUN MODULE=tpl-gen bash $HOME_PRODUCT_DIR/run -a do_check_install_py_modules
 
 WORKDIR $PRODUCT_DIR
 
-CMD exec /bin/bash -c $HOME_PRODUCT_DIR/src/bash/run/docker-init-tpl-gen.sh
+CMD exec /bin/bash -c $PRODUCT_DIR/src/bash/run/docker-init-${MODULE}.sh

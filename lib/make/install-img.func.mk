@@ -83,7 +83,7 @@ endef
 
 
 define stop-and-remove-docker-container
-	-@docker container stop $$(docker ps -aqf "name=${product}-${1}-con") 2> /dev/null
-	-@docker container rm $$(docker ps -aqf "name=${product}-${1}-con") 2> /dev/null
+	-@docker container stop $(shell docker ps -aqf "name=${product}-${1}-con") 2> /dev/null
+	-@docker container rm $(shell docker ps -aqf "name=${product}-${1}-con") 2> /dev/null
 endef
 

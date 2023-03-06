@@ -16,8 +16,8 @@ do_check_install_py_modules(){
         do_check_install_py_modules ::: the tgt_dir: $tgt_dir does not exist"
 
     # if we want to filter by a sub component
-    if [[ ! -z "${SUB_COMPONENT:-}"  ]]; then
-      if [[ "$tgt_dir" == *"$SUB_COMPONENT"* ]]; then
+    if [[ ! -z "${MODULE:-}"  ]]; then
+      if [[ "$tgt_dir" == *"$MODULE"* ]]; then
         test -f poetry.lock && rm -vf poetry.lock
         test -d .venv && rm -rv .venv
         poetry config virtualenvs.create true
