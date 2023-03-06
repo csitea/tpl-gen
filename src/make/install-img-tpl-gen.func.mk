@@ -18,3 +18,9 @@ clean-install-tpl-gen:
 .PHONY: install-tpl-gen  ## @-> setup the whole local tpl-gen environment for python
 install-tpl-gen:
 	$(call install-img,tpl-gen,,${TPL_GEN_PORT})
+
+
+.PHONY: restart-container ## @-> install both the tpl-gen and the tpl-gen containers
+restart-container:
+	@clear
+	make $(call restart-docker-container,tpl-gen)

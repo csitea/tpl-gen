@@ -1,24 +1,28 @@
 #!/usr/bin/env bash
+# install by:
+# wget https://github.com/csitea/run.sh/archive/refs/tags/current.zip && unzip -o current.zip -d . && mv -v run.sh-current my-app
+# usage: ./run --help
 
 main(){
-   do_set_vars "$@"  # is inside, unless --help flag is present
-   ts=$(date "+%Y%m%d_%H%M%S")
-   main_log_dir=~/var/log/$RUN_UNIT/; mkdir -p $main_log_dir
-   main_exec "$@" \
-    > >(tee $main_log_dir/$RUN_UNIT.$ts.out.log) \
+  do_flush_screen
+  do_set_vars "$@"  # is inside, unless --help flag is present
+  ts=$(date "+%Y%m%d_%H%M%S")
+  main_log_dir=~/var/log/$PRODUCT/; mkdir -p $main_log_dir
+  main_exec "$@" \
+     > >(tee $main_log_dir/$RUN_UNIT.$ts.out.log) \
     2> >(tee $main_log_dir/$RUN_UNIT.$ts.err.log)
-
 }
+
 
 main_exec(){
    do_resolve_os
    do_check_install_min_req_bins
    do_load_functions
 
-   test -z ${actions:-} || {
-      do_run_actions "$actions"
-   }
+   test -z ${actions:-} && actions=' do_print_usage '
+   do_run_actions "$actions"
    do_finalize
+
 }
 
 
@@ -72,7 +76,7 @@ do_run_actions(){
                actions_found=$((actions_found+1))
                test "$action_name" == "$arg_action" && run_funcs="$(echo -e "${run_funcs}\n$fnc_name")"
             done< <(get_function_list "$fnc_file")
-         done < <(find "src/bash/run/" -type f -name '*.func.sh'|sort)
+         done < <(find "src/bash/run/" "lib/bash/funcs" -type f -name '*.func.sh'|sort)
 
       done < <(echo "$actions")
 
@@ -103,16 +107,23 @@ do_run_actions(){
 
 
 do_flush_screen(){
-   # printf "\033[2J";printf "\033[0;0H"
-   echo ""
+   printf "\033[2J";printf "\033[0;0H"
 }
 
 
 #------------------------------------------------------------------------------
-# echo pass params and print them to a log file and terminal
+# purpose: to pass msgs and print them to a log file and terminal
+#  - with datetime
+#  - the type of msg - INFO, ERROR, DEBUG, WARNING
 # usage:
 # do_log "INFO some info message"
+# do_log "ERROR some error message"
 # do_log "DEBUG some debug message"
+# do_log "WARNING some warning message"
+# depts:
+#  - PRODUCT_DIR - the root dir of the sfw project
+#  - PRODUCT - the name of the software project dir
+#  - host_name - the short hostname of the host / container running on
 #------------------------------------------------------------------------------
 do_log(){
 
@@ -120,6 +131,18 @@ do_log(){
       GREEN_COLOR="\033[0;32m"
       DEFAULT="\033[0m"
       echo -e "${GREEN_COLOR} ✔ [OK] ${1:-} ${DEFAULT}"
+  }
+
+  print_warning() {
+      YELLOW_COLOR="\033[33m"
+      DEFAULT="\033[0m"
+      echo -e "${YELLOW_COLOR} ⚠ ${1:-} ${DEFAULT}"
+  }
+
+   print_info() {
+      BLUE_COLOR="\033[0;34m"
+      DEFAULT="\033[0m"
+      echo -e "${BLUE_COLOR} ℹ ${1:-} ${DEFAULT}"
   }
 
   print_fail() {
@@ -131,12 +154,13 @@ do_log(){
   type_of_msg=$(echo $*|cut -d" " -f1)
   msg="$(echo $*|cut -d" " -f2-)"
   log_dir="${PRODUCT_DIR:-}/dat/log/bash" ; mkdir -p $log_dir
-  log_file="$log_dir/${RUN_UNIT:-}.`date "+%Y%m%d"`.log"
-  msg=" [$type_of_msg] `date "+%Y-%m-%d %H:%M:%S %Z"` [${RUN_UNIT:-}][@${host_name:-}] [$$] $msg "
+  log_file="$log_dir/${PRODUCT:-}."$(date "+%Y%m%d")'.log'
+  msg=" [$type_of_msg] `date "+%Y-%m-%d %H:%M:%S %Z"` [${PRODUCT:-}][@${host_name:-}] [$$] $msg "
   case "$type_of_msg" in
     'FATAL') print_fail "$msg" | tee -a $log_file ;;
     'ERROR') print_fail "$msg" | tee -a $log_file ;;
-    'INFO') echo "$msg" | tee -a $log_file ;;
+    'WARNING') print_warning "$msg" | tee -a $log_file ;;
+    'INFO') print_info "$msg" | tee -a $log_file ;;
     'OK') print_ok "$msg" | tee -a $log_file ;;
     *) echo "$msg" | tee -a $log_file ;;
   esac
@@ -145,6 +169,9 @@ do_log(){
 
 
 do_check_install_min_req_bins(){
+
+   while read -r f; do source $f; done < <(find $PRODUCT_DIR/lib/bash/funcs/ -type f)
+
    which perl > /dev/null 2>&1 || {
       run_os_func install_bins perl
    }
@@ -161,15 +188,16 @@ do_check_install_min_req_bins(){
 do_set_vars(){
    set -u -o pipefail
    do_read_cmd_args "$@"
-   # test $? -eq "0" && export exit_code='0'
-   export exit_code=1 # assume failure for each action, enforce return code usage
    export host_name="$(hostname -s)"
+   export exit_code=1 # assume failure for each action, enforce return code usage
    unit_run_dir=$(perl -e 'use File::Basename; use Cwd "abs_path"; print dirname(abs_path(@ARGV[0]));' -- "$0")
-   export RUN_UNIT=$(cd $unit_run_dir/../../.. ; basename `pwd`)
+   export RUN_UNIT=$(cd $unit_run_dir ; basename `pwd` .sh)
    export PRODUCT_DIR=$(cd $unit_run_dir/../../.. ; echo `pwd`)
+   export ORG_DIR=$(echo $PRODUCT_DIR|xargs dirname | xargs basename)
    export BASE_DIR=$(cd $unit_run_dir/../../../../.. && echo `pwd`)
-   ENV="${ENV:=lde}"
-
+   do_ensure_logical_link
+   export PRODUCT=$(basename $PRODUCT_DIR)
+   ENV="${ENV:=lde}" # <- remove this one IF you want to enforce the caller to provide the ENV var
    cd $PRODUCT_DIR
    # workaround for github actions running on docker
    test -z ${GROUP:-} && export GROUP=$(id -gn)
@@ -180,9 +208,36 @@ do_set_vars(){
 }
 
 
+
+# ensure that the <<PRODUCT_DIR>>/run is a logical link and not a regular file
+# if the run.sh is not under the src/bash/run dir terrible things happen ...
+# this one is especially problematic in Dockerfile's ADD command
+do_ensure_logical_link(){
+
+   if [[ "$unit_run_dir" != */src/bash/run ]]; then
+      echo "
+         you probably unzipped into a new app/tool and forgot to run the following cmd:
+         rm -v run; ln -sfn src/bash/run/run.sh run
+         so that ls -al run should look like:
+         lrwx------  1 osuser  osgroup 2022-01-01 20:40 run -> src/bash/run/run.sh
+         !!!
+         or you are running within a Dockerfile and calling directly PRODUCT_DIR/run
+         which MIGHT work, but better to call PRODUCT_DIR/src/bash/run/run.sh
+      "
+      export PRODUCT_DIR=$(cd $unit_run_dir ; echo `pwd`)
+      export ORG_DIR=$(echo $PRODUCT_DIR|xargs dirname | xargs basename)
+      export BASE_DIR=$(cd $unit_run_dir/../.. && echo `pwd`)
+      echo PRODUCT_DIR: $PRODUCT_DIR
+      echo ORG_DIR: $ORG_DIR
+      echo BASE_DIR: $BASE_DIR
+   fi
+
+}
+
+
 do_finalize(){
 
-  do_log "OK $RUN_UNIT run completed"
+  do_log "OK $RUN_UNIT's run completed"
   cat << EOF_FIN_MSG
   :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          $RUN_UNIT run completed
@@ -193,9 +248,10 @@ EOF_FIN_MSG
 
 
 do_load_functions(){
-    while read -r f; do source $f; done < <(ls -1 $PRODUCT_DIR/lib/bash/funcs/*.sh)
+    while read -r f; do source $f; done < <(ls -1 $PRODUCT_DIR/lib/bash/funcs/*.func.sh)
     while read -r f; do source $f; done < <(ls -1 $PRODUCT_DIR/src/bash/run/*.func.sh)
  }
+
 
 run_os_func(){
    func_to_run=$1 ; shift ;
@@ -212,11 +268,16 @@ run_os_func(){
 
 do_resolve_os(){
    if [[ $(uname -s) == *"Linux"* ]]; then
-       distro=$(cat /etc/os-release|egrep '^ID='|cut -d= -f2)
-       if [[ $distro == "ubuntu" ]] || [[ $distro == "pop" ]]; then
-         export OS=ubuntu
+       distro=$(cat /etc/os-release|egrep '^ID='|cut -d= -f2 | tr -d '"')
+       if [[ $distro == 'ubuntu' ]] || [[ $distro == "pop" ]]; then
+         export OS='ubuntu'
        elif [[ $distro == "alpine" ]]; then
-         export OS=alpine
+         export OS='alpine'
+       elif [[ $distro == 'manjaro' ]]; then
+         export OS='manjaro'
+       elif [[ "$distro" == "opensuse-tumbleweed" ]]; then
+         export OS="suse"
+         echo "your Linux distro has limited support !!!"
        else
           echo "your Linux distro is not supported !!!"
           exit 1
@@ -227,6 +288,7 @@ do_resolve_os(){
       echo "your OS distro is not supported !!!"
       exit 1
    fi
+   source "$PRODUCT_DIR"'/lib/bash/funcs/set-vars-on-'"$OS"'.func.sh' ; 'do_set_vars_on_'"$OS"
 }
 
 main "$@"
