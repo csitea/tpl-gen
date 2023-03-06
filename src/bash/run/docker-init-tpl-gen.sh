@@ -1,5 +1,7 @@
 #!/bin/bash
 
+MODULE='tpl-gen'
+
 do_ensure_logical_link(){
 
    if [[ "$unit_run_dir" != */src/bash/run ]]; then
@@ -21,6 +23,8 @@ do_ensure_logical_link(){
    fi
 
 }
+
+
 
 
 do_set_vars(){
@@ -49,12 +53,15 @@ set -x
 
 do_set_vars
 
-test -z ${PRODUCT:-} && PRODUCT='tpl-gen'
+test -z ${PRODUCT:-} && PRODUCT='$MODULE'
 
-venv_path="$PRODUCT_DIR/src/python/tpl-gen/.venv"
-home_venv_path="$HOME_PRODUCT_DIR/src/python/tpl-gen/.venv"
-venv_path="$PRODUCT_DIR/src/python/tpl-gen/.venv"
+venv_path="$PRODUCT_DIR/src/python/$MODULE/.venv"
+home_venv_path="$HOME_PRODUCT_DIR/src/python/$MODULE/.venv"
+venv_path="$PRODUCT_DIR/src/python/$MODULE/.venv"
 
+echo running find $home_venv_path \| tail -n 10
+find $home_venv_path | tail -n 10
+sleep 3
 
 test -d $venv_path && sudo rm -r $venv_path
 cp -vr $home_venv_path $venv_path
@@ -62,7 +69,7 @@ cp -vr $home_venv_path $venv_path
 perl -pi -e "s|/home/$APPUSR||g" $venv_path/bin/activate
 
 
-echo "source $PRODUCT_DIR/src/python/tpl-gen/.venv/bin/activate" >> ~/.bashrc
+echo "source $PRODUCT_DIR/src/python/$MODULE/.venv/bin/activate" >> ~/.bashrc
 
 echo "cd /opt/${ORG_DIR:-}/${PRODUCT:-}" >> ~/.bashrc
 
