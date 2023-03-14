@@ -6,12 +6,12 @@
 # install-api-node:
 # 	$(call install-img,api-node,,,linux_user)
 
-# do not set variables here !!! 
+# do not set variables here !!!
 
 include lib/make/demand-var.func.mk
 
 
-# iss-2209082055 https://pythonspeed.com/articles/docker-build-problems-mac/
+# iss-2209082055 https://pythoncsied.com/articles/docker-build-problems-mac/
 define build-img
 	@clear
 
@@ -25,7 +25,7 @@ define build-img
 	$(eval IMAGE_NAME=$(ROOT_DOCKER_NAME)-$(1)-img)
 	$(eval CONTAINER_NAME=$(ROOT_DOCKER_NAME)-$(1)-con)
 	$(eval PORT_COMMAND=`echo "$(PORT_COMMAND)"|perl -ne 's/-p ://g;print'`)
-	
+
 	@echo -e "\n\n START ::: running the docker build by:"
 
 	@DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build . -t $(IMAGE_NAME) $(NO_CACHE) \

@@ -2,7 +2,9 @@
 #------------------------------------------------------------------------------
 # usage example:
 # source lib/bash/funcs/require-var.func.sh
-# do_require_var ENV $ENV ; do_require_var ORG $ORG ;
+# do_require_var ORG ${ORG:-}
+# do_require_var APP ${APP:-}
+# do_require_var ENV ${ENV:-}
 #------------------------------------------------------------------------------
 do_require_var(){
 

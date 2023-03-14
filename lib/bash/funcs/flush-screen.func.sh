@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #------------------------------------------------------------------------------
 # usage example:
 # source $PRODUCT_DIR/lib/bash/funcs/flush-screen.sh

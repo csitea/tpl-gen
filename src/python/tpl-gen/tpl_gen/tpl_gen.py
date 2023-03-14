@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+import time
 import os
 import json
 import yaml
 from jinja2 import Environment, BaseLoader, exceptions
+from pprintjson import pprintjson
 from colorama import Fore, Style
 
 
@@ -30,7 +32,7 @@ def render_yaml():
     tgt = os.getenv("TGT")
 
     if src == "" :
-        print_error("FATAL ::: SRC directory not specified")
+        print_error("FATAL ::: SRC directory not csicified")
         exit(1)
 
     if tgt == "" or tgt is None:
@@ -64,10 +66,11 @@ def set_vars():
         TGT_ = os.getenv("TGT")         # where we get tpl files
         SRC_ = os.getenv("SRC")         # where we get the config file
 
-        product_dir = os.getenv("PRODUCT_DIR")
-        base_dir = os.getenv("BASE_DIR")
-        # TODO: remove
-        print(f"@@@@@@ - base_dir: {base_dir}")
+        product_dir = os.path.join(__file__, "..", "..", "..", "..", "..")
+        product_dir = os.path.abspath(product_dir)
+
+        base_dir = os.path.join(__file__, "..", "..", "..", "..", "..","..", "..")
+        base_dir = os.path.abspath(base_dir)
 
 
         if TGT_ == "" or TGT_ is None:
@@ -80,9 +83,6 @@ def set_vars():
             env_config_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-infra-conf", f"{APP_}")
         else:
             env_config_dir = os.path.join(SRC_ , f"{APP_}")
-        # TODO: remove
-        print(f"env_config_dir: {env_config_dir}")
-
 
 
     except IndexError as error:
@@ -99,7 +99,7 @@ def get_cnf(env_config_dir,ENV_):
 
         # If YAML exists, dump it into JSON and use it.
         if os.path.exists(yaml_cnf_file):
-            print(f"tpl_gen.py ::: using config yaml file: {yaml_cnf_file}")
+            print(f"tpl_gen.py ::: using config json file: {yaml_cnf_file}")
             with open(yaml_cnf_file, encoding="utf-8") as file:
                 cnf = yaml.load(file, Loader=yaml.Loader)
 
@@ -192,7 +192,7 @@ def override_env(cnf):
 # Jinja2 custom filters
 def include_file(filename):
     '''
-    Include the raw contents of specified filename or return None if it doesn't exist.
+    Include the raw contents of csicified filename or return None if it doesn't exist.
     '''
     filepath = os.path.join(os.getcwd(), filename)
     content  = ""

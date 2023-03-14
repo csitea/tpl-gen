@@ -5,7 +5,7 @@
 # run arbitrary code.
 extension-pkg-whitelist=
 
-# Specify a score threshold to be exceeded before program exits with error.
+# csicify a score threshold to be exceeded before program exits with error.
 fail-under=10.0
 
 # Add files or directories to the blacklist. They should be base names, not
@@ -20,7 +20,7 @@ ignore=__pycache__,build,dist,pyproject.toml,poetry.lock,poetry.toml,pytest.ini
 # pygtk.require().
 #init-hook=
 
-# Use multiple processes to speed up Pylint. Specifying 0 will auto-detect the
+# Use multiple processes to csied up Pylint. csicifying 0 will auto-detect the
 # number of processors available to use.
 jobs=0
 
@@ -55,7 +55,7 @@ confidence=
 # can either give multiple identifiers separated by comma (,) or put this
 # option multiple times (only on the command line, not in the configuration
 # file where it should appear only once). You can also use "--disable=all" to
-# disable everything first and then reenable specific checks. For example, if
+# disable everything first and then reenable csicific checks. For example, if
 # you want to run only the similarities checker, you can use "--disable=all
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use "--disable=all --enable=classes
@@ -305,7 +305,7 @@ ignored-classes=optparse.Values,thread._local,_thread._local
 # supports qualified module names, as well as Unix pattern matching.
 ignored-modules=
 
-# Show a hint with possible names when a member name was not found. The aspect
+# Show a hint with possible names when a member name was not found. The acsict
 # of finding the hint is based on edit distance.
 missing-member-hint=yes
 
@@ -468,24 +468,24 @@ variable-naming-style=snake_case
 #variable-rgx=
 
 
-[SPELLING]
+[csiLLING]
 
-# Limits count of emitted suggestions for spelling mistakes.
-max-spelling-suggestions=4
+# Limits count of emitted suggestions for csilling mistakes.
+max-csilling-suggestions=4
 
-# Spelling dictionary name. Available dictionaries: none. To make it work,
+# csilling dictionary name. Available dictionaries: none. To make it work,
 # install the python-enchant package.
-spelling-dict=
+csilling-dict=
 
 # List of comma separated words that should not be checked.
-spelling-ignore-words=
+csilling-ignore-words=
 
 # A path to a file that contains the private dictionary; one word per line.
-spelling-private-dict-file=
+csilling-private-dict-file=
 
 # Tells whether to store unknown words to the private dictionary (see the
-# --spelling-private-dict-file option) instead of raising a message.
-spelling-store-unknown-words=no
+# --csilling-private-dict-file option) instead of raising a message.
+csilling-store-unknown-words=no
 
 
 [MISCELLANEOUS]
@@ -574,8 +574,8 @@ preferred-modules=
 
 [CLASSES]
 
-# Warn about protected attribute access inside special methods
-check-protected-access-in-special-methods=no
+# Warn about protected attribute access inside csicial methods
+check-protected-access-in-csicial-methods=no
 
 # List of method names used to declare (i.e. assign) instance attributes.
 defining-attr-methods=__init__,
