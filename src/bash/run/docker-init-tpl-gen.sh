@@ -23,7 +23,9 @@ cp -vr $home_venv_path $venv_path
 perl -pi -e "s|/home/$APPUSR||g" $venv_path/bin/activate
 
 
-echo "source $PRODUCT_DIR/src/python/$MODULE/.venv/bin/activate" >> ~/.bashrc
+# if it points to PRODUCT_DIR it will always be broken
+echo "source $HOME_PRODUCT_DIR/src/python/$MODULE/.venv/bin/activate" >> ~/.bashrc
+echo "source $HOME_PRODUCT_DIR/src/python/$MODULE/.venv/bin/activate" >> ~/.profile
 
 echo "cd $PRODUCT_DIR" >> ~/.bashrc
 

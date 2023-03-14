@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
-import time
 import os
 import json
 import yaml
 from jinja2 import Environment, BaseLoader, exceptions
-from pprintjson import pprintjson
 from colorama import Fore, Style
 
 
@@ -34,8 +32,8 @@ def render_yaml():
     if src == "" :
         print_error("FATAL ::: SRC directory not specified")
         exit(1)
-    
-    if tgt == "" or tgt is None: 
+
+    if tgt == "" or tgt is None:
         tgt = src
 
 
@@ -52,7 +50,7 @@ def render_yaml():
 
                 with open(yaml_filename, encoding="utf-8") as file:
                     cnf = yaml.load(file, Loader=yaml.Loader)
-                
+
                 with open(json_filename, 'w') as file:
                     json.dump(cnf, file, indent=4)
 
@@ -66,23 +64,25 @@ def set_vars():
         TGT_ = os.getenv("TGT")         # where we get tpl files
         SRC_ = os.getenv("SRC")         # where we get the config file
 
-        product_dir = os.path.join(__file__, "..", "..", "..", "..", "..")
-        product_dir = os.path.abspath(product_dir)
+        product_dir = os.getenv("PRODUCT_DIR")
+        base_dir = os.getenv("BASE_DIR")
+        # TODO: remove
+        print(f"@@@@@@ - base_dir: {base_dir}")
 
-        base_dir = os.path.join(__file__, "..", "..", "..", "..", "..","..", "..")
-        base_dir = os.path.abspath(base_dir)
 
-        
-        if TGT_ == "" or TGT_ is None: 
+        if TGT_ == "" or TGT_ is None:
             tgt_proj_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", "infra")
         else:
             tgt_proj_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{TGT_}")
 
-        
-        if SRC_ == "" or SRC_ is None: 
+
+        if SRC_ == "" or SRC_ is None:
             env_config_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-infra-conf", f"{APP_}")
         else:
             env_config_dir = os.path.join(SRC_ , f"{APP_}")
+        # TODO: remove
+        print(f"env_config_dir: {env_config_dir}")
+
 
 
     except IndexError as error:
@@ -99,7 +99,7 @@ def get_cnf(env_config_dir,ENV_):
 
         # If YAML exists, dump it into JSON and use it.
         if os.path.exists(yaml_cnf_file):
-            print(f"tpl_gen.py ::: using config json file: {yaml_cnf_file}")
+            print(f"tpl_gen.py ::: using config yaml file: {yaml_cnf_file}")
             with open(yaml_cnf_file, encoding="utf-8") as file:
                 cnf = yaml.load(file, Loader=yaml.Loader)
 
@@ -110,7 +110,7 @@ def get_cnf(env_config_dir,ENV_):
             print(f"tpl_gen.py ::: using config json file: {json_cnf_file}")
             with open(json_cnf_file, encoding="utf-8") as file:
                 cnf = json.load(file)
-        
+
         #pprintjson(cnf)
 
     except IndexError as error:
@@ -152,7 +152,7 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
 
                             if not os.path.exists(os.path.dirname(tgt_file_path)):
                                 os.makedirs(os.path.dirname(tgt_file_path))
-                            
+
                             print (f"START ::: generating tgt_file_path:  {tgt_file_path}")
 
                             with open(tgt_file_path, "w", encoding="utf-8") as tgt_file:
@@ -209,7 +209,7 @@ def load_yaml(filename):
     filepath  = os.path.join(os.getcwd(), filename)
     with open(filepath, encoding="utf-8") as file:
         yaml_file = yaml.load(file, Loader=yaml.Loader)
-    
+
     return yaml_file
 
 

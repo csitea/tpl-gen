@@ -6,21 +6,35 @@ ARG GID
 ARG BASE_DIR
 ARG PRODUCT
 ARG ORG_DIR
+ARG PRODUCT_DIR
+ARG APPUSR
+ARG APPGRP
+ARG HOME_PRODUCT_DIR
+ARG MOUNT_WORK_DIR
+ARG DOCKER_SHELL
+ARG DOCKER_HOME
+ARG RUN_SCRIPT
+ARG DOCKER_INIT_SCRIPT
 
 ENV MODULE='tpl-gen'
 ENV BASE_DIR=$BASE_DIR
 ENV ORG=$ORG
 ENV PRODUCT=$PRODUCT
 ENV ORG_DIR=$ORG_DIR
-ENV PRODUCT_DIR="$BASE_DIR/$ORG_DIR/$PRODUCT"
+ENV PRODUCT_DIR=$PRODUCT_DIR
 ENV EDITOR="vim"
-ENV APPUSR="appusr"
-ENV APPGRP="appgrp"
+ENV APPUSR=$APPUSR
+ENV APPGRP=$APPGRP
 ENV PS1='`date "+%F %T"` \u@\h  \w \n\n  '
-ENV HOME_PRODUCT_DIR="/home/$APPUSR/$BASE_DIR/$ORG_DIR/$PRODUCT"
+ENV HOME_PRODUCT_DIR=$HOME_PRODUCT_DIR
+ENV MOUNT_WORK_DIR=$MOUNT_WORK_DIR
+ENV DOCKER_SHELL=$DOCKER_SHELL
+ENV DOCKER_HOME=$DOCKER_HOME
+ENV RUN_SCRIPT=$RUN_SCRIPT
+ENV DOCKER_INIT_SCRIPT=$DOCKER_INIT_SCRIPT
 
 
-VOLUME $BASE_DIR/$ORG_DIR
+VOLUME $MOUNT_WORK_DIR
 
 
 # install backend-utils
@@ -45,24 +59,21 @@ RUN set -x ; addgroup -g "$GID" -S "$APPGRP" && \
   --disabled-password \
   -g "$GID" \
   -D \
-  -s "/bin/bash" \
-  -h "/home/$APPUSR" \
+  -s "$DOCKER_SHELL" \
+  -h "$DOCKER_HOME" \
   -u "$UID" \
   -G "$APPGRP" "$APPUSR" && exit 0 ; exit 1
 
 RUN echo "$APPUSR ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-RUN echo "export PS1=\"$PS1\"" >> /home/$APPUSR/.bashrc && \
-  sudo chown -R $APPUSR:$APPGRP /home/$APPUSR && \
-  sudo chmod -R 0775 /home/$APPUSR
-
-
-
+RUN echo "export PS1=\"$PS1\"" >> $DOCKER_HOME/.bashrc && \
+  sudo chown -R $APPUSR:$APPGRP $DOCKER_HOME && \
+  sudo chmod -R 0775 $DOCKER_HOME
 
 USER $APPUSR
-ADD --chown=$APPUSR:$APPGRP "." $HOME_PRODUCT_DIR
+ADD --chown=$APPUSR:$APPGRP "." ${HOME_PRODUCT_DIR}
 # stop ::: adding OS APPUSR and APPGRP
 
-RUN MODULE=tpl-gen bash $HOME_PRODUCT_DIR/run -a do_check_install_py_modules
+RUN MODULE=${PRODUCT} bash ${RUN_SCRIPT} -a do_check_install_py_modules
 
-
-CMD exec /bin/bash -c $HOME_PRODUCT_DIR/src/bash/run/docker-init-${MODULE}.sh
+WORKDIR $HOME_PRODUCT_DIR
+CMD exec /bin/bash -c ${DOCKER_INIT_SCRIPT}

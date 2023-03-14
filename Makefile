@@ -15,15 +15,40 @@ PRODUCT := $(shell basename $$PWD)
 product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
 PROCESSOR_ARCHITECTURE := $(shell uname -m)
 ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
-org_dir := $(shell echo ${ORG_DIR}|tr '[:upper:]' '[:lower:]')
-BASE_DIR := $(shell cd ../../ && echo $$PWD)
+org_dir := $(shell echo `basename $$ORG_DIR`|tr '[:upper:]' '[:lower:]')
+BASE_DIR := $(shell if [[ -f /.dockerenv ]]; then echo $$BASE_DIR; else cd ../.. && pwd; fi )
 PRODUCT_DIR := $(shell echo $$PWD)
+PYTHON_DIR := $(PRODUCT_DIR)/src/python/$(product)
+
+APPUSR := appusr
+APPGRP := appgrp
+ROOT_DOCKER_NAME = ${ORG_DIR}-${product}
+MOUNT_WORK_DIR := $(BASE_DIR)/$(ORG_DIR)
+HOST_AWS_DIR := $$HOME/.aws
+DOCKER_AWS_DIR := /home/${APPUSR}/.aws
+HOST_SSH_DIR := $$HOME/.ssh
+DOCKER_SSH_DIR := /home/${APPUSR}/.ssh
+HOST_KUBE_DIR := $$HOME/.kube
+DOCKER_KUBE_DIR := /home/${APPUSR}/.kube
+
+# dockerfile variables
+PRODUCT_DIR := $(BASE_DIR)/$(ORG_DIR)/$(PRODUCT)
+HOME_PRODUCT_DIR := "/home/$(APPUSR)$(BASE_DIR)/$(ORG_DIR)/$(PRODUCT)"
+DOCKER_HOME := /home/$(APPUSR)
+DOCKER_SHELL := /bin/$(SHELL)
+RUN_SCRIPT := $(HOME_PRODUCT_DIR)/run
+DOCKER_INIT_SCRIPT := $(HOME_PRODUCT_DIR)/src/bash/run/docker-init-$(PRODUCT).sh
+
+UID := $(shell id -u)
+GID := $(shell id -g)
+
+TPL_GEN_PORT=
 
 
 .PHONY: install ## @-> install both the tpl-gen and the tpl-gen containers
 install:
 	@clear
-	make clean-install-tpl-gen
+	make clean-install-$(product)
 
 
 
