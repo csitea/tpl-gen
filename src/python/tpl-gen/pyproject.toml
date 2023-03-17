@@ -7,6 +7,7 @@ maintainers = ["Engineering <engineering@csitea.net>"]
 
 packages = [
     { include = "tpl_gen" },
+    { include = "yaml_validator"}
 ]
 
 [tool.poetry.dependencies]
@@ -16,6 +17,7 @@ pprintjson = "^1.4.2"
 jinja2 = "^3.0.1"
 colorama = "^0.4.4"
 pyyaml = "^5.3.1"
+pydantic-yaml = "^0.11.1"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.8.3"
@@ -28,6 +30,7 @@ pyyaml = "^5.3.1"
 [tool.poetry.scripts]
 start  = "tpl_gen:main"
 render = "tpl_gen:render_yaml"
+validate = "tpl_gen:validate_yaml"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
