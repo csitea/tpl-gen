@@ -22,7 +22,7 @@ PYTHON_DIR := $(PRODUCT_DIR)/src/python/$(product)
 
 APPUSR := appusr
 APPGRP := appgrp
-ROOT_DOCKER_NAME = ${ORG_DIR}-${product}
+ROOT_DOCKER_NAME = ${product}
 MOUNT_WORK_DIR := $(BASE_DIR)/$(ORG_DIR)
 HOST_AWS_DIR := $$HOME/.aws
 DOCKER_AWS_DIR := /home/${APPUSR}/.aws

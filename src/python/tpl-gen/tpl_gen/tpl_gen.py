@@ -38,23 +38,33 @@ def render_yaml():
     if tgt == "" or tgt is None:
         tgt = src
 
+    # Get the HOME environment variable
+    home_dir = os.environ['HOME']
 
-    for subdir, _dirs, files in os.walk(src):
-        for file in files:
-            current_file_path = os.path.join(subdir, file)
-            if current_file_path.endswith(".yaml"):
-                print("working on: " + current_file_path)
-                print(src, tgt, current_file_path)
+    # Define the directories you want to iterate through
+    dirs_to_iterate = [
+        os.path.join(home_dir, '.aws'),
+        os.path.join(home_dir, '.ssh'),
+        src
+    ]
 
-                yaml_filename = os.path.join(src, current_file_path)
-                json_filename = os.path.join(tgt, current_file_path.replace(".yaml", ".json"))
-                print ( f"STOP  ::: rendered yaml for json_filename: ${json_filename}" )
+    for cdir in dirs_to_iterate:
+        for subdir, _dirs, files in os.walk(cdir):
+            for file in files:
+                current_file_path = os.path.join(subdir, file)
+                if current_file_path.endswith(".yaml"):
+                    print("working on: " + current_file_path)
+                    print(src, tgt, current_file_path)
 
-                with open(yaml_filename, encoding="utf-8") as file:
-                    cnf = yaml.load(file, Loader=yaml.Loader)
+                    yaml_filename = os.path.join(src, current_file_path)
+                    json_filename = os.path.join(tgt, current_file_path.replace(".yaml", ".json"))
+                    print ( f"STOP  ::: rendered yaml for json_filename: ${json_filename}" )
 
-                with open(json_filename, 'w') as file:
-                    json.dump(cnf, file, indent=4)
+                    with open(yaml_filename, encoding="utf-8") as file:
+                        cnf = yaml.load(file, Loader=yaml.Loader)
+
+                    with open(json_filename, 'w') as file:
+                        json.dump(cnf, file, indent=4)
 
 
 def set_vars():

@@ -1,0 +1,4 @@
+[0;31m ❌ [NOK]  [FATAL] 2023-03-21 13:25:41 EET [tpl-gen][@mac-02] [47470] action(s) requested: "do_generate_docker_tasks " NOT found !!! [0m
+[0;31m ❌ [NOK]  [FATAL] 2023-03-21 13:25:41 EET [tpl-gen][@mac-02] [47470] 1. check the csilling of your action [0m
+[0;31m ❌ [NOK]  [FATAL] 2023-03-21 13:25:41 EET [tpl-gen][@mac-02] [47470] 2. check the available actions by: ENV=lde ./run --help [0m
+[0;31m ❌ [NOK]  [FATAL] 2023-03-21 13:25:41 EET [tpl-gen][@mac-02] [47470] the run failed ! [0m

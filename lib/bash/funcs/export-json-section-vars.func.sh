@@ -1,9 +1,9 @@
 #!/bin/bash
 #------------------------------------------------------------------------------
 # usage example:
-# source $PRODUCT/lib/bash/funcs/export-json-section-vars.sh
-# do_export_json_section_vars cnf/env/dev.env.json '.env.db'
-# dependencies: 
+# clear ; source lib/bash/funcs/export-json-section-vars.func.sh
+# do_export_json_section_vars $org/dev.env.json '.env.steps."004-aws-iam"'
+# dependencies:
 # jq
 #------------------------------------------------------------------------------
 do_export_json_section_vars(){
@@ -30,13 +30,15 @@ do_export_json_section_vars(){
       val=$(echo $val|perl -ne 's|~|'$HOME'|g;print')
       eval "$(echo -e 'export '$key=\"\"$val\"\")"
 
-      # does not echo sensitive values
+      # does not do_log sensitive values
       if [[ "${sensitiveness}" == "" ]]; then
          do_log "INFO ${key}=${val}"
       else
          do_log "WARNING SENSITIVE ${key}=*****************"
       fi
 
-   done < <(cat "$json_file"| jq -r "$section"'|keys_unsorted[] as $key|"\($key):\"\(.[$key])\""')
-
+   # done < <(cat "$json_file"| jq -r "$section"'|keys_unsorted[] as $key|"\($key):\"\(.[$key])\""')
+   done < <(cat "$json_file"| jq -r "$section"'|to_entries| map(select(.value | type == "string"))|from_entries|keys_unsorted[] as $key|"\($key):\"\(.[$key])\""')
+  # thanks ChatGPT: 'to_entries | map(select(.value | type == "string")) | from_entries'
+  # ok cat /opt/spe/spe-infra-conf/prp/dev.env.json | jq -r '.env.steps."004-aws-iam"|to_entries| map(select(.value | type == "string"))|from_entries|keys_unsorted[] as $key|"\($key):\"\(.[$key])\""'
 }

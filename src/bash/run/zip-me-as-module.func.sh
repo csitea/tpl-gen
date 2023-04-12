@@ -19,8 +19,10 @@ do_zip_me_as_module(){
 
    while read -r f; do
 
-      # if the file still exists in the bigger project add it
-      test -f $PRODUCT_DIR/$f && zip $zip_file $f
+      # if the file or symlink still exists in the bigger project add it
+      if [ -f "$PRODUCT_DIR/$f" ] || [ -L "$PRODUCT_DIR/$f" ]; then
+        zip -y $zip_file $f
+      fi
 
       # if the file does not exist, remove it from the list file
       test -f $f || perl -pi -e 's|^'"$f"'\n\r||gm' $component_include_list_fle
