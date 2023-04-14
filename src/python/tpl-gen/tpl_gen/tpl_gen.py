@@ -10,10 +10,9 @@ from colorama import Fore, Style
 
 
 def main():
-    ORG_, ENV_, APP_, env_config_dir, tgt_proj_dir  = set_vars()
-    cnf = get_cnf(env_config_dir,ENV_)
-    do_generate(ORG_, ENV_ , APP_ , cnf, tgt_proj_dir)
-
+    ORG_, ENV_, APP_, cnf_src_dir, tpl_src_dir , tgt_cnf_dir  = set_vars()
+    cnf = get_cnf(cnf_src_dir,ORG_,APP_,ENV_)
+    do_generate(ORG_, ENV_ , APP_ , cnf, cnf_src_dir , tpl_src_dir, tgt_cnf_dir)
 
 def print_warn(msg):
     print(f"{Fore.YELLOW}{msg}{Style.RESET_ALL}")
@@ -24,19 +23,20 @@ def print_error(msg):
 def print_success(msg):
     print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
 
+
 # generate the *.json files from the *.yaml files
 def render_yaml():
     print ("START ::: render_yaml")
-    ORG_, ENV_, APP_, env_config_dir, tgt_proj_dir = set_vars()
-    src = os.getenv("SRC")
-    tgt = os.getenv("TGT")
+    ORG_, ENV_, APP_, cnf_src_dir, tpl_src_dir , tgt_cnf_dir = set_vars()
+    cnf_src_dir = os.getenv("CNF_SRC")
+    tgt_dir = os.getenv("TGT")
 
-    if src == "" :
-        print_error("FATAL ::: SRC directory not csicified")
+    if cnf_src_dir == "" :
+        print_error("FATAL ::: SRC directory not specified")
         exit(1)
 
-    if tgt == "" or tgt is None:
-        tgt = src
+    if tgt_dir == "" or tgt_dir is None:
+        tgt_dir = cnf_src_dir
 
     # Get the HOME environment variable
     home_dir = os.environ['HOME']
@@ -45,7 +45,7 @@ def render_yaml():
     dirs_to_iterate = [
         os.path.join(home_dir, '.aws'),
         os.path.join(home_dir, '.ssh'),
-        src
+        cnf_src_dir
     ]
 
     for cdir in dirs_to_iterate:
@@ -54,10 +54,12 @@ def render_yaml():
                 current_file_path = os.path.join(subdir, file)
                 if current_file_path.endswith(".yaml"):
                     print("working on: " + current_file_path)
-                    print(src, tgt, current_file_path)
+                    print("src_dir: " + cnf_src_dir)
+                    print("tgt_dir: " + tgt_dir)
+                    print("current_file_path; " + current_file_path)
 
-                    yaml_filename = os.path.join(src, current_file_path)
-                    json_filename = os.path.join(tgt, current_file_path.replace(".yaml", ".json"))
+                    yaml_filename = os.path.join(cnf_src_dir, current_file_path)
+                    json_filename = os.path.join(tgt_dir, current_file_path.replace(".yaml", ".json"))
                     print ( f"STOP  ::: rendered yaml for json_filename: ${json_filename}" )
 
                     with open(yaml_filename, encoding="utf-8") as file:
@@ -69,12 +71,18 @@ def render_yaml():
 
 def set_vars():
     try:
-        ENV_ = os.getenv("ENV")
-        ORG_ = os.getenv("ORG")
+
         ORG_DIR_ = os.getenv("ORG_DIR")
+        ORG_ = os.getenv("ORG")
         APP_ = os.getenv("APP")
+        ENV_ = os.getenv("ENV")
+
+
+
+        CNF_SRC_ = os.getenv("CNF_SRC")         # where we get the structured env configuration files
+        TPL_SRC_ = os.getenv("TPL_SRC")         # where we get the tpl files
+
         TGT_ = os.getenv("TGT")         # where we get tpl files
-        SRC_ = os.getenv("SRC")         # where we get the config file
 
         product_dir = os.path.join(__file__, "..", "..", "..", "..", "..")
         product_dir = os.path.abspath(product_dir)
@@ -84,27 +92,34 @@ def set_vars():
 
 
         if TGT_ == "" or TGT_ is None:
-            tgt_proj_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", "infra")
+            tgt_cnf_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-{APP_}-infra-conf")
         else:
-            tgt_proj_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{TGT_}")
+            tgt_cnf_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{TGT_}")
 
 
-        if SRC_ == "" or SRC_ is None:
-            env_config_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-infra-conf", f"{APP_}")
+        if CNF_SRC_ == "" or CNF_SRC_ is None:
+            cnf_src_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-{APP_}-infra-conf", f"{APP_}")
         else:
-            env_config_dir = os.path.join(SRC_ , f"{APP_}")
+            cnf_src_dir = CNF_SRC_
+
+        if TPL_SRC_ == "" or TPL_SRC_ is None:
+            tpl_src_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-{APP_}-infra-app")
+        else:
+            tpl_src_dir = TPL_SRC_
+
 
 
     except IndexError as error:
         raise Exception("ERROR in set_vars: ", str(error)) from error
 
-    return ORG_, ENV_, APP_, env_config_dir, tgt_proj_dir
+    return ORG_, ENV_, APP_, cnf_src_dir, tpl_src_dir , tgt_cnf_dir
 
 
-def get_cnf(env_config_dir,ENV_):
+
+def get_cnf(cnf_src_dir,ORG_,APP_,ENV_):
+
     try:
-
-        json_cnf_file = os.path.join(env_config_dir, f"{ENV_}.env.json")
+        json_cnf_file = os.path.join(cnf_src_dir, f"{APP_}", f"{ENV_}.env.json")
         yaml_cnf_file = json_cnf_file.replace('json', 'yaml')
 
         # If YAML exists, dump it into JSON and use it.
@@ -121,8 +136,6 @@ def get_cnf(env_config_dir,ENV_):
             with open(json_cnf_file, encoding="utf-8") as file:
                 cnf = json.load(file)
 
-        #pprintjson(cnf)
-
     except IndexError as error:
         raise Exception("ERROR in set_vars: ", str(error)) from error
 
@@ -130,9 +143,9 @@ def get_cnf(env_config_dir,ENV_):
 
 
 
-def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
+def do_generate(ORG_, ENV_, APP_, cnf, cnf_src_dir , tpl_src_dir, tgt_cnf_dir):
 
-    for pathname in [os.path.join(tgt_proj_dir, "src", "tpl")]:  # directory this structure is enforced
+    for pathname in [os.path.join(tpl_src_dir, "src", "tpl")]:  # directory this structure is enforced
         for subdir, _dirs, files in os.walk(pathname):
             for file in files:
                 current_file_path = os.path.join(subdir, file)
@@ -158,7 +171,8 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
                                 .replace(".tpl", "") \
                                 .replace(r"%env%", ENV_) \
                                 .replace(r"%org%", ORG_) \
-                                .replace(r"%app%", APP_)
+                                .replace(r"%app%", APP_) \
+                                .replace(tpl_src_dir,tgt_cnf_dir)
 
                             if not os.path.exists(os.path.dirname(tgt_file_path)):
                                 os.makedirs(os.path.dirname(tgt_file_path))
@@ -182,6 +196,7 @@ def do_generate(ORG_, ENV_, APP_, cnf, tgt_proj_dir):
 
     print("STOP generating templates")
 
+
 # allow environment variables to override configuration
 # Warning: this is an important feature, users now need
 # to be aware of their environment.
@@ -199,6 +214,7 @@ def override_env(cnf):
             # if it's not, preserves the value of itself.
             cnf["env"]["steps"][step][step_var] = os.getenv(step_var, cnf["env"]["steps"][step][step_var])
 
+
 # Jinja2 custom filters
 def include_file(filename):
     '''
@@ -211,6 +227,7 @@ def include_file(filename):
         content = fp.read()
         fp.close()
     return content
+
 
 def load_yaml(filename):
     '''
