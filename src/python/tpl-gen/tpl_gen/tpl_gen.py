@@ -172,6 +172,7 @@ def do_generate(ORG_, ENV_, APP_, cnf, cnf_src_dir , tpl_src_dir, tgt_cnf_dir):
                                 .replace(r"%env%", ENV_) \
                                 .replace(r"%org%", ORG_) \
                                 .replace(r"%app%", APP_) \
+                                .replace(r"%step%", STEP_) \
                                 .replace(tpl_src_dir,tgt_cnf_dir)
 
                             if not os.path.exists(os.path.dirname(tgt_file_path)):
