@@ -2,17 +2,21 @@
 
 import time
 import os
+import shutil
 import json
 import yaml
 from jinja2 import Environment, BaseLoader, exceptions
 from pprintjson import pprintjson
 from colorama import Fore, Style
 
+class StepNotDefinedError(Exception):
+    pass
+
 
 def main():
-    ORG_, ENV_, APP_, cnf_src_dir, tpl_src_dir , tgt_cnf_dir  = set_vars()
+    ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir  = set_vars()
     cnf = get_cnf(cnf_src_dir,ORG_,APP_,ENV_)
-    do_generate(ORG_, ENV_ , APP_ , cnf, cnf_src_dir , tpl_src_dir, tgt_cnf_dir)
+    do_generate(ORG_, ENV_ , APP_ , STEP_, cnf, tpl_src_dir, tgt_output_dir)
 
 def print_warn(msg):
     print(f"{Fore.YELLOW}{msg}{Style.RESET_ALL}")
@@ -27,7 +31,7 @@ def print_success(msg):
 # generate the *.json files from the *.yaml files
 def render_yaml():
     print ("START ::: render_yaml")
-    ORG_, ENV_, APP_, cnf_src_dir, tpl_src_dir , tgt_cnf_dir = set_vars()
+    ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir = set_vars()
     cnf_src_dir = os.getenv("CNF_SRC")
     tgt_dir = os.getenv("TGT")
 
@@ -53,10 +57,10 @@ def render_yaml():
             for file in files:
                 current_file_path = os.path.join(subdir, file)
                 if current_file_path.endswith(".yaml"):
-                    print("working on: " + current_file_path)
-                    print("src_dir: " + cnf_src_dir)
-                    print("tgt_dir: " + tgt_dir)
-                    print("current_file_path; " + current_file_path)
+                    # print("working on: " + current_file_path)
+                    # print("src_dir: " + cnf_src_dir)
+                    # print("tgt_dir: " + tgt_dir)
+                    # print("current_file_path; " + current_file_path)
 
                     yaml_filename = os.path.join(cnf_src_dir, current_file_path)
                     json_filename = os.path.join(tgt_dir, current_file_path.replace(".yaml", ".json"))
@@ -76,13 +80,12 @@ def set_vars():
         ORG_ = os.getenv("ORG")
         APP_ = os.getenv("APP")
         ENV_ = os.getenv("ENV")
-
-
+        STEP_ = os.getenv("STEP") or None
 
         CNF_SRC_ = os.getenv("CNF_SRC")         # where we get the structured env configuration files
         TPL_SRC_ = os.getenv("TPL_SRC")         # where we get the tpl files
 
-        TGT_ = os.getenv("TGT")         # where we get tpl files
+        tgt_output_dir = os.getenv("TGT")         # where we get tpl files
 
         product_dir = os.path.join(__file__, "..", "..", "..", "..", "..")
         product_dir = os.path.abspath(product_dir)
@@ -91,11 +94,8 @@ def set_vars():
         base_dir = os.path.abspath(base_dir)
 
 
-        if TGT_ == "" or TGT_ is None:
-            tgt_cnf_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-{APP_}-infra-conf")
-        else:
-            tgt_cnf_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{TGT_}")
-
+        if tgt_output_dir == "" or tgt_output_dir is None:
+            tgt_output_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-{APP_}-infra-conf")
 
         if CNF_SRC_ == "" or CNF_SRC_ is None:
             cnf_src_dir = os.path.join(f"{base_dir}",f"{ORG_DIR_}", f"{ORG_}-{APP_}-infra-conf", f"{APP_}")
@@ -112,7 +112,7 @@ def set_vars():
     except IndexError as error:
         raise Exception("ERROR in set_vars: ", str(error)) from error
 
-    return ORG_, ENV_, APP_, cnf_src_dir, tpl_src_dir , tgt_cnf_dir
+    return ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir
 
 
 
@@ -142,13 +142,45 @@ def get_cnf(cnf_src_dir,ORG_,APP_,ENV_):
     return cnf
 
 
+def expand_path(ORG_, ENV_, APP_, STEP_, tpl_src_dir, tgt_output_dir,current_file_path):
 
-def do_generate(ORG_, ENV_, APP_, cnf, cnf_src_dir , tpl_src_dir, tgt_cnf_dir):
+    # Check if the text does not contain any of the forbidden strings
+    if "%" not in current_file_path:
+        return current_file_path
+    else:
+        if '%step%' in current_file_path and STEP_ is None:
+            raise StepNotDefinedError("STEP_ is not defined")
+        else:
+            STEP_ = ""
+
+        tgt_file_path = current_file_path.replace(tpl_src_dir,tgt_output_dir) \
+            .replace("/src/tpl", "", 1) \
+            .replace(".tpl", "") \
+            .replace(r"%env%", ENV_) \
+            .replace(r"%org%", ORG_) \
+            .replace(r"%app%", APP_) \
+            .replace(r"%step%", STEP_)
+
+        return tgt_file_path
+
+def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
 
     for pathname in [os.path.join(tpl_src_dir, "src", "tpl")]:  # directory this structure is enforced
         for subdir, _dirs, files in os.walk(pathname):
+
+            current_dir_path = os.path.join(tpl_src_dir, subdir)
+            if os.path.isdir(current_dir_path) and '%' in current_dir_path:
+                tgt_dir_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_dir_path)
+                # Remove the directory if it exists
+                if os.path.exists(tgt_dir_path) and os.path.isdir(tgt_dir_path):
+                    shutil.rmtree(tgt_dir_path)
+                os.makedirs(tgt_dir_path)
+
             for file in files:
                 current_file_path = os.path.join(subdir, file)
+                print("current_file_path" + str(current_file_path))
+                tgt_file_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_file_path)
+
                 if current_file_path.endswith(".tpl"):
                     try:
                         print (f"START ::: working on tpl file: {current_file_path}")
@@ -167,13 +199,9 @@ def do_generate(ORG_, ENV_, APP_, cnf, cnf_src_dir , tpl_src_dir, tgt_cnf_dir):
                             args.update(cnf["env"])
                             rendered = obj_tpl.render(args)
 
-                            tgt_file_path = current_file_path.replace("/src/tpl", "", 1) \
-                                .replace(".tpl", "") \
-                                .replace(r"%env%", ENV_) \
-                                .replace(r"%org%", ORG_) \
-                                .replace(r"%app%", APP_) \
-                                .replace(r"%step%", STEP_) \
-                                .replace(tpl_src_dir,tgt_cnf_dir)
+                            tgt_file_path = current_file_path
+
+                            tgt_file_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_file_path)
 
                             if not os.path.exists(os.path.dirname(tgt_file_path)):
                                 os.makedirs(os.path.dirname(tgt_file_path))
@@ -239,6 +267,7 @@ def load_yaml(filename):
         yaml_file = yaml.load(file, Loader=yaml.Loader)
 
     return yaml_file
+
 
 
 if __name__ == "__main__":
