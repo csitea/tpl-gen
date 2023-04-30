@@ -145,13 +145,11 @@ def get_cnf(cnf_src_dir,ORG_,APP_,ENV_):
 def expand_path(ORG_, ENV_, APP_, STEP_, tpl_src_dir, tgt_output_dir,current_file_path):
 
     # Check if the text does not contain any of the forbidden strings
-    if "%" not in current_file_path:
+    if "%step%" not in current_file_path:
         return current_file_path
     else:
         if '%step%' in current_file_path and STEP_ is None:
             raise StepNotDefinedError("STEP_ is not defined")
-        else:
-            STEP_ = ""
 
         tgt_file_path = current_file_path.replace(tpl_src_dir,tgt_output_dir) \
             .replace("/src/tpl", "", 1) \
@@ -169,12 +167,15 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
         for subdir, _dirs, files in os.walk(pathname):
 
             current_dir_path = os.path.join(tpl_src_dir, subdir)
-            if os.path.isdir(current_dir_path) and '%' in current_dir_path:
+            print(f"START ::: {current_dir_path}")
+            if os.path.isdir(current_dir_path) and '%step%' in current_dir_path:
                 tgt_dir_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_dir_path)
+                print(f"tgt_dir_path: {tgt_dir_path}")
                 # Remove the directory if it exists
                 if os.path.exists(tgt_dir_path) and os.path.isdir(tgt_dir_path):
                     shutil.rmtree(tgt_dir_path)
                 os.makedirs(tgt_dir_path)
+            print(f"STOP  ::: ${current_dir_path}")
 
             for file in files:
                 current_file_path = os.path.join(subdir, file)
@@ -184,8 +185,9 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
                 if current_file_path.endswith(".tpl"):
                     try:
                         print (f"START ::: working on tpl file: {current_file_path}")
+
                         with open(current_file_path, "r", encoding="utf-8") as current_file:
-                            print(current_file_path)
+
                             str_tpl = current_file.read()
                             obj_tpl = Environment(loader=BaseLoader) \
                                 .from_string(str_tpl)
@@ -212,6 +214,7 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
                                 tgt_file.write(rendered + os.linesep)
                                 msg = f"STOP  ::: File \"{tgt_file_path}\" rendered with success."
                             print_success(msg)
+                        print (f"STOP  ::: working on tpl file: {current_file_path}")
 
 
                     except exceptions.UndefinedError as error:
