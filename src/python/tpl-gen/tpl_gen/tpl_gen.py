@@ -55,22 +55,23 @@ def render_yaml():
     for cdir in dirs_to_iterate:
         for subdir, _dirs, files in os.walk(cdir):
             for file in files:
-                current_file_path = os.path.join(subdir, file)
-                if current_file_path.endswith(".yaml"):
-                    # print("working on: " + current_file_path)
+                current_tpl_file = os.path.join(subdir, file)
+                if current_tpl_file.endswith(".yaml"):
+                    # print("working on: " + current_tpl_file)
                     # print("src_dir: " + cnf_src_dir)
                     # print("tgt_dir: " + tgt_dir)
-                    # print("current_file_path; " + current_file_path)
+                    # print("current_tpl_file; " + current_tpl_file)
 
-                    yaml_filename = os.path.join(cnf_src_dir, current_file_path)
-                    json_filename = os.path.join(tgt_dir, current_file_path.replace(".yaml", ".json"))
-                    print ( f"STOP  ::: rendered yaml for json_filename: ${json_filename}" )
+                    yaml_filename = os.path.join(cnf_src_dir, current_tpl_file)
+                    json_filename = os.path.join(tgt_dir, current_tpl_file.replace(".yaml", ".json"))
+                    print ( f"rendered yaml into json_file: {json_filename}" )
 
                     with open(yaml_filename, encoding="utf-8") as file:
                         cnf = yaml.load(file, Loader=yaml.Loader)
 
                     with open(json_filename, 'w') as file:
                         json.dump(cnf, file, indent=4)
+    print ("STOP  ::: render_yaml")
 
 
 def set_vars():
@@ -142,32 +143,40 @@ def get_cnf(cnf_src_dir,ORG_,APP_,ENV_):
     return cnf
 
 
-def expand_path(ORG_, ENV_, APP_, STEP_, tpl_src_dir, tgt_output_dir,current_file_path):
+def expand_path(ORG_, APP_, ENV_, STEP_, tpl_src_dir, tgt_output_dir,expandable_file_path):
 
-    # Check if the text does not contain any of the forbidden strings
-    if "%step%" not in current_file_path:
-        return current_file_path
-    else:
-        if '%step%' in current_file_path and STEP_ is None:
-            raise StepNotDefinedError("STEP_ is not defined")
 
-        tgt_file_path = current_file_path.replace(tpl_src_dir,tgt_output_dir) \
+    if "%step%" not in expandable_file_path:
+        tgt_file_path = expandable_file_path.replace(tpl_src_dir,tgt_output_dir) \
             .replace("/src/tpl", "", 1) \
             .replace(".tpl", "") \
-            .replace(r"%env%", ENV_) \
             .replace(r"%org%", ORG_) \
             .replace(r"%app%", APP_) \
+            .replace(r"%env%", ENV_)
+    else:
+        if '%step%' in expandable_file_path and STEP_ is None:
+            raise StepNotDefinedError("STEP_ is not defined")
+
+        tgt_file_path = expandable_file_path.replace(tpl_src_dir,tgt_output_dir) \
+            .replace("/src/tpl", "", 1) \
+            .replace(".tpl", "") \
+            .replace(r"%org%", ORG_) \
+            .replace(r"%app%", APP_) \
+            .replace(r"%env%", ENV_) \
             .replace(r"%step%", STEP_)
 
-        return tgt_file_path
+
+    return tgt_file_path
+
 
 def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
+    print("START ::: generating templates")
 
     for pathname in [os.path.join(tpl_src_dir, "src", "tpl")]:  # directory this structure is enforced
         for subdir, _dirs, files in os.walk(pathname):
 
             current_dir_path = os.path.join(tpl_src_dir, subdir)
-            print(f"START ::: {current_dir_path}")
+            # print(f"START ::: {current_dir_path}")
             if os.path.isdir(current_dir_path) and '%step%' in current_dir_path:
                 tgt_dir_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_dir_path)
                 print(f"tgt_dir_path: {tgt_dir_path}")
@@ -175,35 +184,34 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
                 if os.path.exists(tgt_dir_path) and os.path.isdir(tgt_dir_path):
                     shutil.rmtree(tgt_dir_path)
                 os.makedirs(tgt_dir_path)
-            print(f"STOP  ::: ${current_dir_path}")
+            # print(f"STOP  ::: ${current_dir_path}")
 
             for file in files:
-                current_file_path = os.path.join(subdir, file)
-                print("current_file_path" + str(current_file_path))
-                tgt_file_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_file_path)
+                current_tpl_file = os.path.join(subdir, file)
+                # print("current_tpl_file: " + str(current_tpl_file))
 
-                if current_file_path.endswith(".tpl"):
+                if current_tpl_file.endswith(".tpl"):
+                    tgt_file_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_tpl_file)
+
                     try:
-                        print (f"START ::: working on tpl file: {current_file_path}")
+                        print (f"START ::: working on tpl file: {current_tpl_file}")
 
-                        with open(current_file_path, "r", encoding="utf-8") as current_file:
+                        with open(current_tpl_file, "r", encoding="utf-8") as current_file:
 
                             str_tpl = current_file.read()
                             obj_tpl = Environment(loader=BaseLoader) \
                                 .from_string(str_tpl)
 
-                            # custom filters
+                            # pass in globally available functions, objects & data
                             obj_tpl.globals["include_file"] = include_file
                             obj_tpl.globals["load_yaml"]    = load_yaml
 
                             args = os.environ.copy()
-                            override_env(cnf)
+                            cnf = override_env(cnf)
                             args.update(cnf["env"])
                             rendered = obj_tpl.render(args)
-
-                            tgt_file_path = current_file_path
-
-                            tgt_file_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_file_path)
+                            tgt_file_path = current_tpl_file
+                            tgt_file_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_tpl_file)
 
                             if not os.path.exists(os.path.dirname(tgt_file_path)):
                                 os.makedirs(os.path.dirname(tgt_file_path))
@@ -214,19 +222,19 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
                                 tgt_file.write(rendered + os.linesep)
                                 msg = f"STOP  ::: File \"{tgt_file_path}\" rendered with success."
                             print_success(msg)
-                        print (f"STOP  ::: working on tpl file: {current_file_path}")
+                        print (f"STOP  ::: working on tpl file: {current_tpl_file}")
 
 
                     except exceptions.UndefinedError as error:
                         msg = "WARNING: Missing variable in json config in file: " + \
-                            f"\"{current_file_path}\" - {error}"
+                            f"\"{current_tpl_file}\" - {error}"
                         print_warn(msg)
 
                     except Exception as error:
                         print_error(f"RENDERING EXCEPTION: \n{error}")
                         raise error
 
-    print("STOP generating templates")
+    print("STOP  ::: generating templates")
 
 
 # allow environment variables to override configuration
@@ -245,6 +253,8 @@ def override_env(cnf):
             # checks if it is defined as environment variable
             # if it's not, preserves the value of itself.
             cnf["env"]["steps"][step][step_var] = os.getenv(step_var, cnf["env"]["steps"][step][step_var])
+
+    return cnf
 
 
 # Jinja2 custom filters
