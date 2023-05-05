@@ -21,7 +21,7 @@ do_check_install_py_modules(){
         test -f poetry.lock && rm -vf poetry.lock
         test -d .venv && rm -rv .venv
         poetry config virtualenvs.create true
-        poetry install -v
+        poetry install -vvv
         test $? -ne "0" && do_log "FATAL failed to install $tgt_dir py modules" && exit 1
       fi
     fi

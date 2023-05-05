@@ -16,7 +16,7 @@ product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
 PROCESSOR_ARCHITECTURE := $(shell uname -m)
 ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
 org_dir := $(shell echo `basename $$ORG_DIR`|tr '[:upper:]' '[:lower:]')
-BASE_DIR := $(shell if [[ -f /.dockerenv ]]; then echo $$BASE_DIR; else cd ../.. && pwd; fi )
+BASE_DIR := $(shell source $$PWD/lib/bash/funcs/resolve-dirname.func.sh ; resolve_dirname $$PWD"/../")
 PRODUCT_DIR := $(shell echo $$PWD)
 PYTHON_DIR := $(PRODUCT_DIR)/src/python/$(product)
 

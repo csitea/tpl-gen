@@ -165,7 +165,6 @@ def expand_path(ORG_, APP_, ENV_, STEP_, tpl_src_dir, tgt_output_dir,expandable_
             .replace(r"%env%", ENV_) \
             .replace(r"%step%", STEP_)
 
-
     return tgt_file_path
 
 
