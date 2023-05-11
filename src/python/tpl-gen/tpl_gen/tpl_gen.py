@@ -217,11 +217,15 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
 
                             print (f"START ::: generating tgt_file_path:  {tgt_file_path}")
 
-                            with open(tgt_file_path, "w", encoding="utf-8") as tgt_file:
-                                tgt_file.write(rendered + os.linesep)
-                                msg = f"STOP  ::: File \"{tgt_file_path}\" rendered with success."
-                            print_success(msg)
-                        print (f"STOP  ::: working on tpl file: {current_tpl_file}")
+                            if STEP_ is not None:
+                                if STEP_ in tgt_file_path or '%step%' in tgt_file_path:
+                                    with open(tgt_file_path, "w", encoding="utf-8") as tgt_file:
+                                        tgt_file.write(rendered + os.linesep)
+                                        msg = f"STOP  ::: File \"{tgt_file_path}\" rendered with success."
+                            else:
+                                with open(tgt_file_path, "w", encoding="utf-8") as tgt_file:
+                                    tgt_file.write(rendered + os.linesep)
+                                    msg = f"STOP  ::: File \"{tgt_file_path}\" rendered with success."
 
 
                     except exceptions.UndefinedError as error:
