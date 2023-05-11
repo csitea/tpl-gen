@@ -9,18 +9,25 @@ from jinja2 import Environment, BaseLoader, exceptions
 from pprintjson import pprintjson
 from colorama import Fore, Style
 
-class StepNotDefinedError(Exception):
+class StepNotDefinedInShellError(Exception):
     pass
 
+
+class StepNotDefinedInConfError(Exception):
+    def __init__(self, message= "The step that you are trying to generate conf for is not defined in the configuration!!!"):
+        self.message = message
+        super().__init__(self.message)
 
 def main():
     ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir  = set_vars()
     cnf = get_cnf(cnf_src_dir,ORG_,APP_,ENV_)
-    print(cnf)
-    exit(0)
-    # # if the caller defines a step the step MUST have configuration
-    # if STEP_ is not None and STEP_ != "" and cnf["steps"][STEP_] is None:
-    #     raise StepNotDefinedError("STEP_ is not defined")
+
+    # if the caller defines a step the step MUST have configuration
+    if isinstance(STEP_, str) and STEP_ and cnf["env"]["steps"][STEP_] is None:
+        try:
+            raise StepNotDefinedInConfError("The step that you are trying to generate conf for is not defined in the configuration!!!")
+        except StepNotDefinedInConfError as e:
+            print(e)
 
     do_generate(ORG_, ENV_ , APP_ , STEP_, cnf, tpl_src_dir, tgt_output_dir)
 
@@ -161,7 +168,7 @@ def expand_path(ORG_, APP_, ENV_, STEP_, tpl_src_dir, tgt_output_dir,expandable_
             .replace(r"%env%", ENV_)
     else:
         if '%step%' in expandable_file_path and STEP_ is None:
-            raise StepNotDefinedError("STEP_ is not defined")
+            raise StepNotDefinedInShellError("STEP_ is not defined")
 
         tgt_file_path = expandable_file_path.replace(tpl_src_dir,tgt_output_dir) \
             .replace("/src/tpl", "", 1) \
