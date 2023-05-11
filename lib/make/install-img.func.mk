@@ -11,7 +11,7 @@
 include lib/make/demand-var.func.mk
 
 
-# iss-2209082055 https://pythoncsied.com/articles/docker-build-problems-mac/
+# iss-2209082055 https://pythonspeed.com/articles/docker-build-problems-mac/
 define build-img
 	@clear
 
@@ -53,8 +53,9 @@ define build-img
 
 endef
 
+# 	@clear
 define start-img
-	@clear
+
 
 	$(eval NO_CACHE=${2})
 	$(eval PORT_COMMAND=-p ${3}:${3})

@@ -16,7 +16,10 @@ product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
 PROCESSOR_ARCHITECTURE := $(shell uname -m)
 ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
 org_dir := $(shell echo `basename $$ORG_DIR`|tr '[:upper:]' '[:lower:]')
-BASE_DIR := $(shell source $$PWD/lib/bash/funcs/resolve-dirname.func.sh ; resolve_dirname $$PWD"/../")
+BASE_DIR := $(shell source $$PWD/lib/bash/funcs/resolve-dirname.func.sh ; resolve_dirname $$PWD"/../" )
+# todo: fix base_dir resolution, when being in the docker run-time
+#BASE_DIR := $(shell if [[ -f /.dockerenv ]]; then echo $$BASE_DIR; else cd ../.. && pwd; fi)
+
 PRODUCT_DIR := $(shell echo $$PWD)
 PYTHON_DIR := $(PRODUCT_DIR)/src/python/$(product)
 
@@ -44,6 +47,16 @@ GID := $(shell id -g)
 
 TPL_GEN_PORT=
 
+.PHONY: bar ## @-> bar both the tpl-gen and the tpl-gen containers
+bar:
+	@echo BASE_DIR:
+	@echo $(BASE_DIR)
+	@echo BASE_DIR as shell var:
+	@echo ${BASE_DIR}
+	@echo PRODUCT_DIR
+	@echo $(PRODUCT_DIR)
+	@echo MOUNT_WORK_DIR:
+	@echo $(MOUNT_WORK_DIR)
 
 .PHONY: install ## @-> install both the tpl-gen and the tpl-gen containers
 install:
