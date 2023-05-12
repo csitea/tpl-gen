@@ -1,21 +1,20 @@
-#!/bin/bash
-#------------------------------------------------------------------------------
-# usage example:
-# source lib/bash/funcs/require-var.func.sh
-# do_require_var ORG ${ORG:-}
-# do_require_var APP ${APP:-}
-# do_require_var ENV ${ENV:-}
-#------------------------------------------------------------------------------
-do_require_var() {
+#!/bin/env bash
+
+
+# ORG=$(do_get_env_var 'ORG')
+# APP=$(do_get_env_var 'APP')
+# ENV=$(do_get_env_var 'ENV')
+#
+do_get_env_var() {
   # Input validation
-  if [[ $# -ne 2 ]]; then
-    printf " [ERROR] %s \n" "do_require_var: requires 2 arguments (ENV_VAR_NAME and ENV_VAR_VALUE)"
+  if [[ $# -ne 1 ]]; then
+    printf " [ERROR] %s \n" "do_get_env_var: requires 1 argument (ENV_VAR_NAME)"
     return 1
   fi
 
   # Declare local variables
   local ENV_VAR_NAME=$1
-  local ENV_VAR_VALUE=$2
+  local ENV_VAR_VALUE=${!ENV_VAR_NAME}
 
   # Define logging function
   do_simple_log() {

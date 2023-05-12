@@ -3,66 +3,23 @@
 include $(wildcard lib/make/*.mk)
 include $(wildcard src/make/*.mk)
 
-# set ALL of your global variables here, setting vars in functions outsite the funcs does not work
+# get those from the env when in azure, otherwise get locally
 BUILD_NUMBER := $(if $(BUILD_NUMBER),$(BUILD_NUMBER),"0")
 COMMIT_SHA := $(if $(COMMIT_SHA),$(COMMIT_SHA),$$(git rev-parse --short HEAD))
 COMMIT_MESSAGE := $(if $(COMMIT_MESSAGE),$(COMMIT_MESSAGE),$$(git log -1  --pretty='%s'))
-DOCKER_BUILDKIT := $(or 0,$(shell echo $$DOCKER_BUILDKIT))
-
 
 SHELL = bash
 PRODUCT := $(shell basename $$PWD)
-product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
-PROCESSOR_ARCHITECTURE := $(shell uname -m)
+PP_NAME := $(shell cd ../../ && basename $$PWD)
 ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
-org_dir := $(shell echo `basename $$ORG_DIR`|tr '[:upper:]' '[:lower:]')
-BASE_DIR := $(shell source $$PWD/lib/bash/funcs/resolve-dirname.func.sh ; resolve_dirname $$PWD"/../" )
-# todo: fix base_dir resolution, when being in the docker run-time
-#BASE_DIR := $(shell if [[ -f /.dockerenv ]]; then echo $$BASE_DIR; else cd ../.. && pwd; fi)
+PRODUCT_DIR := $(HOME)/$(PP_NAME)/$(PRODUCT)
+PROCESSOR_ARCHITECTURE := $(shell uname -m)
+product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
+ORG := $(shell basename $(dir $(abspath $(dir $$PWD))))
 
-PRODUCT_DIR := $(shell echo $$PWD)
-PYTHON_DIR := $(PRODUCT_DIR)/src/python/$(product)
 
-APPUSR := appusr
-APPGRP := appgrp
-ROOT_DOCKER_NAME = ${ORG_DIR}-${product}
-MOUNT_WORK_DIR := $(BASE_DIR)/$(ORG_DIR)
-HOST_AWS_DIR := $$HOME/.aws
-DOCKER_AWS_DIR := /home/${APPUSR}/.aws
-HOST_SSH_DIR := $$HOME/.ssh
-DOCKER_SSH_DIR := /home/${APPUSR}/.ssh
-HOST_KUBE_DIR := $$HOME/.kube
-DOCKER_KUBE_DIR := /home/${APPUSR}/.kube
-
-# dockerfile variables
-PRODUCT_DIR := $(BASE_DIR)/$(ORG_DIR)/$(PRODUCT)
-HOME_PRODUCT_DIR := "/home/$(APPUSR)$(BASE_DIR)/$(ORG_DIR)/$(PRODUCT)"
-DOCKER_HOME := /home/$(APPUSR)
-DOCKER_SHELL := /bin/$(SHELL)
-RUN_SCRIPT := $(HOME_PRODUCT_DIR)/run
-DOCKER_INIT_SCRIPT := $(HOME_PRODUCT_DIR)/src/bash/run/docker-init-$(PRODUCT).sh
-
-UID := $(shell id -u)
-GID := $(shell id -g)
-
-TPL_GEN_PORT=
-
-.PHONY: bar ## @-> bar both the tpl-gen and the tpl-gen containers
-bar:
-	@echo BASE_DIR:
-	@echo $(BASE_DIR)
-	@echo BASE_DIR as shell var:
-	@echo ${BASE_DIR}
-	@echo PRODUCT_DIR
-	@echo $(PRODUCT_DIR)
-	@echo MOUNT_WORK_DIR:
-	@echo $(MOUNT_WORK_DIR)
-
-.PHONY: install ## @-> install both the tpl-gen and the tpl-gen containers
+.PHONY: install ## @-> install both the devops-ter and the tpl-gen containers
 install:
-	@clear
-	make clean-install-$(product)
-
-
-
+	@clear 
+	make clean-install-tpl-gen
 
