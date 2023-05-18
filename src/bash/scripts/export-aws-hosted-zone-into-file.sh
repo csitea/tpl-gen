@@ -1,7 +1,7 @@
 #!/bin/bash
-# usage:
+# usage: 
 # bash src/bash/scripts/export-aws-hosted-zone-into-file.sh flok.fi > cnf/dns/flok.fi.bind
-# bash src/bash/scripts/export-aws-hosted-zone-into-file.sh aws.csictralengines.com > cnf/dns/aws.csictralengines.com.bind
+# bash src/bash/scripts/export-aws-hosted-zone-into-file.sh aws.spectralengines.com > cnf/dns/aws.spectralengines.com.bind
 
 zonename=$1
 hostedzoneid=Z0976114G00ICPCW2Z2S

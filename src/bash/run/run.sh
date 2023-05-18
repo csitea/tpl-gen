@@ -83,7 +83,7 @@ do_run_actions(){
    echo ${actions} ${actions_found}
    test $actions_found -eq 0 && {
       do_log "FATAL action(s) requested: \"$actions\" NOT found !!!"
-      do_log "FATAL 1. check the csilling of your action"
+      do_log "FATAL 1. check the spelling of your action"
       do_log "FATAL 2. check the available actions by: ENV=lde ./run --help"
       do_log "FATAL the run failed !"
       exit 1
@@ -211,7 +211,7 @@ do_set_vars(){
 
 # ensure that the <<PRODUCT_DIR>>/run is a logical link and not a regular file
 # if the run.sh is not under the src/bash/run dir terrible things happen ...
-# this one is ecsicially problematic in Dockerfile's ADD command
+# this one is especially problematic in Dockerfile's ADD command
 do_ensure_logical_link(){
 
    if [[ "$unit_run_dir" != */src/bash/run ]]; then
@@ -227,9 +227,11 @@ do_ensure_logical_link(){
       export PRODUCT_DIR=$(cd $unit_run_dir ; echo `pwd`)
       export ORG_DIR=$(echo $PRODUCT_DIR|xargs dirname | xargs basename)
       export BASE_DIR=$(cd $unit_run_dir/../.. && echo `pwd`)
+      set -x
       echo PRODUCT_DIR: $PRODUCT_DIR
       echo ORG_DIR: $ORG_DIR
       echo BASE_DIR: $BASE_DIR
+      sleep 5
    fi
 
 }

@@ -47,7 +47,7 @@ You MUST clone this project on base directory containing your target project con
 # ~/opt/ is just a convention, but does match the ^^^ requirements !!! 
 # So make sure you add it to your Docker volumes 
 mkdir -p ~/opt/ ; cd $_ 
-git clone git@github.com:csitea/tpl-gen.git
+git clone git@github.com:Spectral-Engines/tpl-gen.git
 cd ~/opt/tpl-gen
 find . | sort | less
 ```
@@ -84,7 +84,7 @@ You call the tpl-gen "against" another projects by just passing the name of the 
 # generate the templates 
 ORG=org APP=app ENV=dev make do-tpl-gen                      # renders from ${BASE_DIR}/$ORG-$APP-infra/src/tpl/cnf  into directory replacing wildcards %var%
 ORG=org APP=app ENV=dev TGT=tmp make do-tpl-gen              # renders from ${BASE_DIR}/$ORG-$APP-infra/src/tpl/cnf  into ${BASE_DIR}/tmp
-ORG=org APP=app ENV=dev SRC=csi TGT=tmp make do-tpl-gen   # renders from ${BASE_DIR}/$ORG/src/tpl/cnf into ${BASE_DIR}/tmp
+ORG=org APP=app ENV=dev SRC=Spectral-Engines TGT=tmp make do-tpl-gen   # renders from ${BASE_DIR}/$ORG/src/tpl/cnf into ${BASE_DIR}/tmp
 ```
 
 Typical ORG-APP-ENV set of files would look like this:
@@ -114,18 +114,18 @@ You call the tpl-gen `"against"` another projects by just passing the name of th
 
 ```bash
 
-# call the tpl-gen against the infra project for the csi organisation, nba application and dev environment
-ORG=csi APP=nba ENV=dev TGT=infra make do-tpl-gen
+# call the tpl-gen against the infra project for the spe organisation, nba application and dev environment
+ORG=spe APP=nba ENV=dev TGT=infra make do-tpl-gen
 
 # $ORGcify where to get the configuration from ( the default is "infra")
 # $ORGcify where to generate the configuration files, produced from the templates
 ```bash
-ORG=csi APP=nba ENV=dev SRC=infra TGT=nba make do-tpl-gen;
+ORG=spe APP=nba ENV=dev SRC=infra TGT=nba make do-tpl-gen;
 ```
 
 # call the tpl-gen against the infra project for all the environments
-for env in `echo dev tst stg prd all`; do ORG=csi APP=nba ENV=$env SRC=infra TGT=infra make do-tpl-gen; done
-for env in `echo dev tst stg prd all`; do ORG=csi APP=nba ENV=$env SRC=infra TGT=nba make do-tpl-gen; done
+for env in `echo dev tst stg prd all`; do ORG=spe APP=nba ENV=$env SRC=infra TGT=infra make do-tpl-gen; done
+for env in `echo dev tst stg prd all`; do ORG=spe APP=nba ENV=$env SRC=infra TGT=nba make do-tpl-gen; done
 ```
 
 

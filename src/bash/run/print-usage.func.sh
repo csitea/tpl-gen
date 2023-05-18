@@ -25,7 +25,7 @@ EOF_USAGE
 # "${!animals[@]}" (notice the !) to expand the keys
 # for key in ${!hashmap[@]}; do echo $key; done
 # for value in ${hashmap[@]}; do echo $value; done
-declare -A apps_orgs=( ["nba"]="csi" ["nba"]="csi" )
+declare -A apps_orgs=( ["nba"]="spe" ["nba"]="spe" )
 
 echo -e "\n"
 echo "[#] START generate templates ==============================================="

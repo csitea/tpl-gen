@@ -4,10 +4,11 @@ import time
 import os
 import shutil
 import json
+from console_utils import print_error, force_error, print_info, print_success, print_warn
 import yaml
 from jinja2 import Environment, BaseLoader, exceptions
-from pprintjson import pprintjson
 from colorama import Fore, Style
+
 
 class StepNotDefinedInShellError(Exception):
     pass
@@ -27,18 +28,10 @@ def main():
         try:
             raise StepNotDefinedInConfError("The step that you are trying to generate conf for is not defined in the configuration!!!")
         except StepNotDefinedInConfError as e:
-            print(e)
+            print_error(e.message)
 
     do_generate(ORG_, ENV_ , APP_ , STEP_, cnf, tpl_src_dir, tgt_output_dir)
 
-def print_warn(msg):
-    print(f"{Fore.YELLOW}{msg}{Style.RESET_ALL}")
-
-def print_error(msg):
-    print(f"{Fore.RED}{msg}{Style.RESET_ALL}")
-
-def print_success(msg):
-    print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
 
 
 # generate the *.json files from the *.yaml files
@@ -77,13 +70,14 @@ def render_yaml():
 
                     yaml_filename = os.path.join(cnf_src_dir, current_tpl_file)
                     json_filename = os.path.join(tgt_dir, current_tpl_file.replace(".yaml", ".json"))
-                    print ( f"rendered yaml into json_file: {json_filename}" )
 
                     with open(yaml_filename, encoding="utf-8") as file:
                         cnf = yaml.load(file, Loader=yaml.Loader)
 
                     with open(json_filename, 'w') as file:
                         json.dump(cnf, file, indent=4)
+
+                    print_success ( f"rendered yaml into json_file: {json_filename}" )
     print ("STOP  ::: render_yaml")
 
 
@@ -138,7 +132,7 @@ def get_cnf(cnf_src_dir,ORG_,APP_,ENV_):
 
         # If YAML exists, dump it into JSON and use it.
         if os.path.exists(yaml_cnf_file):
-            print(f"tpl_gen.py ::: using config json file: {yaml_cnf_file}")
+            print_info(f"tpl_gen.py ::: using config json file: {yaml_cnf_file}")
             with open(yaml_cnf_file, encoding="utf-8") as file:
                 cnf = yaml.load(file, Loader=yaml.Loader)
 
@@ -146,7 +140,7 @@ def get_cnf(cnf_src_dir,ORG_,APP_,ENV_):
             with open(json_cnf_file, 'w') as file:
                 json.dump(cnf, file, indent=4)
         else:  # otherwise use json
-            print(f"tpl_gen.py ::: using config json file: {json_cnf_file}")
+            print_info(f"tpl_gen.py ::: using config json file: {json_cnf_file}")
             with open(json_cnf_file, encoding="utf-8") as file:
                 cnf = json.load(file)
 
@@ -182,7 +176,7 @@ def expand_path(ORG_, APP_, ENV_, STEP_, tpl_src_dir, tgt_output_dir,expandable_
 
 
 def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
-    print("START ::: generating templates")
+    print_info("START ::: generating templates")
 
     for pathname in [os.path.join(tpl_src_dir, "src", "tpl")]:  # directory this structure is enforced
         for subdir, _dirs, files in os.walk(pathname):
@@ -191,7 +185,7 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
             # print(f"START ::: {current_dir_path}")
             if os.path.isdir(current_dir_path) and '%step%' in current_dir_path:
                 tgt_dir_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_dir_path)
-                print(f"tgt_dir_path: {tgt_dir_path}")
+                print_info(f"tgt_dir_path: {tgt_dir_path}")
                 # Remove the directory if it exists
                 if os.path.exists(tgt_dir_path) and os.path.isdir(tgt_dir_path):
                     shutil.rmtree(tgt_dir_path)
@@ -206,7 +200,7 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
                     tgt_file_path = expand_path(ORG_,APP_,ENV_,STEP_,tpl_src_dir,tgt_output_dir,current_tpl_file)
 
                     try:
-                        print (f"START ::: working on tpl file: {current_tpl_file}")
+                        print_info (f"INFO ::: working on tpl file: {current_tpl_file}")
 
                         with open(current_tpl_file, "r", encoding="utf-8") as current_file:
 
@@ -228,17 +222,19 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
                             if not os.path.exists(os.path.dirname(tgt_file_path)):
                                 os.makedirs(os.path.dirname(tgt_file_path))
 
-                            print (f"START ::: generating tgt_file_path:  {tgt_file_path}")
+                            print_info (f"INFO ::: generating tgt_file_path:  {tgt_file_path}")
 
                             if STEP_ is not None:
                                 if STEP_ in tgt_file_path or '%step%' in tgt_file_path:
                                     with open(tgt_file_path, "w", encoding="utf-8") as tgt_file:
                                         tgt_file.write(rendered + os.linesep)
                                         msg = f"STOP  ::: File \"{tgt_file_path}\" rendered with success."
+                                        print_success(msg)
                             else:
                                 with open(tgt_file_path, "w", encoding="utf-8") as tgt_file:
                                     tgt_file.write(rendered + os.linesep)
                                     msg = f"STOP  ::: File \"{tgt_file_path}\" rendered with success."
+                                    print_success(msg)
 
 
                     except exceptions.UndefinedError as error:
@@ -250,7 +246,7 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
                         print_error(f"RENDERING EXCEPTION: \n{error}")
                         raise error
 
-    print("STOP  ::: generating templates")
+    print_info("STOP  ::: generating templates")
 
 
 # allow environment variables to override configuration

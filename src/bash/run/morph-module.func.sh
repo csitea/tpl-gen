@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# create a kind of morphed clone module of the source module csicified
+# create a kind of morphed clone module of the source module specified
 # usage:
 # to "morph" the run.sh into a foo-bar module do:
 # SRC_MODULE=run.sh TGT_MODULE=foo-bar ./run -a do_morph_module

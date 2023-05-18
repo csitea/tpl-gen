@@ -1,7 +1,9 @@
 import os
 import time
-from colorama import Fore, Style
+from rich.console import Console
 
+console = Console(width=150, color_system="truecolor")
+err_console = Console(width=150, stderr=True, color_system="truecolor")
 
 
 def stamp_time(msg):
@@ -10,29 +12,24 @@ def stamp_time(msg):
 
 
 def print_warn(msg):
-    msg = stamp_time(msg)
-    print(f"{Fore.YELLOW}{msg}{Style.RESET_ALL}")
+    console.print(f":warning: ::: {msg}", style="light_goldenrod1")
 
 
 def print_error(msg):
-    msg = stamp_time(msg)
-    print(f"{Fore.RED}{msg}{Style.RESET_ALL}")
+    console.print(f":x: ::: {msg}", style="deep_pink2")
 
 
 def print_success(msg):
-    msg = stamp_time(msg)
-    print(f"{Fore.GREEN}{msg}{Style.RESET_ALL}")
+    console.print(f"{msg} ::: :white_heavy_check_mark:", style="green_yellow")
 
 
 def print_info(msg):
-    msg = stamp_time(msg)
-    print(f"{Fore.BLUE}{msg}{Style.RESET_ALL}")
+    console.print(f"{msg}", style="light_steel_blue1")
 
 
 def force_error(err_msg):
-    msg = stamp_time(err_msg)
-    msg = f"[FATAL] ::: {err_msg}"
-    print_error(msg)
+    msg = f":fire: ::: {err_msg}"
+    err_console.print(msg, style="underline blink red3")
     raise Exception(msg)
 
 

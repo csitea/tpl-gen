@@ -1,6 +1,6 @@
-.git
 .log
 README.md
 doc/md
 node_modules
 .venv
+__pycache__
