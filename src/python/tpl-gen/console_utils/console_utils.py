@@ -12,11 +12,11 @@ def stamp_time(msg):
 
 
 def print_warn(msg):
-    console.print(f":warning: ::: {msg}", style="light_goldenrod1")
+    console.print(f"{msg} ::: :warning:", style="light_goldenrod1")
 
 
 def print_error(msg):
-    console.print(f":x: ::: {msg}", style="deep_pink2")
+    console.print(f"{msg} ::: :x:", style="deep_pink2")
 
 
 def print_success(msg):
@@ -28,8 +28,8 @@ def print_info(msg):
 
 
 def force_error(err_msg):
-    msg = f":fire: ::: {err_msg}"
-    err_console.print(msg, style="underline blink red3")
+    msg = f"FATAL ::: {err_msg} ::: :fire:"
+    err_console.print(msg, style="red3")
     raise Exception(msg)
 
 
