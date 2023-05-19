@@ -8,9 +8,13 @@ test -z ${PRODUCT:-} && PRODUCT=${MODULE:-}
 PRODUCT_DIR=$(echo $PRODUCT_DIR|perl -ne "s|/home/$APPUSR||g;print")
 BASE_DIR=$(echo $BASE_DIR|perl -ne "s|/home/$APPUSR||g;print")
 
-venv_path="$PRODUCT_DIR/src/python/$MODULE/.venv"
+
 home_venv_path="$HOME_PRODUCT_DIR/src/python/$MODULE/.venv"
 venv_path="$PRODUCT_DIR/src/python/$MODULE/.venv"
+
+if [ -d "$venv_path" ]; then
+  rm -r "$venv_path"
+fi
 
 # echo running find $home_venv_path \| tail -n 10
 # find $home_venv_path | tail -n 10
