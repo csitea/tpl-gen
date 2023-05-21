@@ -6,21 +6,32 @@
 # do_require_var APP ${APP:-}
 # do_require_var ENV ${ENV:-}
 #------------------------------------------------------------------------------
-do_require_var(){
+do_require_var() {
+  # Input validation
+  if [[ $# -ne 2 ]]; then
+    printf " [ERROR] %s \n" "do_require_var: requires 2 arguments (ENV_VAR_NAME and ENV_VAR_VALUE)"
+    return 1
+  fi
 
-  var_name="${1:-}"
-  var="${2:-}"
+  # Declare local variables
+  local ENV_VAR_NAME=$1
+  local ENV_VAR_VALUE=$2
 
-  do_simple_log(){
-    type_of_msg=$(echo $*|cut -d" " -f1)
-    msg="$(echo $*|cut -d" " -f2-)"
-    echo " [$type_of_msg] `date "+%Y-%m-%d %H:%M:%S %Z"` [$$] $msg "
+  # Define logging function
+  do_simple_log() {
+    local TYPE_OF_MSG=$1
+    local MSG=$2
+    printf " [%s] %s [%d] %s \n" "$TYPE_OF_MSG" "$(date "+%Y-%m-%d %H:%M:%S %Z")" "$$" "$MSG"
   }
 
-  test -z "${var:-}" && {
-    do_simple_log 'FATAL The environment variable "'$var_name'" does not have a value !!!'
-    do_simple_log 'INFO In the calling shell do "export '$var_name'=your-'$var_name'-value"'
-    exit 1
-  }
+  # Check if the environment variable is set
+  if [[ -z "${ENV_VAR_VALUE}" ]]; then
+    do_simple_log 'FATAL' "The environment variable '${ENV_VAR_NAME}' does not have a value!"
+    do_simple_log 'INFO' "In the calling shell, do 'export ${ENV_VAR_NAME}=your-${ENV_VAR_NAME}-value'"
+    return 1
+  fi
+
+  # Return the value of the environment variable
+  echo "${ENV_VAR_VALUE}"
 }
 

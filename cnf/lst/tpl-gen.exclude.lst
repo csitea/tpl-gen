@@ -3,4 +3,5 @@ README.md
 doc/md
 node_modules
 .venv
+.git
 __pycache__

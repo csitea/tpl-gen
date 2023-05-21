@@ -36,7 +36,7 @@ def main():
 
 # generate the *.json files from the *.yaml files
 def render_yaml():
-    print ("START ::: render_yaml")
+    print_info ("START ::: render_yaml")
     ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir = set_vars()
     cnf_src_dir = os.getenv("CNF_SRC")
     tgt_dir = os.getenv("TGT")
@@ -58,9 +58,23 @@ def render_yaml():
         cnf_src_dir
     ]
 
+    # Define folders or files to ignore
+    ignore_list: list[str] = []
+    try:
+        with open(".tplignore", "r") as ignore_file:
+            ignore_list = [line.strip() for line in ignore_file.readlines()]
+            print_success("INFO ::: using .tplignore")
+    except FileNotFoundError as e:
+        print_warn("WARNING ::: .tplignore file not found")
+
     for cdir in dirs_to_iterate:
         for subdir, _dirs, files in os.walk(cdir):
+
+            if check_substrings(ignore_list, subdir):
+                continue
+
             for file in files:
+
                 current_tpl_file = os.path.join(subdir, file)
                 if current_tpl_file.endswith(".yaml"):
                     # print("working on: " + current_tpl_file)
@@ -77,8 +91,8 @@ def render_yaml():
                     with open(json_filename, 'w') as file:
                         json.dump(cnf, file, indent=4)
 
-                    print_success ( f"rendered yaml into json_file: {json_filename}" )
-    print ("STOP  ::: render_yaml")
+                    print_success ( f"SUCCESS ::: rendered yaml into json_file: {json_filename}" )
+    print_info ("STOP ::: render_yaml")
 
 
 def set_vars():
@@ -238,7 +252,7 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
 
 
                     except exceptions.UndefinedError as error:
-                        msg = "WARNING: Missing variable in json config in file: " + \
+                        msg = "WARNING ::: Missing variable in json config in file: " + \
                             f"\"{current_tpl_file}\" - {error}"
                         print_warn(msg)
 
@@ -293,7 +307,8 @@ def load_yaml(filename):
 
     return yaml_file
 
-
+def check_substrings(substr_list, main_string)-> bool:
+    return any(substr in main_string for substr in substr_list)
 
 if __name__ == "__main__":
     main()

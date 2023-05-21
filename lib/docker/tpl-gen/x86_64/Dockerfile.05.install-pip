@@ -1,0 +1,5 @@
+FROM python:3.8.3-alpine
+
+# isntall python pip
+RUN wget https://bootstrap.pypa.io/get-pip.py ; sudo python3 get-pip.py ; sudo rm -v get-pip.py
+

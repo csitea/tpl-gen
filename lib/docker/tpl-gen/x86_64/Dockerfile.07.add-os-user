@@ -1,0 +1,29 @@
+FROM python:3.8.3-alpine
+
+# START ::: add-os-user
+RUN test -z $(getent group $GID | cut -d: -f1) || \
+        groupmod -g $((GID+1000)) $(getent group $GID | cut -d: -f1)
+
+# create a APPGRP and APPUSR
+RUN set -x ; addgroup -g "$GID" -S "$APPGRP" && \
+  adduser \
+  --disabled-password \
+  -g "$GID" \
+  -D \
+  -s "$DOCKER_SHELL" \
+  -h "$DOCKER_HOME" \
+  -u "$UID" \
+  -G "$APPGRP" "$APPUSR" && exit 0 ; exit 1
+
+RUN echo "$APPUSR ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+RUN echo "export PS1=\"$PS1\"" >> $DOCKER_HOME/.bashrc && \
+  sudo chown -R $APPUSR:$APPGRP $DOCKER_HOME && \
+  sudo chmod -R 0775 $DOCKER_HOME
+
+# ensure the default shell for this user is the bash bin
+RUN sudo chsh -s /bin/bash $APPUSR
+
+
+USER $APPUSR
+
+# STOP  ::: add-os-user

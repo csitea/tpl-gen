@@ -20,9 +20,9 @@ A template generator following the OAE IT Systems configurability model. OAE sta
 - Environment
 
 The model defines and operating IT environment, based on those 3 attributes. It is a simple, but powerful realization of the fact that each IT environment belongs to : 
-- at least 1 Organisation ( and preferably there should be 1 Organisation being responsible for it )
-- 1..1 Application from an IT System / Architecture / Operational Per$ORGctive
-- 1..1 Environment - as by definition and IT Best Practices the environments must be segregated
+- 1..* Organisation 
+- 1..* Application from an IT System / Architecture / Operational Perspective
+- 1..* Environment - as by definition and IT Best Practices the environments must be segregated
 
 
 
@@ -32,11 +32,13 @@ Read Carefully and follow these instructions - there is a single one-liner to se
 ## Pre-requesites
 You should have the following binaries natively - bash, make, perl, jq, docker, sed. 
 
-``` ATTENTION !!! ```bash
+``` ATTENTION !!! 
+
 It IS REALLY IMPORTANT to ensure that the directly where you clone the  `tpl-gen` is: 
 - the same dir where your project having the templates residues
 - owned and read/writable by your native OS user and group 
 - configured in your Docker configuration to be a shared volume !!!
+
 
 Should ANY of those ^^^ you might not be able to use the `tpl-gen` for other projects !!!
 Thus bellow is the recommended way of deploying the `tpl-gen`:
@@ -47,7 +49,7 @@ You MUST clone this project on base directory containing your target project con
 # ~/opt/ is just a convention, but does match the ^^^ requirements !!! 
 # So make sure you add it to your Docker volumes 
 mkdir -p ~/opt/ ; cd $_ 
-git clone git@github.com:Spectral-Engines/tpl-gen.git
+git clone git@github.com:<<git-org-name>>/tpl-gen.git
 cd ~/opt/tpl-gen
 find . | sort | less
 ```
@@ -70,7 +72,7 @@ The `./run` is usually used for oneliners to run quick actions
 The tpl-gen docker has all the needed binaries create configuration files from templates.
 ```bash
 # always go to the project root dir - aka the product dir
-cd /opt/$ORG/tpl-gen
+cd /opt/<<org-dir>>/tpl-gen
 
 make clean-install-tpl-gen                                   # install without reusing layers
 make install-tpl-gen                                         # install from cached layers (faster)
@@ -84,16 +86,15 @@ You call the tpl-gen "against" another projects by just passing the name of the 
 # generate the templates 
 ORG=org APP=app ENV=dev make do-tpl-gen                      # renders from ${BASE_DIR}/$ORG-$APP-infra/src/tpl/cnf  into directory replacing wildcards %var%
 ORG=org APP=app ENV=dev TGT=tmp make do-tpl-gen              # renders from ${BASE_DIR}/$ORG-$APP-infra/src/tpl/cnf  into ${BASE_DIR}/tmp
-ORG=org APP=app ENV=dev SRC=Spectral-Engines TGT=tmp make do-tpl-gen   # renders from ${BASE_DIR}/$ORG/src/tpl/cnf into ${BASE_DIR}/tmp
 ```
 
 Typical ORG-APP-ENV set of files would look like this:
 ```bash
 
-/opt/<<target-project>>/cnf/env/<<org>>/<app>>/all.env.yaml
-/opt/<<target-project>/cnf/env/<<org>>/<app>>/dev.env.yaml
-/opt/<<target-project>/cnf/env/<<org>>/<app>>/prd.env.yaml
-/opt/<<target-project>/cnf/env/<<org>>/<app>>/tst.env.yaml
+/opt/<<org-dir>>/cnf/env/<<org>>/<app>>/all.env.yaml
+/opt/<<org-dir>/cnf/env/<<org>>/<app>>/dev.env.yaml
+/opt/<<org-dir>/cnf/env/<<org>>/<app>>/prd.env.yaml
+/opt/<<org-dir>/cnf/env/<<org>>/<app>>/tst.env.yaml
 
 ```
 for example:
@@ -114,18 +115,18 @@ You call the tpl-gen `"against"` another projects by just passing the name of th
 
 ```bash
 
-# call the tpl-gen against the infra project for the spe organisation, nba application and dev environment
-ORG=spe APP=nba ENV=dev TGT=infra make do-tpl-gen
+# call the tpl-gen against the infra project for the org organisation, app application and dev environment
+ORG=org APP=app ENV=dev TGT=infra make do-tpl-gen
 
 # $ORGcify where to get the configuration from ( the default is "infra")
 # $ORGcify where to generate the configuration files, produced from the templates
 ```bash
-ORG=spe APP=nba ENV=dev SRC=infra TGT=nba make do-tpl-gen;
+ORG=org APP=app ENV=dev SRC=infra TGT=app make do-tpl-gen;
 ```
 
 # call the tpl-gen against the infra project for all the environments
-for env in `echo dev tst stg prd all`; do ORG=spe APP=nba ENV=$env SRC=infra TGT=infra make do-tpl-gen; done
-for env in `echo dev tst stg prd all`; do ORG=spe APP=nba ENV=$env SRC=infra TGT=nba make do-tpl-gen; done
+for env in `echo dev tst stg prd all`; do ORG=org APP=app ENV=$env SRC=infra TGT=infra make do-tpl-gen; done
+for env in `echo dev tst stg prd all`; do ORG=org APP=app ENV=$env SRC=infra TGT=app make do-tpl-gen; done
 ```
 
 
