@@ -1,0 +1,11 @@
+FROM python:3.8.3-alpine
+
+# START ::: copy-proj-dir
+
+COPY --chown=$APPUSR:$APPGRP . ${HOME_PRODUCT_DIR}
+COPY --chown=$APPUSR:$APPGRP ./src/bash/run/run.sh ${HOME_PRODUCT_DIR}/src/bash/run/run.sh
+
+# Create the 'run' symlink
+RUN ln -sfn ${HOME_PRODUCT_DIR}/src/bash/run/run.sh ${HOME_PRODUCT_DIR}/run
+
+# STOP  ::: copy-proj-dir

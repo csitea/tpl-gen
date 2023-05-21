@@ -64,6 +64,26 @@ RUN wget https://bootstrap.pypa.io/get-pip.py ; sudo python3 get-pip.py ; sudo r
 
 
 
+# START  ::: install-poetry
+
+# Set the Poetry version
+ENV POETRY_VERSION=1.5.0
+
+# Check if Poetry is installed and install it if necessary
+RUN poetry --version >/dev/null 2>&1 \
+    && poetry_version=$(poetry --version | sed -n 's/Poetry version \(.*\)/\1/p') \
+    && test "$poetry_version" = "$POETRY_VERSION" \
+    || (curl -sSL https://install.python-poetry.org | python - \
+        && ln -sfn "$HOME/.local/bin/poetry" /usr/bin/poetry \
+        && chmod 700 /usr/bin/poetry )
+
+# Display the installed Poetry version
+RUN poetry --version
+
+# Update Poetry
+RUN poetry self update
+
+# STOP  ::: install-poetry
 
 
 
@@ -83,38 +103,15 @@ RUN set -x ; addgroup -g "$GID" -S "$APPGRP" && \
   -u "$UID" \
   -G "$APPGRP" "$APPUSR" && exit 0 ; exit 1
 
-
 RUN echo "$APPUSR ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN echo "export PS1=\"$PS1\"" >> $DOCKER_HOME/.bashrc && \
   sudo chown -R $APPUSR:$APPGRP $DOCKER_HOME && \
   sudo chmod -R 0775 $DOCKER_HOME
 
-# ensure the default shell for this user is the bash bin
-RUN usermod -s /bin/bash $APPUSR
-
+# fix the permissions defined errors for poetry install
+RUN cp -r /root/.local /home/$APPUSR/.local && chown -R "$APPUSR":"$APPGRP" /home/$APPUSR/.local
 
 USER $APPUSR
-
-# START  ::: install-poetry
-
-# Set the Poetry version
-ENV POETRY_VERSION=1.5.0
-
-# Check if Poetry is installed and install it if necessary
-RUN poetry --version >/dev/null 2>&1 \
-    && poetry_version=$(poetry --version | sed -n 's/Poetry version \(.*\)/\1/p') \
-    && test "$poetry_version" = "$POETRY_VERSION" \
-    || (curl -sSL https://install.python-poetry.org | python - \
-        && chmod 775 $HOME/.local/share/pypoetry/venv/bin/poetry )
-
-RUN echo 'export PATH=$PATH:$HOME/.local/bin/' >> $HOME/.bashrc
-
-ENV PATH="${PATH}:/home/${APPUSR}/.local/bin/"
-
-# set the default shell as bash and not sh
-SHELL ["/bin/bash", "-c"]
-
-# STOP  ::: install-poetry
 
 # STOP  ::: add-os-user
 
@@ -132,8 +129,11 @@ RUN ln -sfn ${HOME_PRODUCT_DIR}/src/bash/run/run.sh ${HOME_PRODUCT_DIR}/run
 
 
 
+
+
+
 # Iterate over each pyproject.toml file
-RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
+RUN find $PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
     while IFS= read -r -d '' f; do \
         tgt_dir=$(dirname "$f"); \
         echo "Working on tgt_dir: $tgt_dir"; \

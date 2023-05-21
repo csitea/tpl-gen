@@ -10,28 +10,28 @@ COMMIT_MESSAGE := $(if $(COMMIT_MESSAGE),$(COMMIT_MESSAGE),$$(git log -1  --pret
 DOCKER_BUILDKIT := $(or 0,$(shell echo $$DOCKER_BUILDKIT))
 
 
-SHELL = bash
+
+SHELL := /bin/bash
+.SHELLFLAGS := -c
+
 PRODUCT := $(shell basename $$PWD)
 product := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
 PROCESSOR_ARCHITECTURE := $(shell uname -m)
 ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
-org_dir := $(shell echo `basename $$ORG_DIR`|tr '[:upper:]' '[:lower:]')
+org_dir := $(shell echo `basename $(dir $(abspath $(dir $$PWD)))|tr '[:upper:]' '[:lower:]'`)
 BASE_DIR := $(shell source $$PWD/lib/bash/funcs/resolve-dirname.func.sh ; resolve_dirname $$PWD"/../" )
-# todo: fix base_dir resolution, when being in the docker run-time
-#BASE_DIR := $(shell if [[ -f /.dockerenv ]]; then echo $$BASE_DIR; else cd ../.. && pwd; fi)
-
-PRODUCT_DIR := $(shell echo $$PWD)
+PRODUCT_DIR := $$PWD
 PYTHON_DIR := $(PRODUCT_DIR)/src/python/$(product)
 
 APPUSR := appusr
 APPGRP := appgrp
-ROOT_DOCKER_NAME = ${ORG_DIR}-${product}
+ROOT_DOCKER_NAME = ${product}
 MOUNT_WORK_DIR := $(BASE_DIR)/$(ORG_DIR)
-HOST_AWS_DIR := $$HOME/.aws
+HOST_AWS_DIR := $(HOME)/.aws
 DOCKER_AWS_DIR := /home/${APPUSR}/.aws
-HOST_SSH_DIR := $$HOME/.ssh
+HOST_SSH_DIR := $(HOME)/.ssh
 DOCKER_SSH_DIR := /home/${APPUSR}/.ssh
-HOST_KUBE_DIR := $$HOME/.kube
+HOST_KUBE_DIR := $(HOME)/.kube
 DOCKER_KUBE_DIR := /home/${APPUSR}/.kube
 
 # dockerfile variables
@@ -47,22 +47,10 @@ GID := $(shell id -g)
 
 TPL_GEN_PORT=
 
-.PHONY: bar ## @-> bar both the tpl-gen and the tpl-gen containers
-bar:
-	@echo BASE_DIR:
-	@echo $(BASE_DIR)
-	@echo BASE_DIR as shell var:
-	@echo ${BASE_DIR}
-	@echo PRODUCT_DIR
-	@echo $(PRODUCT_DIR)
-	@echo MOUNT_WORK_DIR:
-	@echo $(MOUNT_WORK_DIR)
 
-.PHONY: install ## @-> install both the tpl-gen and the tpl-gen containers
+.PHONY: install ## @-> install both the tf-runner and the tpl-gen containers
 install:
 	@clear
 	make clean-install-$(product)
-
-
 
 

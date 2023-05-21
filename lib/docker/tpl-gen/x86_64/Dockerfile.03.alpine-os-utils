@@ -1,0 +1,6 @@
+FROM python:3.8.3-alpine
+
+# install OS utils
+RUN apk update && apk upgrade && apk add --no-cache \
+    bash binutils vim perl jq wget curl zip unzip busybox-extras su-exec sudo shadow
+
