@@ -1,4 +1,3 @@
-
 FROM python:3.8.3-alpine
 
 
@@ -39,53 +38,30 @@ ENV DOCKER_INIT_SCRIPT=$DOCKER_INIT_SCRIPT
 
 VOLUME $MOUNT_WORK_DIR
 
+# STOP ::: arg vars
 
 
-
-# install OS utils
+# START ::: install OS utils
 RUN apk update && apk upgrade && apk add --no-cache \
     bash binutils vim perl jq wget curl zip unzip busybox-extras su-exec sudo shadow
 
+# STOP ::: install OS utils
 
 
-
-# install backend-utils
+# START ::: install src utils
 RUN apk update && apk upgrade && apk add --no-cache \
     build-base gcc openssl-dev python3-dev libmagic ttf-freefont \
     python3-dev jpeg-dev zlib-dev coreutils libffi-dev util-linux
 
+# START ::: install src utils
 
 
 
-# isntall python pip
+# START ::: install python pip
 RUN wget https://bootstrap.pypa.io/get-pip.py ; sudo python3 get-pip.py ; sudo rm -v get-pip.py
 
 
-
-
-
-# START  ::: install-poetry
-
-# Set the Poetry version
-ENV POETRY_VERSION=1.5.0
-
-# Check if Poetry is installed and install it if necessary
-RUN poetry --version >/dev/null 2>&1 \
-    && poetry_version=$(poetry --version | sed -n 's/Poetry version \(.*\)/\1/p') \
-    && test "$poetry_version" = "$POETRY_VERSION" \
-    || (curl -sSL https://install.python-poetry.org | python - \
-        && ln -sfn "$HOME/.local/bin/poetry" /usr/bin/poetry \
-        && chmod 700 /usr/bin/poetry )
-
-# Display the installed Poetry version
-RUN poetry --version
-
-# Update Poetry
-RUN poetry self update
-
-# STOP  ::: install-poetry
-
-
+# STOP ::: install python pip
 
 
 # START ::: add-os-user
@@ -103,17 +79,40 @@ RUN set -x ; addgroup -g "$GID" -S "$APPGRP" && \
   -u "$UID" \
   -G "$APPGRP" "$APPUSR" && exit 0 ; exit 1
 
+
 RUN echo "$APPUSR ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN echo "export PS1=\"$PS1\"" >> $DOCKER_HOME/.bashrc && \
   sudo chown -R $APPUSR:$APPGRP $DOCKER_HOME && \
   sudo chmod -R 0775 $DOCKER_HOME
 
-# fix the permissions defined errors for poetry install
-RUN cp -r /root/.local /home/$APPUSR/.local && chown -R "$APPUSR":"$APPGRP" /home/$APPUSR/.local
+# ensure the default shell for this user is the bash bin
+RUN usermod -s /bin/bash $APPUSR
+
 
 USER $APPUSR
 
 # STOP  ::: add-os-user
+
+
+# START ::: install-poetry
+# Set the Poetry version
+ENV POETRY_VERSION=1.5.0
+
+# Check if Poetry is installed and install it if necessary
+RUN poetry --version >/dev/null 2>&1 \
+    && poetry_version=$(poetry --version | sed -n 's/Poetry version \(.*\)/\1/p') \
+    && test "$poetry_version" = "$POETRY_VERSION" \
+    || (curl -sSL https://install.python-poetry.org | python - \
+        && chmod 775 $HOME/.local/share/pypoetry/venv/bin/poetry )
+
+RUN echo 'export PATH=$PATH:$HOME/.local/bin/' >> $HOME/.bashrc
+
+ENV PATH="${PATH}:/home/${APPUSR}/.local/bin/"
+
+# set the default shell as bash and not sh
+SHELL ["/bin/bash", "-c"]
+
+# STOP  ::: install-poetry
 
 
 
@@ -130,10 +129,8 @@ RUN ln -sfn ${HOME_PRODUCT_DIR}/src/bash/run/run.sh ${HOME_PRODUCT_DIR}/run
 
 
 
-
-
 # Iterate over each pyproject.toml file
-RUN find $PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
+RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
     while IFS= read -r -d '' f; do \
         tgt_dir=$(dirname "$f"); \
         echo "Working on tgt_dir: $tgt_dir"; \
@@ -158,5 +155,7 @@ WORKDIR $HOME_PRODUCT_DIR
 RUN chmod 0755 "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
 
 CMD exec /bin/bash -c "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
+
+
 
 

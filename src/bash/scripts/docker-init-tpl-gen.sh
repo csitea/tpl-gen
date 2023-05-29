@@ -1,9 +1,5 @@
 #!/bin/bash
 
-MODULE='tpl-gen'
-
-
-test -z ${PRODUCT:-} && PRODUCT=${MODULE:-}
 
 PRODUCT_DIR=$(echo $PRODUCT_DIR|perl -ne "s|/home/$APPUSR||g;print")
 BASE_DIR=$(echo $BASE_DIR|perl -ne "s|/home/$APPUSR||g;print")

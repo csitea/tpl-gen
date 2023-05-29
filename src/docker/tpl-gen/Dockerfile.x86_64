@@ -1,4 +1,3 @@
-
 FROM python:3.8.3-alpine
 
 
@@ -39,33 +38,30 @@ ENV DOCKER_INIT_SCRIPT=$DOCKER_INIT_SCRIPT
 
 VOLUME $MOUNT_WORK_DIR
 
+# STOP ::: arg vars
 
 
-
-# install OS utils
+# START ::: install OS utils
 RUN apk update && apk upgrade && apk add --no-cache \
     bash binutils vim perl jq wget curl zip unzip busybox-extras su-exec sudo shadow
 
+# STOP ::: install OS utils
 
 
-
-# install backend-utils
+# START ::: install src utils
 RUN apk update && apk upgrade && apk add --no-cache \
     build-base gcc openssl-dev python3-dev libmagic ttf-freefont \
     python3-dev jpeg-dev zlib-dev coreutils libffi-dev util-linux
 
+# START ::: install src utils
 
 
 
-# isntall python pip
+# START ::: install python pip
 RUN wget https://bootstrap.pypa.io/get-pip.py ; sudo python3 get-pip.py ; sudo rm -v get-pip.py
 
 
-
-
-
-
-
+# STOP ::: install python pip
 
 
 # START ::: add-os-user
@@ -95,8 +91,10 @@ RUN usermod -s /bin/bash $APPUSR
 
 USER $APPUSR
 
-# START  ::: install-poetry
+# STOP  ::: add-os-user
 
+
+# START ::: install-poetry
 # Set the Poetry version
 ENV POETRY_VERSION=1.5.0
 
@@ -116,8 +114,6 @@ SHELL ["/bin/bash", "-c"]
 
 # STOP  ::: install-poetry
 
-# STOP  ::: add-os-user
-
 
 
 # START ::: copy-proj-dir
@@ -129,6 +125,7 @@ COPY --chown=$APPUSR:$APPGRP ./src/bash/run/run.sh ${HOME_PRODUCT_DIR}/src/bash/
 RUN ln -sfn ${HOME_PRODUCT_DIR}/src/bash/run/run.sh ${HOME_PRODUCT_DIR}/run
 
 # STOP  ::: copy-proj-dir
+
 
 
 
@@ -158,5 +155,7 @@ WORKDIR $HOME_PRODUCT_DIR
 RUN chmod 0755 "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
 
 CMD exec /bin/bash -c "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
+
+
 
 
