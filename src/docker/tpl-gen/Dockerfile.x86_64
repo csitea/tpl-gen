@@ -1,8 +1,9 @@
-FROM python:3.8.3-alpine
+
+FROM python:3.10.11-slim-buster
 
 
 
-
+# START ::: args-vars
 ARG UID
 ARG GID
 ARG BASE_DIR
@@ -38,55 +39,60 @@ ENV DOCKER_INIT_SCRIPT=$DOCKER_INIT_SCRIPT
 
 VOLUME $MOUNT_WORK_DIR
 
-# STOP ::: arg vars
-
-
-# START ::: install OS utils
-RUN apk update && apk upgrade && apk add --no-cache \
-    bash binutils vim perl jq wget curl zip unzip busybox-extras su-exec sudo shadow
-
-# STOP ::: install OS utils
-
-
-# START ::: install src utils
-RUN apk update && apk upgrade && apk add --no-cache \
-    build-base gcc openssl-dev python3-dev libmagic ttf-freefont \
-    python3-dev jpeg-dev zlib-dev coreutils libffi-dev util-linux
-
-# START ::: install src utils
+# STOP  ::: args-vars
 
 
 
-# START ::: install python pip
+# START ::: install alpine OS utils
+
+RUN apt-get update && apt-get install -y --no-install-recommends  \
+  perl jq vim wget curl sudo zip unzip make bsdmainutils tzdata
+# STOP  ::: install alpine OS utils
+
+
+
+
+
+# # START ::: python build utils
+# RUN RUN apt-get update && apt-get install -y  \
+#     build-base gcc openssl-dev python3-dev libmagic  \
+#     python3-dev jpeg-dev zlib-dev coreutils libffi-dev util-linux
+
+# # STOP  ::: python build utils
+
+
+
+
+# isntall python pip
 RUN wget https://bootstrap.pypa.io/get-pip.py ; sudo python3 get-pip.py ; sudo rm -v get-pip.py
 
+RUN pip3 install --upgrade pip
+RUN pip3 install wheel
 
-# STOP ::: install python pip
 
 
 # START ::: add-os-user
-RUN test -z $(getent group $GID | cut -d: -f1) || \
-        groupmod -g $((GID+1000)) $(getent group $GID | cut -d: -f1)
+RUN if getent group $GID; then groupmod -g $((GID+2000)) $(getent group $GID | cut -d: -f1); fi
 
 # create a APPGRP and APPUSR
-RUN set -x ; addgroup -g "$GID" -S "$APPGRP" && \
-  adduser \
-  --disabled-password \
-  -g "$GID" \
-  -D \
-  -s "$DOCKER_SHELL" \
-  -h "$DOCKER_HOME" \
-  -u "$UID" \
-  -G "$APPGRP" "$APPUSR" && exit 0 ; exit 1
+# START ::: add-os-user
+RUN set -x ; groupadd -g "$GID" "$APPGRP" && \
+  useradd \
+  --gid "$GID" \
+  --non-unique \
+  --shell "$DOCKER_SHELL" \
+  --home-dir "/home/appusr" \
+  --uid "$UID" \
+  --groups "$APPGRP" "$APPUSR" && exit 0 ; exit 1
+
+# create home directory and change its ownership to APPUSR:APPGRP
+RUN mkdir -p "/home/$APPUSR" && chown "$APPUSR":"$APPGRP" "/home/$APPUSR"
 
 
 RUN echo "$APPUSR ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN echo "export PS1=\"$PS1\"" >> $DOCKER_HOME/.bashrc && \
-  sudo chown -R $APPUSR:$APPGRP $DOCKER_HOME && \
-  sudo chmod -R 0775 $DOCKER_HOME
-
-# ensure the default shell for this user is the bash bin
-RUN usermod -s /bin/bash $APPUSR
+  chown -R $APPUSR:$APPGRP $DOCKER_HOME && \
+  chmod -R 0775 $DOCKER_HOME
 
 
 USER $APPUSR
@@ -94,7 +100,9 @@ USER $APPUSR
 # STOP  ::: add-os-user
 
 
-# START ::: install-poetry
+
+# START  ::: install-poetry
+
 # Set the Poetry version
 ENV POETRY_VERSION=1.5.0
 
@@ -109,6 +117,7 @@ RUN echo 'export PATH=$PATH:$HOME/.local/bin/' >> $HOME/.bashrc
 
 ENV PATH="${PATH}:/home/${APPUSR}/.local/bin/"
 
+
 # set the default shell as bash and not sh
 SHELL ["/bin/bash", "-c"]
 
@@ -122,14 +131,16 @@ COPY --chown=$APPUSR:$APPGRP . ${HOME_PRODUCT_DIR}
 COPY --chown=$APPUSR:$APPGRP ./src/bash/run/run.sh ${HOME_PRODUCT_DIR}/src/bash/run/run.sh
 
 # Create the 'run' symlink
-RUN ln -sfn ${HOME_PRODUCT_DIR}/src/bash/run/run.sh ${HOME_PRODUCT_DIR}/run
+WORKDIR $HOME_PRODUCT_DIR
+RUN ln -sfn src/bash/run/run.sh run
+
 
 # STOP  ::: copy-proj-dir
 
 
 
 
-# Iterate over each pyproject.toml file
+# START ::: install poetry modules in the csi module
 RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
     while IFS= read -r -d '' f; do \
         tgt_dir=$(dirname "$f"); \
@@ -148,6 +159,8 @@ RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
         cd -; \
     done
 
+# STOP  ::: install poetry modules in the csi module
+
 
 
 WORKDIR $HOME_PRODUCT_DIR
@@ -155,7 +168,5 @@ WORKDIR $HOME_PRODUCT_DIR
 RUN chmod 0755 "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
 
 CMD exec /bin/bash -c "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
-
-
 
 

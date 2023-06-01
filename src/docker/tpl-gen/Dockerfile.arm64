@@ -1,66 +1,55 @@
-FROM python:3.8.3-alpine
+FROM python:3.10.11-slim-buster
 
 ARG UID
 ARG GID
 ARG BASE_DIR
 ARG PRODUCT
 ARG ORG_DIR
+ARG PRODUCT_DIR
+ARG APPUSR
+ARG APPGRP
+ARG HOME_PRODUCT_DIR
+ARG MOUNT_WORK_DIR
+ARG DOCKER_SHELL
+ARG DOCKER_HOME
+ARG RUN_SCRIPT
+ARG DOCKER_INIT_SCRIPT
 
-ENV PRODUCT=$PRODUCT
-ENV APPUSR=appusr
-ENV APPGRP=appgrp
-ENV PS1='`date "+%F %T"` \u@\h  \w \n\n  '
+ENV MODULE='tpl-gen'
 ENV BASE_DIR=$BASE_DIR
+ENV ORG=$ORG
+ENV PRODUCT=$PRODUCT
 ENV ORG_DIR=$ORG_DIR
-ENV PRODUCT_DIR="$BASE_DIR/$ORG_DIR/$PRODUCT"
+ENV PRODUCT_DIR=$PRODUCT_DIR
 ENV EDITOR="vim"
-ENV HOME_PRODUCT_DIR="/home/$APPUSR/$BASE_DIR/$ORG_DIR/$PRODUCT"
+ENV APPUSR=$APPUSR
+ENV APPGRP=$APPGRP
+ENV PS1='`date "+%F %T"` \u@\h  \w \n\n  '
+ENV HOME_PRODUCT_DIR=$HOME_PRODUCT_DIR
+ENV MOUNT_WORK_DIR=$MOUNT_WORK_DIR
+ENV DOCKER_SHELL=$DOCKER_SHELL
+ENV DOCKER_HOME=$DOCKER_HOME
+ENV RUN_SCRIPT=$RUN_SCRIPT
 
 
-VOLUME $PRODUCT_DIR
-VOLUME $BASE_DIR
+VOLUME $MOUNT_WORK_DIR
 
-# install OS utils
-RUN apk update && apk upgrade && apk add --no-cache \
-    bash binutils vim perl jq wget curl zip unzip busybox-extras su-exec sudo shadow
+RUN apt-get update && \
+    apt-get install make -y curl
 
-# install backend-utils
-RUN apk update && apk upgrade && apk add --no-cache \
-    build-base gcc openssl-dev python3-dev libmagic ttf-freefont \
-    python3-dev jpeg-dev zlib-dev coreutils libffi-dev util-linux
+COPY . ${HOME_PRODUCT_DIR}
+COPY ./src/bash/run/run.sh ${HOME_PRODUCT_DIR}/src/bash/run/run.sh
 
+# Create the 'run' symlink
+RUN ln -sfn ${HOME_PRODUCT_DIR}/src/bash/run/run.sh ${HOME_PRODUCT_DIR}/run
 
-# start ::: adding OS APPUSR and APPGRP
-RUN test -z $(getent group $GID | cut -d: -f1) || \
-        groupmod -g $((GID+1000)) $(getent group $GID | cut -d: -f1)
+RUN curl -sSL https://install.python-poetry.org | python3 -
 
-# create a APPGRP and APPUSR
-RUN set -x ; addgroup -g "$GID" -S "$APPGRP" && \
-  adduser \
-  --disabled-password \
-  -g "$GID" \
-  -D \
-  -s "/bin/bash" \
-  -h "/home/$APPUSR" \
-  -u "$UID" \
-  -G "$APPGRP" "$APPUSR" && exit 0 ; exit 1
+ENV PATH="/root/.local/bin:${PATH}"
+RUN poetry --version
 
-RUN echo "$APPUSR ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-RUN echo "export PS1=\"$PS1\"" >> /home/$APPUSR/.bashrc && \
-  sudo chown -R $APPUSR:$APPGRP /home/$APPUSR && \
-  sudo chmod -R 0775 /home/$APPUSR
-
-
-RUN wget https://bootstrap.pypa.io/get-pip.py ; sudo python3 get-pip.py ; sudo rm -v get-pip.py
-
-USER $APPUSR
-ADD --chown=$APPUSR:$APPGRP "." /home/$APPUSR$PRODUCT_DIR
-# stop ::: adding OS APPUSR and APPGRP
-
-# Note: using $APPUSR/$PRODUCT_DIR will result in /home/appusr//pp-name/product/r
-#                                                         ~~~^^^~~~
-RUN MODULE=tpl-gen bash $HOME_PRODUCT_DIR/run -a do_check_install_py_modules
+ENV PATH /home/$APPUSR/bin:${PATH}
 
 WORKDIR $PRODUCT_DIR
 
-CMD exec /bin/bash -c $HOME_PRODUCT_DIR/src/bash/run/docker-init-tpl-gen.sh
+CMD exec /bin/bash -c "${HOME_PRODUCT_DIR}/src/bash/run/docker-init-${MODULE}.sh"
