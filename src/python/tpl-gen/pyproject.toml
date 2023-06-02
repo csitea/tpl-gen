@@ -7,7 +7,7 @@ maintainers = ["Engineering <engineering@csitea.net>"]
 
 packages = [
     { include = "tpl_gen" },
-    { include = "console_utils"}
+    { include = "utils"}
 ]
 
 [tool.poetry.dependencies]

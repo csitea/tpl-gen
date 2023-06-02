@@ -1,24 +1,13 @@
 #!/usr/bin/env python3
 
-import time
 import os
-import shutil
 import json
-from console_utils import print_error, pretty_print_yaml, print_info, print_success, print_warn
-from io_utils import expand_path, load_yaml
+import shutil
 import yaml
 from jinja2 import Environment, BaseLoader, exceptions
-from colorama import Fore, Style
+from console_utils import print_error, print_info, print_success, print_warn
+from io_utils import expand_path, load_yaml
 
-
-class StepNotDefinedInShellError(Exception):
-    pass
-
-
-class StepNotDefinedInConfError(Exception):
-    def __init__(self, message= "The step that you are trying to generate conf for is not defined in the configuration!!!"):
-        self.message = message
-        super().__init__(self.message)
 
 
 
@@ -44,7 +33,7 @@ def generate_code():
     # debug bpretty_print_yaml(morph_data)
     for key, value in morph_data['vars'].items():
         print(f"{key}: {value}")
-        
+
 
 
 # generate the *.json files from the *.yaml files
