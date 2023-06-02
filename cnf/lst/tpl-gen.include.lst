@@ -28,16 +28,6 @@ lib/bash/funcs/suse-install-bins.func.sh
 lib/bash/funcs/test-helpers.sh
 lib/bash/funcs/ubuntu-install-bins.func.sh
 lib/bash/funcs/zip-me.func.sh
-lib/docker/tpl-gen/x86_64/Dockerfile.01.from-python-3.8.3-alpine
-lib/docker/tpl-gen/x86_64/Dockerfile.02.arg-vars
-lib/docker/tpl-gen/x86_64/Dockerfile.03.alpine-os-utils
-lib/docker/tpl-gen/x86_64/Dockerfile.04.alpine-backend-utils
-lib/docker/tpl-gen/x86_64/Dockerfile.05.install-pip
-lib/docker/tpl-gen/x86_64/Dockerfile.06.install-poetry
-lib/docker/tpl-gen/x86_64/Dockerfile.07.add-os-user
-lib/docker/tpl-gen/x86_64/Dockerfile.08.copy-proj-dir
-lib/docker/tpl-gen/x86_64/Dockerfile.09.install-py-modules
-lib/docker/tpl-gen/x86_64/Dockerfile.10.docker-init
 lib/make/demand-var.func.mk
 lib/make/docker-task.mk
 lib/make/install-img.func.mk
@@ -69,7 +59,6 @@ src/docker/tpl-gen/Dockerfile.arm64
 src/docker/tpl-gen/Dockerfile.x86_64
 src/make/install-img-tpl-gen.func.mk
 src/make/local-run-tpl-gen.incl.mk
-src/perl/dockerfile-generator.pl
 src/python/tpl-gen/.coveragerc
 src/python/tpl-gen/.pylintrc
 src/python/tpl-gen/.tplignore

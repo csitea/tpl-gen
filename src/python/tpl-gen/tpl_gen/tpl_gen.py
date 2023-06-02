@@ -302,6 +302,8 @@ def load_yaml(filename):
     Return contents of yaml file as variables
     '''
     filepath  = os.path.join(os.getcwd(), filename)
+    print_info(f"INFO: filename is {filename}")
+    print_info(f"INFO: filepath is {filepath}")
     with open(filepath, encoding="utf-8") as file:
         yaml_file = yaml.load(file, Loader=yaml.Loader)
 
