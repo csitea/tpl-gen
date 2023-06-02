@@ -2,8 +2,8 @@
 name = "tpl-gen"
 version = "1.7.0"
 description = "A template generator using Jinja2 and Smarty TPL files."
-authors = ["Engineering <engineering@spectralengines.com>"]
-maintainers = ["Engineering <engineering@spectralengines.com>"]
+authors = ["Engineering <engineering@csitea.net>"]
+maintainers = ["Engineering <engineering@csitea.net>"]
 
 packages = [
     { include = "tpl_gen" },

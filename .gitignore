@@ -24,7 +24,7 @@ dat/log/bash
 src/bash/run/tmp/
 
 # python
-__pycache__/
+**/__pycache__/
 .pytest_cache/
 *.pyc
 .venv/

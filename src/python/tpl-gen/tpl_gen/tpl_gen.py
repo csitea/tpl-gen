@@ -4,7 +4,8 @@ import time
 import os
 import shutil
 import json
-from console_utils import print_error, force_error, print_info, print_success, print_warn
+from console_utils import print_error, pretty_print_yaml, print_info, print_success, print_warn
+from io_utils import expand_path, load_yaml
 import yaml
 from jinja2 import Environment, BaseLoader, exceptions
 from colorama import Fore, Style
@@ -19,8 +20,10 @@ class StepNotDefinedInConfError(Exception):
         self.message = message
         super().__init__(self.message)
 
+
+
 def main():
-    ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir  = set_vars()
+    ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir, product_dir  = set_vars()
     cnf = get_cnf(cnf_src_dir,ORG_,APP_,ENV_)
 
     # if the caller defines a step the step MUST have configuration
@@ -33,11 +36,21 @@ def main():
     do_generate(ORG_, ENV_ , APP_ , STEP_, cnf, tpl_src_dir, tgt_output_dir)
 
 
+def generate_code():
+    ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir, product_dir  = set_vars()
+
+    morph_yaml_fle = cnf_src_dir + "/cnf/yaml/" + "morph.yaml"
+    morph_data = load_yaml(morph_yaml_fle)
+    # debug bpretty_print_yaml(morph_data)
+    for key, value in morph_data['vars'].items():
+        print(f"{key}: {value}")
+        
+
 
 # generate the *.json files from the *.yaml files
 def render_yaml():
     print_info ("START ::: render_yaml")
-    ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir = set_vars()
+    ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir, product_dir = set_vars()
     cnf_src_dir = os.getenv("CNF_SRC")
     tgt_dir = os.getenv("TGT")
 
@@ -134,7 +147,7 @@ def set_vars():
     except IndexError as error:
         raise Exception("ERROR in set_vars: ", str(error)) from error
 
-    return ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir
+    return ORG_, ENV_, APP_, STEP_, cnf_src_dir, tpl_src_dir , tgt_output_dir, product_dir
 
 
 
@@ -162,31 +175,6 @@ def get_cnf(cnf_src_dir,ORG_,APP_,ENV_):
         raise Exception("ERROR in set_vars: ", str(error)) from error
 
     return cnf
-
-
-def expand_path(ORG_, APP_, ENV_, STEP_, tpl_src_dir, tgt_output_dir,expandable_file_path):
-
-
-    if "%step%" not in expandable_file_path:
-        tgt_file_path = expandable_file_path.replace(tpl_src_dir,tgt_output_dir) \
-            .replace("/src/tpl", "", 1) \
-            .replace(".tpl", "") \
-            .replace(r"%org%", ORG_) \
-            .replace(r"%app%", APP_) \
-            .replace(r"%env%", ENV_)
-    else:
-        if '%step%' in expandable_file_path and STEP_ is None:
-            raise StepNotDefinedInShellError("STEP_ is not defined")
-
-        tgt_file_path = expandable_file_path.replace(tpl_src_dir,tgt_output_dir) \
-            .replace("/src/tpl", "", 1) \
-            .replace(".tpl", "") \
-            .replace(r"%org%", ORG_) \
-            .replace(r"%app%", APP_) \
-            .replace(r"%env%", ENV_) \
-            .replace(r"%step%", STEP_)
-
-    return tgt_file_path
 
 
 def do_generate(ORG_, ENV_, APP_, STEP_, cnf , tpl_src_dir, tgt_output_dir):
@@ -297,17 +285,6 @@ def include_file(filename):
     return content
 
 
-def load_yaml(filename):
-    '''
-    Return contents of yaml file as variables
-    '''
-    filepath  = os.path.join(os.getcwd(), filename)
-    print_info(f"INFO: filename is {filename}")
-    print_info(f"INFO: filepath is {filepath}")
-    with open(filepath, encoding="utf-8") as file:
-        yaml_file = yaml.load(file, Loader=yaml.Loader)
-
-    return yaml_file
 
 def check_substrings(substr_list, main_string)-> bool:
     return any(substr in main_string for substr in substr_list)

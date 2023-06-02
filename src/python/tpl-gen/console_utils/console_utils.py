@@ -1,5 +1,6 @@
 import os
 import time
+import yaml
 from rich.console import Console
 
 console = Console(width=150, color_system="truecolor")
@@ -46,3 +47,7 @@ def get_optional_env_var(var_name):
         print_warn(f"The environment variable \"{var_name}\" does not have a value!\n" +
                     f"In the calling shell do \"export {var_name}=your-{var_name}-value\"")
     return env_var
+
+def pretty_print_yaml(data):
+    print(yaml.dump(data, default_flow_style=False, sort_keys=False))
+
