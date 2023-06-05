@@ -1,5 +1,5 @@
 import os
-from .console_utils import print_error, print_info
+from utils.console_utils import print_error, print_info
 
 
 def get_env_var(name: str) -> str:
@@ -40,3 +40,12 @@ def get_optional_env_var(name: str, fallback_value: str) -> str:
         return fallback_value
 
     return var_value
+
+
+def get_env_as_dict() -> dict[str, str]:
+    environment: dict[str, str] = {}
+
+    for key, value in os.environ.items():
+        environment[key.lower()] = value.lower()
+
+    return environment

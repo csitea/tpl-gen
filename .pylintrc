@@ -104,6 +104,7 @@ disable=
     missing-docstring,
     protected-access,
     too-few-public-methods,
+    unnecessary-lambda-assignment,
     # handled by black
     format,
     # We anticipate #3512 where it will become optional

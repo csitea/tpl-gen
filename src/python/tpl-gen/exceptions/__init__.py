@@ -1,3 +1,3 @@
-from .exceptions import StepNotDefinedInConfError
+from .exceptions import StepNotDefinedInConfError, MissingEnvironmentVariableError
 
-__all__ = ["StepNotDefinedInConfError"]
+__all__ = ["StepNotDefinedInConfError", "MissingEnvironmentVariableError"]
