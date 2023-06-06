@@ -42,10 +42,47 @@ def get_optional_env_var(name: str, fallback_value: str) -> str:
     return var_value
 
 
-def get_env_as_dict() -> dict[str, str]:
+def get_env_as_dict_lower() -> dict[str, str]:
+    """_summary_
+
+    Returns:
+        dict[str, str]: _description_
+    """
     environment: dict[str, str] = {}
 
     for key, value in os.environ.items():
         environment[key.lower()] = value.lower()
 
     return environment
+
+
+# allow environment variables to override configuration
+# Warning: this is an important feature, users now need
+# to be aware of their environment.
+def override_env(cnf):
+    """overrides the cnf with environment variables
+        this function is mainly kept for backwards compatibility
+        we should move away from specifics like STEP
+
+    Args:
+        cnf (Any): The configuration
+
+    Returns:
+        Any: The configuration overriden with env variables
+    """
+    # it only makes sense to talk about overriding variables on step level
+    # since nested variables within steps are flattened to environment level
+    # variables, i.e. :
+    #     cnf["steps"]["001-step-name"]["AWS_PROFILE"]
+    #     becomes AWS_PROFILE, thus no need to override
+    #     cnf["aws"]["AWS_PROFILE"], since it won't be considered
+
+    for step in cnf["env"]["steps"]:
+        for step_var in cnf["env"]["steps"][step]:
+            # checks if it is defined as environment variable
+            # if it's not, preserves the value of itself.
+            cnf["env"]["steps"][step][step_var] = os.getenv(
+                step_var, cnf["env"]["steps"][step][step_var]
+            )
+
+    return cnf

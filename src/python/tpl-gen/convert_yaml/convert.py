@@ -14,7 +14,7 @@ import utils
 ignore_list = utils.get_ignored_paths()
 
 
-def main():
+def yaml_to_json():
     print_info_heading("CONVERT YAML TO JSON")
 
     dirs_to_iterate = [

@@ -28,7 +28,7 @@ from utils.console_utils import print_success, print_warn
 from config import env_params_tpl as env
 import utils
 from utils.string_utils import pkey_replace
-from utils.env_utils import get_env_as_dict
+from utils.env_utils import get_env_as_dict_lower
 
 
 def convert_dir(src_dir: Path, ignore_list: Optional[list[str]]):
@@ -101,7 +101,7 @@ def get_ignored_paths() -> list[str]:
 
 def create_tgt_path(file: Path):
     str_path = str(file)
-    env_dict = get_env_as_dict()
+    env_dict = get_env_as_dict_lower()
     converted_path = pkey_replace(str_path, env_dict)
     converted_path = converted_path.replace("src/tpl/", "", 1)
     converted_path = Path(converted_path).with_suffix("")

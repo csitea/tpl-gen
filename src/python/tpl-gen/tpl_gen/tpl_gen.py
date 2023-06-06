@@ -262,6 +262,7 @@ def do_generate(ORG_, ENV_, APP_, STEP_, cnf, tpl_src_dir, tgt_output_dir):
                             cnf = override_env(cnf)
                             args.update(cnf["env"])
                             rendered = obj_tpl.render(args)
+                            print_info(rendered)
                             tgt_file_path = current_tpl_file
                             tgt_file_path = expand_path(
                                 ORG_,
