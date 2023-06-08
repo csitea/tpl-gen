@@ -8,7 +8,7 @@ from .console_utils import (
 from .env_utils import get_env_var, get_optional_env_var
 from .string_utils import pkey_replace, string_contains
 from .convert_utils import convert_dir, get_ignored_paths
-from .tpl_utils import read_json_file
+from .tpl_utils import read_config_file
 
 __all__ = [
     "print_warn",
@@ -23,5 +23,5 @@ __all__ = [
     "print_info_heading",
     "convert_dir",
     "get_ignored_paths",
-    "read_json_file"
+    "read_config_file"
 ]

@@ -76,6 +76,11 @@ def override_env(cnf):
     #     cnf["steps"]["001-step-name"]["AWS_PROFILE"]
     #     becomes AWS_PROFILE, thus no need to override
     #     cnf["aws"]["AWS_PROFILE"], since it won't be considered
+    try:
+        if cnf["env"] == None or cnf["env"]["steps"] == None:
+            return cnf
+    except KeyError:
+        return cnf
 
     for step in cnf["env"]["steps"]:
         for step_var in cnf["env"]["steps"][step]:

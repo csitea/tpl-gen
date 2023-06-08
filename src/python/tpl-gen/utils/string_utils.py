@@ -19,7 +19,24 @@ Imported Libraries:
     None
 """
 
+
+def expand_path(path: str, vars: dict[str, str]) -> str:
+
+    for key, value in vars.items():
+        if value is None:
+            continue  # Skip the iteration when value is None
+        to_srch= "%" + key + "%"
+        to_repl=value
+        path = path.replace(to_srch,to_repl)
+
+
+
+    return path
+
+
+
 def pkey_replace(pkey_str: str, pkey_values: dict[str, str]) -> str:
+
     """
     Replace placeholder keys in a string with corresponding values from a dictionary.
 
@@ -111,6 +128,7 @@ def replace_matching_values(
         rendered_string = rendered_string.replace(pkey, value)
 
     return rendered_string
+
 
 def string_contains(substr_list: list[str], main_string: str) -> bool:
     """
