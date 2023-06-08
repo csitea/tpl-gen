@@ -14,7 +14,7 @@ def stamp_time(msg: str):
 
 
 def print_warn(msg: str):
-    console.print(f"WARN ::: {msg} ::: :warning:", style="light_goldenrod1")
+    console.print(f"WARN ::: {msg} ::: [blink2]:warning:", style="light_goldenrod1")
 
 
 def print_error(msg: str):

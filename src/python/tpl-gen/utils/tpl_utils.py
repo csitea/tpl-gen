@@ -27,6 +27,8 @@ def read_json_file(file: Path) -> any:
         cw.print_error(f'The file "{yaml_file}" has no yaml nor json variant')
         raise err
 
+    cw.print_success(f"Using {yaml_file}")
+
     return cnf
 
 
@@ -68,6 +70,15 @@ def render_files_step(files: list[Path], cnf: any) -> list[tuple[Path, str]]:
         rendered_file = render_file(tpl_obj, cnf)
         cw.print_yaml(rendered_file)
         rendered_files.append((tgt_path, rendered_file))
+
+    return rendered_files
+
+
+def render_files_multi(files: list[Path], cnf: any) -> list[tuple[Path, str]]:
+    rendered_files: list[tuple[Path, str]] = []
+    for step, data in cnf["env"]["steps"].items():
+        cw.print_info(f"Iterating step {step}")
+        rendered_files.append(render_files(files, data))
 
     return rendered_files
 

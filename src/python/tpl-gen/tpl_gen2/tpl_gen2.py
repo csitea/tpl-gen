@@ -3,6 +3,7 @@ from pathlib import Path
 from config import env_params_tpl as env
 from utils import tpl_utils as tpl
 from utils import console_utils as cw
+from models.CnfModel import CnfModel
 
 
 def main():
@@ -11,7 +12,7 @@ def main():
 
     json_cnf_file = Path(env.CNF_SRC, env.APP, f"{env.ENV}.env.json")
     cnf = tpl.read_json_file(json_cnf_file)
-
+    cw.print_code(cnf)
     for subdir, _dirs, files in os.walk(Path(env.TPL_SRC, "src", "tpl")):
         files = sorted(files)
         files = [Path(subdir, file) for file in files]
@@ -30,6 +31,10 @@ def get_tpl_render_mode():
     if os.environ.get("STEP"):
         cw.print_info_heading("RENDERING FILES IN STEP MODE")
         return tpl.render_files_step
+
+    if os.environ.get("MULTI"):
+        cw.print_info_heading("RENDERING FILES IN MULTI MODE")
+        return tpl.render_files_multi
 
     cw.print_info_heading("RENDERING FILES IN NORMAL MODE")
     return tpl.render_files
