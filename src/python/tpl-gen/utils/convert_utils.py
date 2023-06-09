@@ -27,9 +27,8 @@ import yaml
 from utils.console_utils import print_success, print_warn
 from config import env_params_tpl as env
 import utils
-from utils.string_utils import expand_path
+from utils.string_utils import pkey_replace
 from utils.env_utils import get_env_as_dict_lower
-from collections.abc import MutableMapping
 
 
 def convert_dir(src_dir: Path, ignore_list: Optional[list[str]]):
@@ -104,9 +103,8 @@ def get_ignored_paths() -> list[str]:
 def create_tgt_path(file: Path, opt_dict={}) -> Path:
     str_path = str(file)
     env_dict = get_env_as_dict_lower()
-    # todo: update the conf
-    # opt_dict.update(env_dict)
-    converted_path = expand_path(str_path, opt_dict)
+    opt_dict.update(env_dict)
+    converted_path = pkey_replace(str_path, opt_dict)
     converted_path = converted_path.replace("src/tpl/", "", 1)
     converted_path = Path(converted_path.replace(".tpl", ""))
     return converted_path
