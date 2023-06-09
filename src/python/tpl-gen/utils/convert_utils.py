@@ -99,8 +99,10 @@ def get_ignored_paths() -> list[str]:
         return []
 
 
+def create_tgt_path(file: Path, opt_dict=None) -> Path:
+    if opt_dict is None:
+        opt_dict = {}
 
-def create_tgt_path(file: Path, opt_dict={}) -> Path:
     str_path = str(file)
     env_dict = get_env_as_dict_lower()
     opt_dict.update(env_dict)
@@ -108,6 +110,3 @@ def create_tgt_path(file: Path, opt_dict={}) -> Path:
     converted_path = converted_path.replace("src/tpl/", "", 1)
     converted_path = Path(converted_path.replace(".tpl", ""))
     return converted_path
-
-
-

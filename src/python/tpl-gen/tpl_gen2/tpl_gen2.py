@@ -7,8 +7,9 @@ from utils import console_utils as cw
 import mimetypes
 import shutil
 import array
-#from models.CnfModel import CnfModel
-# broken ^^^
+
+env.init_env()
+
 
 def main():
     cw.print_info_heading("STARTING TPL GEN")
@@ -17,9 +18,9 @@ def main():
     for subdir, _dirs, files in os.walk(Path(env.TPL_SRC, "src", "tpl")):
         tpl_files = [Path(subdir, file) for file in files]
         tpl_files = sorted(tpl_files)
-        #tpl_files = array("str",tpl_files)
+        # tpl_files = array("str",tpl_files)
         files_and_contents = mode_action(tpl_files, cnf)
-        write_output_files(tpl_files,files_and_contents)
+        write_output_files(tpl_files, files_and_contents)
 
 
 def get_tpl_render_mode_action():
@@ -37,7 +38,7 @@ def get_tpl_render_mode_action():
 
     if os.environ.get("MULTI"):
         cw.print_info_heading("RENDERING FILES IN MULTI MODE")
-        json_cnf_file = Path(env.CNF_SRC) # no naming convention just the conf file
+        json_cnf_file = Path(env.CNF_SRC)  # no naming convention just the conf file
         cnf = tpl.read_config_file(json_cnf_file)
         cw.print_code(cnf)
         return tpl.render_files, cnf
@@ -48,14 +49,18 @@ def get_tpl_render_mode_action():
 
 def is_text_file(file_path):
     mime_type, _ = mimetypes.guess_type(file_path)
-    return mime_type and mime_type.startswith('text/')
+    return mime_type and mime_type.startswith("text/")
 
 
-def write_output_files(tpl_files: list[str], files_and_contents: list[tuple[Path, str]]):
+def write_output_files(
+    tpl_files: list[str], files_and_contents: list[tuple[Path, str]]
+):
     counter = 0
     for file_path, content in files_and_contents:
         directory = file_path.parent  # Get the directory path
-        directory.mkdir(parents=True, exist_ok=True)  # Create the directory if it doesn't exist
+        directory.mkdir(
+            parents=True, exist_ok=True
+        )  # Create the directory if it doesn't exist
 
         tpl_file = tpl_files[counter]
 
@@ -63,6 +68,8 @@ def write_output_files(tpl_files: list[str], files_and_contents: list[tuple[Path
             with open(file_path, "w", encoding="utf-8") as output_file:
                 output_file.write(content + os.linesep)
         except UnicodeDecodeError:
-            print(f"The file {file_path} is a binary file or its type cannot be determined.")
+            print(
+                f"The file {file_path} is a binary file or its type cannot be determined."
+            )
             shutil.copy(tpl_file, file_path)
         counter += 1

@@ -1,5 +1,5 @@
 import os
-from utils.console_utils import print_error, print_info
+from utils.console_utils import print_error, print_info, print_warn
 
 
 def get_env_var(name: str) -> str:
@@ -17,6 +17,7 @@ def get_env_var(name: str) -> str:
     try:
         var_value = os.environ[name]
     except KeyError as err:
+        print_warn("Make sure to call init_env() before your main() function")
         print_error(f"env var {name} has no value")
         raise err
 

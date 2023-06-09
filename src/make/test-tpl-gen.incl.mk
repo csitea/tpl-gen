@@ -10,8 +10,8 @@
 # 	docker exec -e TPL_SRC=$(TPL_SRC) -e CNF_SRC=$(CNF_SRC) -e ORG=$(ORG) -e APP=$(APP) -e ENV=$(ENV) -e TGT=$(TGT) -e SRC=$(SRC) $(ORG)-${PRODUCT}-tpl-gen-con make ${PRODUCT}
 
 .PHONY: do-test-tpl-gen ## @-> starts container, renders tpl-gen and destroyes container
-do-test-tpl-gen:
-	ORG="csi" APP="wpp" ENV="dev" TPL_SRC="/opt/csi/csi-wpp-infra-app" CNF_SRC="/opt/csi/csi-wpp-infra-conf" docker exec -e TPL_SRC="/opt/csi/csi-wpp-infra-app" -e CNF_SRC="/opt/csi/csi-wpp-infra-conf" -e ORG=csi -e APP=wpp -e ENV=dev csi-tpl-gen-tpl-gen-con /bin/bash -c "/opt/csi/tpl-gen/src/python/tpl-gen/.venv/bin/pytest -v"
+do-test-tpl-gen: demand_var-ORG
+	docker exec $(ORG)-tpl-gen-tpl-gen-con /bin/bash -c "cd $(PRODUCT_DIR)/src/python/tpl-gen && poetry run pytest -v"
 
 
 # .PHONY: test-yaml-to-json-file ## @-> render yaml file
