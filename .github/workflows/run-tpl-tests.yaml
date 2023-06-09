@@ -36,4 +36,4 @@ jobs:
       - name: Run tests
         working-directory: src/python/tpl-gen
         run: |
-          poetry run pytest
+          poetry run pytest -v
