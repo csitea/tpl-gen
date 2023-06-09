@@ -34,5 +34,6 @@ jobs:
           poetry install
 
       - name: Run tests
+        working-directory: src/python/tpl-gen
         run: |
           poetry run pytest
