@@ -29,7 +29,7 @@ jobs:
           installer-parallel: true
 
       - name: Install dependencies
-        working-directory: ./tpl-gen/src/python/tpl-gen
+        working-directory: src/python/tpl-gen
         run: |
           poetry install
 
