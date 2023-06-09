@@ -26,8 +26,15 @@ perl -pi -e "s|/home/$APPUSR||g" $venv_path/bin/activate
 echo "source $PRODUCT_DIR/src/python/$MODULE/.venv/bin/activate" >> ~/.bashrc
 echo "source $PRODUCT_DIR/src/python/$MODULE/.venv/bin/activate" >> ~/.profile
 
-echo "cd $PRODUCT_DIR" >> ~/.bashrc
 
+echo 'export PATH=$PATH:$PRODUCT_DIR/src/python/$MODULE/.venv/bin/' >> ~/.bashrc
+echo 'export PATH=$PATH:$PRODUCT_DIR/src/python/$MODULE/.venv/bin/' >> ~/.profile
+
+
+echo "cd $PRODUCT_DIR" >> ~/.bashrc
+echo "cd $PRODUCT_DIR" >> ~/.profile
+
+cd $PRODUCT_DIR;
 
 trap : TERM INT; sleep infinity & wait
 

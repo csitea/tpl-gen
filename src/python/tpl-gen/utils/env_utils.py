@@ -1,5 +1,5 @@
 import os
-from utils.console_utils import print_error, print_info
+from utils.console_utils import print_error, print_info, print_warn
 
 
 def get_env_var(name: str) -> str:
@@ -17,6 +17,7 @@ def get_env_var(name: str) -> str:
     try:
         var_value = os.environ[name]
     except KeyError as err:
+        print_warn("Make sure to call init_env() before your main() function")
         print_error(f"env var {name} has no value")
         raise err
 
@@ -76,6 +77,11 @@ def override_env(cnf):
     #     cnf["steps"]["001-step-name"]["AWS_PROFILE"]
     #     becomes AWS_PROFILE, thus no need to override
     #     cnf["aws"]["AWS_PROFILE"], since it won't be considered
+    try:
+        if cnf["env"] == None or cnf["env"]["steps"] == None:
+            return cnf
+    except KeyError:
+        return cnf
 
     for step in cnf["env"]["steps"]:
         for step_var in cnf["env"]["steps"][step]:

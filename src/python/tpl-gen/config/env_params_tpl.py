@@ -1,35 +1,72 @@
 """
-This module loads configuration data for the application from environment variables.
+This module contains the init_env() function, which initializes several
+global environment variables: ORG, APP, ENV, TPL_SRC, CNF_SRC, HOME,
+PRODUCT_DIR, BASE_DIR, and TGT. These variables are used across the application
+and are set from the system's environment variables.
 
-Attributes:
-    ORG (str): Name of the organization. Loaded from the ORG environment variable.
-    APP (str): Name of the application. Loaded from the APP environment variable.
-    ENV (str): Current environment (e.g., "dev", "prd"). Loaded from the ENV environment variable.
+The init_env() function is intended to be called only once during the execution
+of the program, typically at startup. It should not be used during testing.
+Instead, to control the environment during testing, use pytest's monkeypatch
+feature to temporarily change the environment as needed for each test.
 
-    PRODUCT_DIR (str): Path to the product directory. Loaded from the PRODUCT_DIR environment variable.
-    BASE_DIR (str): Path to the base directory. Loaded from the BASE_DIR environment variable.
-
-    TPL_SRC (str): Path to the template source. Loaded from the TPL_SRC environment variable.
-    CNF_SRC (str): Path to the configuration source. Loaded from the CNF_SRC environment variable.
-    TGT (str): Path to the target. Loaded from the TGT environment variable.
+Please note:
+- ORG, APP, ENV, TPL_SRC, CNF_SRC, and HOME are mandatory\
+    environment variables and the program will raise an error if they are not set.
+- PRODUCT_DIR, BASE_DIR, and TGT are optional environment\
+    variables. If they are not set, they will be given default values.
+  PRODUCT_DIR defaults to three directories above the current working directory.
+  BASE_DIR defaults to two directories above the PRODUCT_DIR.
+  TGT defaults to the value of CNF_SRC.
 
 Functions:
-    get_env_var(var_name: str) -> str: Utility function imported from utils.env_utils to fetch environment variables.
-    Raises an error if the environment variable is not set.
+    init_env() -> None:
+        Initializes global environment variables from the system's environment variables.
 """
 from pathlib import Path
 from utils.env_utils import get_env_var, get_optional_env_var
 
+ORG: str
+APP: str
+ENV: str
+TPL_SRC: str
+CNF_SRC: str
+HOME: str
+PRODUCT_DIR: str
+BASE_DIR: str
+TGT: str
 
-ORG = get_env_var("ORG")
-APP = get_env_var("APP")
-ENV = get_env_var("ENV")
 
-TPL_SRC = get_env_var("TPL_SRC")
-CNF_SRC = get_env_var("CNF_SRC")
-HOME = get_env_var("HOME")
+def init_env():
+    """
+    Initializes several global environment variables from the system's environment variables.
 
-PRODUCT_DIR = get_optional_env_var("PRODUCT_DIR", Path.cwd().parent.parent.parent)
-BASE_DIR = get_optional_env_var("BASE_DIR", Path(PRODUCT_DIR).parent.parent)
+    This function is intended to be called only once during the execution
+    of the program, typically at startup. It should not be used during testing.
+    Instead, use pytest's monkeypatch feature to temporarily change the
+    environment as needed for each test.
 
-TGT = get_optional_env_var("TGT", CNF_SRC)
+    The function sets the following global variables:
+    ORG, APP, ENV, TPL_SRC, CNF_SRC, HOME, PRODUCT_DIR, BASE_DIR, TGT
+
+    Raises:
+        KeyError: If a mandatory environment variable is not set.
+    """
+    global ORG
+    global APP
+    global ENV
+    global TPL_SRC
+    global CNF_SRC
+    global HOME
+    global PRODUCT_DIR
+    global BASE_DIR
+    global TGT
+
+    ORG = get_env_var("ORG")
+    APP = get_env_var("APP")
+    ENV = get_env_var("ENV")
+    TPL_SRC = get_env_var("TPL_SRC")
+    CNF_SRC = get_env_var("CNF_SRC")
+    HOME = get_env_var("HOME")
+    PRODUCT_DIR = get_optional_env_var("PRODUCT_DIR", Path.cwd().parent.parent.parent)
+    BASE_DIR = get_optional_env_var("BASE_DIR", Path(PRODUCT_DIR).parent.parent)
+    TGT = get_optional_env_var("TGT", CNF_SRC)
