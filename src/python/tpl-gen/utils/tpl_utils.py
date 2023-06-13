@@ -3,12 +3,15 @@ from json import JSONDecodeError
 import os
 from pathlib import Path
 from .env_utils import *
-from ...config import env_params_tpl as env
+from ...config.env_params_tpl import Environment as TplEnv
 import yaml
 from jinja2 import Environment, BaseLoader, Template
 from .console_utils import *
 from .convert_utils import create_tgt_path
 from jinja2.exceptions import UndefinedError
+
+
+env = TplEnv()
 
 
 def read_config_file(file: Path) -> any:
@@ -85,7 +88,6 @@ def render_files(files: list[Path], cnf: any) -> list[tuple[Path, str]]:
 
 
 def render_files_step(files: list[Path], cnf: any) -> list[tuple[Path, str]]:
-
     tpl_loader = Environment(loader=BaseLoader)
     rendered_files: list[tuple[Path, str]] = []
     for file in files:
@@ -102,7 +104,7 @@ def render_files_step(files: list[Path], cnf: any) -> list[tuple[Path, str]]:
     return rendered_files
 
 
-def render_files_multi(env:env,files: list[Path], cnf: any) -> list[tuple[Path, str]]:
+def render_files_multi(env: env, files: list[Path], cnf: any) -> list[tuple[Path, str]]:
     rendered_files: list[tuple[Path, str]] = []
     return render_files(files, cnf)
 

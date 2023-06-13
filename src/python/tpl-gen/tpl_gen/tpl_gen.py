@@ -1,14 +1,14 @@
 import os
 import time
 from pathlib import Path
-from .config import env_params_tpl as env
-from .lib.utils import tpl_utils as tpl
-from .lib.utils import console_utils as cw
+from .config.env_params_tpl import Environment
+from utils import tpl_utils as tpl
+from utils import console_utils as cw
 import mimetypes
 import shutil
-import array
 
-env.init_env()
+
+env = Environment()
 
 
 def main():

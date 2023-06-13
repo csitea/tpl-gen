@@ -23,5 +23,5 @@ __all__ = [
     "print_info_heading",
     "convert_dir",
     "get_ignored_paths",
-    "read_config_file"
+    "read_config_file",
 ]
