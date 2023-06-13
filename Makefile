@@ -25,7 +25,7 @@ PYTHON_DIR := $(PRODUCT_DIR)/src/python/$(product)
 
 APPUSR := appusr
 APPGRP := appgrp
-ROOT_DOCKER_NAME = ${ORG_DIR}-${product}
+ROOT_DOCKER_NAME = ${ORG_DIR}-tpl-gen
 MOUNT_WORK_DIR := $(BASE_DIR)/$(ORG_DIR)
 HOST_AWS_DIR := $(HOME)/.aws
 DOCKER_AWS_DIR := /home/${APPUSR}/.aws
@@ -53,4 +53,7 @@ install:
 	@clear
 	make clean-install-$(product)
 
+.PHONY: clean-line-feeds ## @-> remove the winblows line feeds
+clean-line-feeds:
+	find $(PRODUCT_DIR) -type f -not \( -path "*/.git/*" -o -path "*/.venv/*" -o -path "*/node_modules/*" \) -exec perl -pi -e 's/\r\n/\n/g' {} +
 

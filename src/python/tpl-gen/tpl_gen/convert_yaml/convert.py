@@ -7,11 +7,11 @@ Functions:
     main: The primary function of the script, which manages the conversion process.
 """
 from pathlib import Path
-from utils.console_utils import print_info, print_info_heading
-from config import env_params_tpl as env
-import utils
+from ..lib.utils.console_utils import *
+from ..lib.utils.convert_utils import *
+from ..config import env_params_tpl as env
 
-ignore_list = utils.get_ignored_paths()
+ignore_list = get_ignored_paths()
 
 
 def yaml_to_json():
@@ -25,6 +25,6 @@ def yaml_to_json():
     ]
 
     for cur_path in dirs_to_iterate:
-        utils.convert_dir(cur_path, ignore_list)
+        convert_dir(cur_path, ignore_list)
 
     print_info("STOP ::: render_yaml")

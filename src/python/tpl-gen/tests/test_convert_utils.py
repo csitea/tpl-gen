@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from pathlib import Path
 import pytest
-from utils.convert_utils import create_tgt_path
+from tpl_gen.lib.utils import create_tgt_path
 
 
 @pytest.mark.parametrize(

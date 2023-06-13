@@ -1,5 +1,5 @@
 import os
-from utils.console_utils import print_error, print_info, print_warn
+from .console_utils import print_error, print_info, print_warn
 
 
 def get_env_var(name: str) -> str:

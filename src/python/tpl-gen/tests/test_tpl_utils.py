@@ -3,7 +3,7 @@ import yaml
 import pytest
 from pathlib import Path
 from unittest.mock import patch, mock_open
-from utils.tpl_utils import read_config_file
+from tpl_gen.lib.utils.tpl_utils import read_config_file
 
 
 def test_read_json_file():

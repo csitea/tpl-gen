@@ -24,11 +24,10 @@ import os
 from pathlib import Path
 from typing import Optional
 import yaml
-from utils.console_utils import print_success, print_warn
-from config import env_params_tpl as env
-import utils
-from utils.string_utils import pkey_replace
-from utils.env_utils import get_env_as_dict_lower
+from .console_utils import print_success, print_warn
+from ...config import env_params_tpl as env
+from .string_utils import pkey_replace, string_contains
+from .env_utils import get_env_as_dict_lower
 
 
 def convert_dir(src_dir: Path, ignore_list: Optional[list[str]]):
@@ -41,7 +40,7 @@ def convert_dir(src_dir: Path, ignore_list: Optional[list[str]]):
         ignore_list (list[str], optional): The list of directories to ignore. Defaults to None.
     """
     for subdir, _dirnames, filenames in os.walk(src_dir):
-        if utils.string_contains(ignore_list, subdir):
+        if string_contains(ignore_list, subdir):
             continue
 
         convert_yaml_files(Path(subdir), filenames)

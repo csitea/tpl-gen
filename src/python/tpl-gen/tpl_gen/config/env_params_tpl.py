@@ -23,7 +23,7 @@ Functions:
         Initializes global environment variables from the system's environment variables.
 """
 from pathlib import Path
-from utils.env_utils import get_env_var, get_optional_env_var
+from ..lib.utils.env_utils import get_env_var, get_optional_env_var
 
 ORG: str
 APP: str
