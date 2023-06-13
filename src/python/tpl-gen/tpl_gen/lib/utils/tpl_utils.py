@@ -3,6 +3,7 @@ from json import JSONDecodeError
 import os
 from pathlib import Path
 from .env_utils import *
+from ...config import env_params_tpl as env
 import yaml
 from jinja2 import Environment, BaseLoader, Template
 from .console_utils import *
@@ -84,12 +85,10 @@ def render_files(files: list[Path], cnf: any) -> list[tuple[Path, str]]:
 
 
 def render_files_step(files: list[Path], cnf: any) -> list[tuple[Path, str]]:
+
     tpl_loader = Environment(loader=BaseLoader)
     rendered_files: list[tuple[Path, str]] = []
     for file in files:
-        if not get_env_var("STEP") in str(file):
-            continue
-
         tgt_path = create_tgt_path(file)
         print_info(f"generating tgt_file_path:  {tgt_path}")
 
@@ -100,11 +99,10 @@ def render_files_step(files: list[Path], cnf: any) -> list[tuple[Path, str]]:
         rendered_file = render_file(tpl_obj, cnf)
         print_yaml(rendered_file)
         rendered_files.append((tgt_path, rendered_file))
-
     return rendered_files
 
 
-def render_files_multi(files: list[Path], cnf: any) -> list[tuple[Path, str]]:
+def render_files_multi(env:env,files: list[Path], cnf: any) -> list[tuple[Path, str]]:
     rendered_files: list[tuple[Path, str]] = []
     return render_files(files, cnf)
 

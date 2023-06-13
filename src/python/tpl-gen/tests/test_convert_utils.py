@@ -1,7 +1,8 @@
 from unittest.mock import patch
 from pathlib import Path
 import pytest
-from tpl_gen.lib.utils import create_tgt_path
+from tpl_gen.lib.utils.convert_utils import create_tgt_path
+
 
 
 @pytest.mark.parametrize(
@@ -28,6 +29,9 @@ def test_create_tgt_path(monkeypatch, file_path, opt_dict, env_vars, expected):
 
     for key, value in env_vars.items():
         monkeypatch.setenv(key, value)
+
+    from tpl_gen.config import env_params_tpl as env
+    #env.init_env()
 
     with patch("utils.env_utils.get_env_as_dict_lower", return_value=env_vars), patch(
         "utils.string_utils.pkey_replace",

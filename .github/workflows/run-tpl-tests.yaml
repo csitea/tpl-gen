@@ -1,39 +1,83 @@
-name: CI
+name: General template tests
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push events
-  push:
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  push:              # Triggers the workflow on push events
+  workflow_dispatch: # trigger from command line
+  workflow_call:     # manual trigger
 
 jobs:
-  test:
+  CITests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - ORG: csi
+            APP: wpp
+            ENV: dev
+          - ORG: csi
+            APP: wpp
+            ENV: tst
+          - ORG: csi
+            APP: wpp
+            ENV: stg
+          - ORG: csi
+            APP: wpp
+            ENV: prd
 
+    env:
+      PRODUCT: tpl-gen
+      GITHUB_OWNER: Spectral-Engines
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - name: Checkout itself
+        uses: actions/checkout@v3
         with:
-          python-version: "3.10"
+          path: /home/runner/work/${{ env.PRODUCT }}/${{ env.PRODUCT }}/opt/${{ matrix.org }}/infra-conf-generator
 
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
+      - name: Checkout org-app-infra-conf
+        uses: actions/checkout@v3
         with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
+          repository: ${{ env.GITHUB_OWNER }}/${{ matrix.org }}-${{ matrix.app }}-infra-conf
+          path: /home/runner/work/${{ env.PRODUCT }}/${{ env.PRODUCT }}/opt/${{ matrix.org }}/${{ matrix.org }}-${{ matrix.app }}-infra-conf
+          token: ${{ secrets.ALL_SPE_GITHUB_TOKEN }}
 
-      - name: Install dependencies
-        working-directory: src/python/tpl-gen
+      - name: Builds infra-conf-generator container
+        working-directory: /home/runner/work/${{ env.PRODUCT }}/${{ env.PRODUCT }}/opt/${{ matrix.org }}/infra-conf-generator
         run: |
-          poetry install
+          make clean-install-infra-conf-generator
 
-      - name: Run tests
-        working-directory: src/python/tpl-gen
+      - name: Build infra-conf-validator
+        working-directory: /home/runner/work/${{ env.PRODUCT }}/${{ env.PRODUCT }}/opt/${{ matrix.org }}/${{ matrix.org }}-${{ matrix.app }}-infra-conf
         run: |
-          poetry run pytest -v
+          make clean-install-conf-validator
+
+      - name: Test templates are being rendered
+        working-directory: /home/runner/work/${{ env.PRODUCT }}/${{ env.PRODUCT }}/opt/${{ matrix.org }}/${{ matrix.org }}-${{ matrix.app }}-infra-conf
+        run: |
+          apt-get update && apt-get install -y yq
+          errors=0
+          while IFS= read -r step; do
+            echo "START ::: verifying the $step step"
+            rm -rf ./${{ matrix.APP }}/${{ matrix.ENV }}/tf/${STEP}*
+            ORG=${{ matrix.ORG }} APP=${{ matrix.APP }} ENV=${{ matrix.ENV }} STEP=${step} make do-generate-conf-for-step
+            ORG=${{ matrix.ORG }} APP=${{ matrix.APP }} ENV=${{ matrix.ENV }} STEP=${step} make do-generate-conf-for-${step}
+
+            rendered_templates=$(ls -l ./${{ matrix.APP }}/${{ matrix.ENV }}/tf/${step}* | wc -l)
+            if [[ rendered_templates > 0 ]]; then
+              ls -l ./${{ matrix.APP }}/${{ matrix.ENV }}/tf/${step}*
+            else
+              errors=$((errors+1))
+            fi
+            echo "STOP  ::: verifying the $step step"
+          done < <(cat ${{ matrix.APP }}/${{ matrix.ENV }}.env.yaml | yq -e '.env.steps | to_entries | .[].key')
+          if [[ ${errors} > 0 ]]; then
+            exit 1;
+          else
+            exit 0;
+          fi
+
+# - name: Run tests
+# working-directory: src/python/tpl-gen
+# run: |
+#   poetry run pytest -v
+
