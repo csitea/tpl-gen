@@ -1,58 +1,40 @@
 import os
-import time
 from pathlib import Path
-from .config import env_params_tpl as env
-from .lib.utils import tpl_utils as tpl
-from .lib.utils import console_utils as cw
+from config import run_env
+from config import config_data_loader
+from config import config_data_loader
+from data import generic_data_service
+from libs.utils.console_utils import *
+from libs.utils.io_utils import *
+from libs.utils.tpl_utils import render_files
+from data.data_provider_type import DataProviderType
 import mimetypes
 import shutil
-import array
-
-env.init_env()
 
 
 def main():
-    """
-    Entry point function for infra conf generator.
 
-    This function executes the infra conf generation process by performing the following steps:
-    1. Prints an information heading to indicate the start of the process.
-    2. Retrieves the template render mode action and configuration.
-    3. Walks through the source template directory, collecting template file paths.
-    4. Sorts the template files.
-    5. Executes the mode action on the template files and configuration to generate file contents.
-    6. Writes the generated file contents to the output files.
+    print_info_heading("START ::: infra conf generator")
+    env = run_env.RunEnv()
 
-    Returns:
-        None
-    """
-    cw.print_info_heading("START ::: infra conf generator")
-    mode_action, cnf = get_tpl_render_mode_action()
+    config_dir = env.CNF_SRC
+    data_key_path = env.DATA_KEY_PATH or '.'
+    obj_config_data_loader = config_data_loader.ConfigDataLoader()
+    cnf = obj_config_data_loader.read_yaml_files(config_dir, data_key_path=data_key_path)
+    # obj_generic_data_service = generic_data_service.GenericDataService(env,cnf,DataProviderType.aws)
+    data = cnf
 
-    for subdir, _dirs, files in os.walk(Path(env.TPL_SRC, "src", "tpl")):
+    tpl_files = list_files_and_dirs(env.TPL_SRC)
+    # Here we could remove the src/tpl logic. Whenever we call this from cli
+    # we could specify what is the TPL_SRC. We just walk down it.
+    for subdir, _dirs, files in os.walk(Path(env.TPL_SRC)):
         tpl_files = [Path(subdir, file) for file in files]
         tpl_files = sorted(tpl_files)
-        # tpl_files = array("str",tpl_files)
-        files_and_contents = mode_action(tpl_files, cnf)
-        write_output_files(tpl_files, files_and_contents)
-    cw.print_info_heading("STOP  ::: infra conf generator")
+        #print(cnf)
+        files_and_contents = render_files(env, data, tpl_files, '.conf.aws-services-data')
+        print(files_and_contents)
+        # write_output_files(tpl_files, files_and_contents)
 
-
-def get_tpl_render_mode_action():
-    """This is for backwards compatibility, if a step is specified tpl
-    will enter into step mode which will only render files related to
-    the exported step otherwise it will exhibit normal behavior and
-    render all files in the directory based on the configuration.
-    """
-    if os.environ.get("STEP"):
-        cw.print_info_heading("START ::: rendering files for STEP")
-        json_cnf_file = Path(env.CNF_SRC, env.APP, f"{env.ENV}.env.json")
-        cnf = tpl.read_config_file(json_cnf_file)
-        cw.print_code(cnf)
-        return tpl.render_files_step, cnf
-    else:
-        cw.print_info_heading("START ::: rendering for full configuration")
-        return tpl.render_files, cnf
 
 
 def is_text_file(file_path):
@@ -61,25 +43,15 @@ def is_text_file(file_path):
 
 
 def write_output_files(
-    tpl_files: list[str], files_and_contents: list[tuple[Path, str]]
+    tpl_files: "list[str]", files_and_contents: "list[tuple[Path, str]]"
 ):
-    """
-    Write or update output files based on the provided content.
 
-    Args:
-        tpl_files (list[str]): List of template file paths.
-        files_and_contents (list[tuple[Path, str]]): List of tuples containing file paths and their corresponding content.
-
-    Returns:
-        None
-    """
     counter = 0
     for file_path, content in files_and_contents:
         directory = file_path.parent  # Get the directory path
-        directory.mkdir(
-            parents=True, exist_ok=True
-        )  # Create the directory if it doesn't exist
-
+        # create the directory if it doesn't exist
+        directory.mkdir(parents=True, exist_ok=True)
+        # resolve the tpl_file for the copy file if needed
         tpl_file = tpl_files[counter]
 
         try:
@@ -91,3 +63,13 @@ def write_output_files(
             )
             shutil.copy(tpl_file, file_path)
         counter += 1
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+    # # Read the YAML file
+    # with open(env.PRODUCT_DIR + '/cnf/yaml/aws/aws-services.yaml', 'r') as f:
+    #     data = yaml.safe_load(f)

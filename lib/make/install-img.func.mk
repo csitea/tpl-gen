@@ -107,7 +107,7 @@ define run-img
 		-v $(HOST_AWS_DIR):$(DOCKER_AWS_DIR) \
 		-v $(HOST_SSH_DIR):$(DOCKER_SSH_DIR) \
 		-v $(HOST_KUBE_DIR):$(DOCKER_KUBE_DIR) \
-		-e ORG=$(ORG) -e APP=$(APP) -e ENV=$(ENV) -e TGT=$(TGT) -e SRC=$(SRC) \
+		-e CNF_SRC=$(CNF_SRC)  -e TPL_SRC=$(TPL_SRC) -e TGT=$(TGT) \
 		--name $(CONTAINER_NAME) $(IMAGE_NAME) $(COMMAND) ;
 endef
 

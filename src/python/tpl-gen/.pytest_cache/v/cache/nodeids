@@ -1,0 +1,6 @@
+[
+  "tests/test_env_utils.py::test_override_env",
+  "tests/test_env_utils.py::test_override_env_level_01",
+  "tests/test_env_utils.py::test_override_env_level_02",
+  "tests/test_io_utils.py::test_list_files_and_dirs"
+]

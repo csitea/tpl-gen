@@ -104,7 +104,7 @@ USER $APPUSR
 # START  ::: install-poetry
 
 # Set the Poetry version
-ENV POETRY_VERSION=1.5.0
+ENV POETRY_VERSION=1.5.1
 
 # Check if Poetry is installed and install it if necessary
 RUN poetry --version >/dev/null 2>&1 \
@@ -140,17 +140,20 @@ RUN ln -sfn src/bash/run/run.sh run
 
 
 
-# START ::: install poetry modules in the csi module
+
+# Iterate over each pyproject.toml file
 RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
     while IFS= read -r -d '' f; do \
         tgt_dir=$(dirname "$f"); \
         echo "Working on tgt_dir: $tgt_dir"; \
+        sudo chmod -R ug+w $tgt_dir; \
         cd "$tgt_dir"; \
         if [ ! -z "${MODULE:-}" ] && [[ "$tgt_dir" == *"$MODULE"* ]]; then \
             test -f poetry.lock && rm -vf poetry.lock; \
             test -d .venv && rm -rv .venv; \
             poetry config virtualenvs.create true; \
             poetry install -vvv; \
+            sudo chmod -R ug+w poetry.lock; \
             if [ $? -ne 0 ]; then \
                 echo "FATAL: failed to install $tgt_dir py modules"; \
                 exit 1; \
@@ -159,7 +162,6 @@ RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
         cd -; \
     done
 
-# STOP  ::: install poetry modules in the csi module
 
 
 
