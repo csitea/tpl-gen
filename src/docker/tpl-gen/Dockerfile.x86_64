@@ -140,8 +140,8 @@ RUN ln -sfn src/bash/run/run.sh run
 
 
 
-
-# Iterate over each pyproject.toml file
+RUN pip wheel --use-pep517 "pyyaml (==5.3.1)"
+# START ::: install poetry modules in the  module
 RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
     while IFS= read -r -d '' f; do \
         tgt_dir=$(dirname "$f"); \
@@ -161,6 +161,8 @@ RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
         fi; \
         cd -; \
     done
+#
+# STOP  ::: install poetry modules in the  module
 
 
 

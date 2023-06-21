@@ -1,15 +1,15 @@
-import json
-import os
+import json, os,yaml
 from pathlib import Path
 from typing import Optional
-import yaml
 from .console_utils import print_success, print_warn
-from config import run_env
+
 from .string_utils import pkey_replace, string_contains
-from .env_utils import get_env_as_dict_lower
+from .io_utils import replace_path
 
 
-def convert_dir(src_dir: Path, ignore_list: "Optional[list[str]]"):
+
+
+def convert_yaml_to_json_dir(config_end_point: Path, ignore_list: "Optional[list[str]]",env:any):
     """
     Iterate over subdirectories and files in the provided directory, skipping directories in the ignore list,
     and convert the YAML files to JSON format.
@@ -18,14 +18,18 @@ def convert_dir(src_dir: Path, ignore_list: "Optional[list[str]]"):
         src_dir (Path): The source directory path.
         ignore_list (list[str], optional): The list of directories to ignore. Defaults to None.
     """
-    for subdir, _dirnames, filenames in os.walk(src_dir):
+    if config_end_point.is_file():
+        tgt_file_path = Path(str(config_end_point).replace(".yaml", ".json"))
+        convert_file(config_end_point,tgt_file_path)
+
+    for subdir, _dirnames, filenames in os.walk(config_end_point):
         if string_contains(ignore_list, subdir):
             continue
 
-        convert_yaml_files(Path(subdir), filenames)
+        convert_yaml_files(Path(subdir), filenames,env)
 
 
-def convert_yaml_files(dir_path: Path, files: "list[str]"):
+def convert_yaml_files(dir_path: Path, files: "list[str]",env:any):
     """
     Convert all YAML files in a directory to JSON format.
 
@@ -33,6 +37,7 @@ def convert_yaml_files(dir_path: Path, files: "list[str]"):
         dir_path (Path): The directory path.
         files (list[str]): The list of file names in the directory.
     """
+
     for file in files:
         if not file.endswith(".yaml"):
             continue
@@ -76,17 +81,3 @@ def get_ignored_paths() -> "list[str]":
         print_warn("WARNING ::: .tplignore file not found")
         return []
 
-
-def create_tgt_path(env:run_env, file: Path, opt_dict=None) -> Path:
-    if opt_dict is None:
-        opt_dict = {}
-
-    str_path = str(file)
-    env_dict = get_env_as_dict_lower()
-    opt_dict.update(env_dict)
-    converted_path = pkey_replace(str_path, opt_dict)
-    # todo: search TPL_SRC, replace TGT path
-    converted_path = converted_path.replace(env.TPL_SRC, env.TGT)
-    #converted_path = converted_path.replace("src/tpl/", "", 1)
-    converted_path = Path(converted_path.replace(".tpl", ""))
-    return converted_path

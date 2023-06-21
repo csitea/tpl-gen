@@ -19,51 +19,8 @@ from libs.utils.convert_utils import *
 
 def main():
 
-    print_info_heading("START ::: TPL-GEN")
     env = run_env.RunEnv()
 
-    config_end_point = env.CNF_SRC
-
-    data_key_path = env.DATA_KEY_PATH or '.'
-
-    obj_config_data_loader = config_data_loader.ConfigDataLoader()
-    cnf = obj_config_data_loader.read_yaml_files(config_end_point, data_key_path=data_key_path)
-    tpl_paths = list_files_and_dirs(f'{env.TPL_SRC}')
-
-    tpl_loader = Environment(loader=BaseLoader,undefined=StrictUndefined)
-
-    rendered_files_and_contents: list[tuple[Path, str]] = []
-    for tpl_path in tpl_paths:
-        tgt_path = create_tgt_path(env,cnf,data_key_path,tpl_path)
-        rendered_file_content = ''
-        print_info(f"INFO ::: Generating tgt_file_path:  {tgt_path}")
-
-        if os.path.isdir(tpl_path):
-            if not os.path.exists(tgt_path):
-                os.mkdir(tgt_path)
-        elif os.path.isfile(tpl_path):
-            with open(tpl_path, "r", encoding="utf-8") as tgt_file_fh:
-                try:
-                    tpl_str = tgt_file_fh.read()
-                    tpl_obj = tpl_loader.from_string(tpl_str)
-                    rendered_file_content = render_file(tpl_obj, cnf,data_key_path)
-                    # print_code(rendered_file_content)
-                except UnicodeDecodeError:
-                    print(
-                        f"The file {tpl_path} is a binary file or its type cannot be determined."
-                    )
-                    rendered_file_content = ""  # will not be used anyways
-        else:
-             print(f"The file {tpl_path} is a binary file or its type cannot be determined.")
-        # print(rendered_files_and_contents)
-        # print("eof rendered_files_and_contents")
-
-
-        rendered_files_and_contents.append((tgt_path, rendered_file_content))
-
-    write_output_files(tpl_paths,rendered_files_and_contents)
-    ignore_list = get_ignored_paths()
-    # Usage:
     print_info_heading("CONVERT YAML TO JSON")
 
     paths_to_iterate = [
@@ -71,6 +28,7 @@ def main():
         Path(env.HOME, ".ssh"),
         Path(env.CNF_SRC),
     ]
+    ignore_list = get_ignored_paths()
 
     for cur_path in paths_to_iterate:
         convert_yaml_to_json_dir(cur_path, ignore_list,env)

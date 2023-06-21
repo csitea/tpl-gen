@@ -1,7 +1,7 @@
 import os, errno, yaml, json
 from pathlib import Path
 from jq import jq
-from libs.utils.console_utils import *
+
 
 
 class ConfigDataLoader:
@@ -13,37 +13,45 @@ class ConfigDataLoader:
         data = {}
 
         # if config_point is a file
-        if os.path.isfile(config_point) and filename.endswith('.yaml'):
-            with open(filepath, 'r') as file:
-                yaml_data = yaml.safe_load(file)
-
+        if os.path.isfile(config_point):
+            if config_point.endswith('.yaml') or config_point.endswith('.yml'):
+                load_method = yaml.safe_load
+                # todo:
                 # Add the YAML data to the .env data structure path
-                data.setdefault('conf', {}).update(yaml_data)
+                #data.setdefault('env', {}).update(yaml_data)
+            elif config_point.endswith('.json'):
+                load_method = json.load
+            with open(config_point, 'r') as file_handle:
+                data = load_method(file_handle)
         elif os.path.isdir(config_point): # Iterate over all files in the directory
             for filename in os.listdir(config_point): # for each yaml file loads it up
-                filepath = os.path.join(config_point, filename)
+                file_path = os.path.join(config_point, filename)
 
                 # Check if the file is a YAML file
-                if os.path.isfile(filepath) and filename.endswith('.yaml'):
+                if os.path.isfile(file_path) and filename.endswith('.yaml'):
                     # Read the YAML file
-                    with open(filepath, 'r') as file:
-                        yaml_data = yaml.safe_load(file)
+                    with open(file_path, 'r') as file_handle:
+                        data = yaml.safe_load(file_handle)
 
-                        # Add the YAML data to the .env data structure path
-                        data.setdefault('conf', {}).update(yaml_data)
         else:
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), config_point)
 
-        if data_key_path:
-            # Convert data to JSON
-            json_data = json.dumps(data)
-            # Execute jq query using jq.py library
-            query_result = jq(data_key_path).transform(data)
-            self.data = query_result
-        else:
-            self.data = data
+        # Add the YAML data to the .env data structure path
+        # add .env unless does not exist as the root element of the tree
+        # data.setdefault('.env', {}).update(yaml_data)
 
-        return self.data
+
+        # if data_key_path:
+        #     # Convert data to JSON
+        #     #json_data_str = json.dumps(data)
+        #     # json_obj = json.loads(json_data_str)
+        #     # Execute jq query using jq.py library
+        #     # query_result = jq(data_key_path).transform(data)
+        #     self.data = query_result
+        # else:
+        #     self.data = data
+
+        return data
 
 
     def read_config_file(file: Path) -> any:
