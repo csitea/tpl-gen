@@ -24,21 +24,21 @@ def main():
     print_info_heading("START ::: infra conf generator")
     env = run_env.RunEnv()
 
-    config_dir = env.CNF_SRC
+    config_end_point = env.CNF_SRC
+
     data_key_path = env.DATA_KEY_PATH or '.'
 
     obj_config_data_loader = config_data_loader.ConfigDataLoader()
-    cnf = obj_config_data_loader.read_yaml_files(config_dir, data_key_path=data_key_path)
+    cnf = obj_config_data_loader.read_yaml_files(config_end_point, data_key_path=data_key_path)
     # optionally enrich the cnf with data from data services
     # obj_generic_data_service = generic_data_service.GenericDataService(env,cnf,DataProviderType.aws)
-    data = cnf
-    data_substructure = jq(data_key_path).transform(data)
-    tpl_files = list_files_and_dirs(env.TPL_SRC)
+    # data = sub_cnf
+    tpl_paths = list_files_and_dirs(env.TPL_SRC)
     tpl_loader = Environment(loader=BaseLoader)
 
     rendered_files_and_contents: list[tuple[Path, str]] = []
-    for tpl_path in tpl_files:
-        tgt_path = create_tgt_path(env, tpl_path, data_substructure )
+    for tpl_path in tpl_paths:
+        tgt_path = create_tgt_path(env,cnf,data_key_path,tpl_path )
         rendered_file_content = ''
         print_info(f"INFO ::: Generating tgt_file_path:  {tgt_path}")
 
@@ -50,20 +50,22 @@ def main():
                 try:
                     tpl_str = tgt_file_fh.read()
                     tpl_obj = tpl_loader.from_string(tpl_str)
-                    rendered_file_content = render_file(tpl_obj, data,data_key_path)
-                    print_code(rendered_file_content)
+                    rendered_file_content = render_file(tpl_obj, cnf,data_key_path)
+                    # print_code(rendered_file_content)
                 except UnicodeDecodeError:
                     print(
                         f"The file {tpl_path} is a binary file or its type cannot be determined."
                     )
-                    rendered_file = ""  # will not be used anyways
+                    rendered_file_content = ""  # will not be used anyways
         else:
              print(f"The file {tpl_path} is a binary file or its type cannot be determined.")
+        # print(rendered_files_and_contents)
+        # print("eof rendered_files_and_contents")
 
 
         rendered_files_and_contents.append((tgt_path, rendered_file_content))
 
-    write_output_files(tpl_files,rendered_files_and_contents)
+    write_output_files(tpl_paths,rendered_files_and_contents)
 
 
 def is_text_file(file_path):
@@ -72,16 +74,21 @@ def is_text_file(file_path):
 
 
 def write_output_files(
-    tpl_files: "list[str]", rendered_files_and_contents: "list[tuple[Path, str]]"
+    tpl_paths: "list[str]", rendered_files_and_contents: "list[tuple[Path, str]]"
 ):
 
     counter = 0
     for file_path, content in rendered_files_and_contents:
+        # print(content)
+        # print("eof content")
+
+        # print(file_path)
+        # print("eof file_path")
         directory = file_path.parent  # Get the directory path
         # create the directory if it doesn't exist
         directory.mkdir(parents=True, exist_ok=True)
         # resolve the tpl_file for the copy file if needed
-        tpl_file = tpl_files[counter]
+        tpl_file = tpl_paths[counter]
 
         if os.path.isdir(file_path):
             continue

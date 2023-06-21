@@ -38,7 +38,7 @@ def get_optional_env_var(name: str, fallback_value: str) -> str:
     try:
         var_value = os.environ[name]
     except KeyError:
-        print_info(f"using generated value for {name}={fallback_value}")
+        print_info(f"using non-env generated value for {name}={fallback_value}")
         return fallback_value
 
     return var_value
@@ -65,6 +65,9 @@ def override_env(cnf:any,data_key_path:str):
         for key, val in overridable_dict.items():
             env_val = get_optional_env_var(key,sub_data[key])
             sub_data[key] = env_val
+
+        env_opt_dict= os.environ.copy()
+        sub_data.update(env_opt_dict)
 
         replace_data_substructure(cnf, data_key_path, sub_data)
 

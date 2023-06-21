@@ -11,15 +11,13 @@ from jinja2.exceptions import UndefinedError
 
 
 
-
 def render_file(tpl_obj: Template, cnf: any,data_key_path:str) -> str:
     args = os.environ.copy()
     override_env(cnf,data_key_path)
-    try:
-        args.update(cnf)
-    except AttributeError as e:
-        print_warn("could not update args in render_file: " + str(e))
+    args.update(cnf["env"])
 
+    print(args)
+    print("eof env from render_file")
     try:
         rendered = tpl_obj.render(args)
     except UndefinedError as err:

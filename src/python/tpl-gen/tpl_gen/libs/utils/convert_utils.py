@@ -6,8 +6,8 @@ import yaml
 from .console_utils import print_success, print_warn
 from config import run_env
 from .string_utils import pkey_replace, string_contains
-from .env_utils import get_env_as_dict_lower
 from .io_utils import replace_path
+from .env_utils import *
 
 
 def convert_dir(src_dir: Path, ignore_list: "Optional[list[str]]"):
@@ -77,13 +77,20 @@ def get_ignored_paths() -> "list[str]":
         print_warn("WARNING ::: .tplignore file not found")
         return []
 
-
-def create_tgt_path(env:run_env, tpl_file: Path, opt_dict=None) -> Path:
+# (env,sub_cnf, tpl_path,data_key_path )
+def create_tgt_path(env:run_env, cnf: any,data_key_path:str,tpl_file: Path, opt_dict=None) -> Path:
     if opt_dict is None:
         opt_dict = {}
 
     str_path = str(tpl_file)
     env_dict = get_env_as_dict_lower()
+
+    # Convert data to JSON
+    json_data_str = json.dumps(cnf)
+    #json_obj = json.loads(json_data_str)
+    #Execute jq query using jq.py library
+    opt_dict = jq(data_key_path).transform(cnf)
+
     opt_dict.update(env_dict)
     converted_path = pkey_replace(str_path, opt_dict)
     converted_path = replace_path(converted_path, env.TGT)
