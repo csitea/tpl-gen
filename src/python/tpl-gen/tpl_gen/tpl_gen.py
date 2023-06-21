@@ -1,7 +1,7 @@
 import os, mimetypes,shutil
 from jq import jq
 from pathlib import Path
-from jinja2 import Environment, BaseLoader
+from jinja2 import Environment, BaseLoader, StrictUndefined
 from config import run_env
 from config import config_data_loader
 from config import config_data_loader
@@ -34,7 +34,7 @@ def main():
     # obj_generic_data_service = generic_data_service.GenericDataService(env,cnf,DataProviderType.aws)
     # data = sub_cnf
     tpl_paths = list_files_and_dirs(env.TPL_SRC)
-    tpl_loader = Environment(loader=BaseLoader)
+    tpl_loader = Environment(loader=BaseLoader,undefined=StrictUndefined)
 
     rendered_files_and_contents: list[tuple[Path, str]] = []
     for tpl_path in tpl_paths:
