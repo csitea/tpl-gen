@@ -3,11 +3,11 @@
 
 .PHONY: tpl-gen ## @-> apply the environment cnf file into the templates
 tpl-gen:
-	cd /opt/cat/tpl-gen/src/python/tpl-gen && poetry run start
+	cd /opt/csi/tpl-gen/src/python/tpl-gen && source .venv/bin/activate && poetry run python3 tpl_gen/tpl_gen.py
 
 .PHONY: do-tpl-gen ## @-> apply the environment cnf file into the templates on the tpl-gen container
 do-tpl-gen:
-	docker exec -e ORG=$(ORG) -e CNF_SRC=$(CNF_SRC)  -e TPL_SRC=$(TPL_SRC) -e TGT=$(TGT) $(ORG)-${PRODUCT}-tpl-gen-con make ${PRODUCT}
+	docker exec -e ORG=$(ORG) -e CNF_SRC=$(CNF_SRC)  -e TPL_SRC=$(TPL_SRC) -e TGT=$(TGT) -e DATA_PATH=$(DATA_KEY_PATH) $(ORG)-${PRODUCT}-tpl-gen-con make ${PRODUCT}
 
 .PHONY: run-tpl-gen ## @-> starts container, renders tpl-gen and destroyes container
 run-tpl-gen:

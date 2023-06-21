@@ -13,21 +13,21 @@ class ConfigDataLoader:
         data = {}
 
         # if config_point is a file
-        if os.path.isfile(config_point) and filename.endswith('.yaml'):
-            with open(filepath, 'r') as file:
-                yaml_data = yaml.safe_load(file)
+        if os.path.isfile(config_point) and config_point.endswith('.yaml'):
+            with open(config_point, 'r') as file_handle:
+                yaml_data = yaml.safe_load(file_handle)
 
                 # Add the YAML data to the .env data structure path
                 data.setdefault('conf', {}).update(yaml_data)
         elif os.path.isdir(config_point): # Iterate over all files in the directory
             for filename in os.listdir(config_point): # for each yaml file loads it up
-                filepath = os.path.join(config_point, filename)
+                file_path = os.path.join(config_point, filename)
 
                 # Check if the file is a YAML file
-                if os.path.isfile(filepath) and filename.endswith('.yaml'):
+                if os.path.isfile(file_path) and filename.endswith('.yaml'):
                     # Read the YAML file
-                    with open(filepath, 'r') as file:
-                        yaml_data = yaml.safe_load(file)
+                    with open(file_path, 'r') as file_handle:
+                        yaml_data = yaml.safe_load(file_handle)
 
                         # Add the YAML data to the .env data structure path
                         data.setdefault('conf', {}).update(yaml_data)

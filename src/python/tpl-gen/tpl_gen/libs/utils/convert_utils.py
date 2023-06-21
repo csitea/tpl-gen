@@ -7,6 +7,7 @@ from .console_utils import print_success, print_warn
 from config import run_env
 from .string_utils import pkey_replace, string_contains
 from .env_utils import get_env_as_dict_lower
+from .io_utils import replace_path
 
 
 def convert_dir(src_dir: Path, ignore_list: "Optional[list[str]]"):
@@ -77,16 +78,15 @@ def get_ignored_paths() -> "list[str]":
         return []
 
 
-def create_tgt_path(env:run_env, file: Path, opt_dict=None) -> Path:
+def create_tgt_path(env:run_env, tpl_file: Path, opt_dict=None) -> Path:
     if opt_dict is None:
         opt_dict = {}
 
-    str_path = str(file)
+    str_path = str(tpl_file)
     env_dict = get_env_as_dict_lower()
     opt_dict.update(env_dict)
     converted_path = pkey_replace(str_path, opt_dict)
-    # todo: search TPL_SRC, replace TGT path
-    converted_path = converted_path.replace(env.TPL_SRC, env.TGT)
-    #converted_path = converted_path.replace("src/tpl/", "", 1)
-    converted_path = Path(converted_path.replace(".tpl", ""))
+    converted_path = replace_path(converted_path, env.TGT)
+    converted_path = converted_path.replace("src/tpl/", "", 1) # optional from 4.0
+    converted_path = Path(converted_path.replace(".tpl", "")) # optional from 4.0
     return converted_path

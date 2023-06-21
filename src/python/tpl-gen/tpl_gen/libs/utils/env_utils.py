@@ -78,9 +78,13 @@ def override_env(cnf:any,data_key_path:str):
 
 def get_scalar_key_vals(dictionary):
     scalar_dict = {}
-    for key, value in dictionary.items():
-        if isinstance(value, (int, float, str, bool)):
-            scalar_dict[key] = value
+    try:
+        for key, value in dictionary.items():
+            if isinstance(value, (int, float, str, bool)):
+                scalar_dict[key] = value
+    except AttributeError as e:
+        print_error("could not override_env: " + str(e))
+        return scalar_dict
     return scalar_dict
 
 

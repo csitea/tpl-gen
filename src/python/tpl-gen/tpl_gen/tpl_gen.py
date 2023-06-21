@@ -1,15 +1,22 @@
-import os
+import os, mimetypes,shutil
+from jq import jq
 from pathlib import Path
+from jinja2 import Environment, BaseLoader
 from config import run_env
 from config import config_data_loader
 from config import config_data_loader
 from data import generic_data_service
 from libs.utils.console_utils import *
 from libs.utils.io_utils import *
-from libs.utils.tpl_utils import render_files
 from data.data_provider_type import DataProviderType
-import mimetypes
-import shutil
+from json import JSONDecodeError
+from pathlib import Path
+from libs.utils.env_utils import *
+from config import run_env
+from libs.utils.console_utils import *
+from libs.utils.convert_utils import  create_tgt_path
+from libs.utils.tpl_utils import render_file
+
 
 
 def main():
@@ -19,22 +26,44 @@ def main():
 
     config_dir = env.CNF_SRC
     data_key_path = env.DATA_KEY_PATH or '.'
+
     obj_config_data_loader = config_data_loader.ConfigDataLoader()
     cnf = obj_config_data_loader.read_yaml_files(config_dir, data_key_path=data_key_path)
+    # optionally enrich the cnf with data from data services
     # obj_generic_data_service = generic_data_service.GenericDataService(env,cnf,DataProviderType.aws)
     data = cnf
-
+    data_substructure = jq(data_key_path).transform(data)
     tpl_files = list_files_and_dirs(env.TPL_SRC)
-    # Here we could remove the src/tpl logic. Whenever we call this from cli
-    # we could specify what is the TPL_SRC. We just walk down it.
-    for subdir, _dirs, files in os.walk(Path(env.TPL_SRC)):
-        tpl_files = [Path(subdir, file) for file in files]
-        tpl_files = sorted(tpl_files)
-        #print(cnf)
-        files_and_contents = render_files(env, data, tpl_files, '.conf.aws-services-data')
-        print(files_and_contents)
-        # write_output_files(tpl_files, files_and_contents)
+    tpl_loader = Environment(loader=BaseLoader)
 
+    rendered_files_and_contents: list[tuple[Path, str]] = []
+    for tpl_path in tpl_files:
+        tgt_path = create_tgt_path(env, tpl_path, data_substructure )
+        rendered_file_content = ''
+        print_info(f"INFO ::: Generating tgt_file_path:  {tgt_path}")
+
+        if os.path.isdir(tpl_path):
+            if not os.path.exists(tgt_path):
+                os.mkdir(tgt_path)
+        elif os.path.isfile(tpl_path):
+            with open(tpl_path, "r", encoding="utf-8") as tgt_file_fh:
+                try:
+                    tpl_str = tgt_file_fh.read()
+                    tpl_obj = tpl_loader.from_string(tpl_str)
+                    rendered_file_content = render_file(tpl_obj, data,data_key_path)
+                    print_code(rendered_file_content)
+                except UnicodeDecodeError:
+                    print(
+                        f"The file {tpl_path} is a binary file or its type cannot be determined."
+                    )
+                    rendered_file = ""  # will not be used anyways
+        else:
+             print(f"The file {tpl_path} is a binary file or its type cannot be determined.")
+
+
+        rendered_files_and_contents.append((tgt_path, rendered_file_content))
+
+    write_output_files(tpl_files,rendered_files_and_contents)
 
 
 def is_text_file(file_path):
@@ -43,16 +72,19 @@ def is_text_file(file_path):
 
 
 def write_output_files(
-    tpl_files: "list[str]", files_and_contents: "list[tuple[Path, str]]"
+    tpl_files: "list[str]", rendered_files_and_contents: "list[tuple[Path, str]]"
 ):
 
     counter = 0
-    for file_path, content in files_and_contents:
+    for file_path, content in rendered_files_and_contents:
         directory = file_path.parent  # Get the directory path
         # create the directory if it doesn't exist
         directory.mkdir(parents=True, exist_ok=True)
         # resolve the tpl_file for the copy file if needed
         tpl_file = tpl_files[counter]
+
+        if os.path.isdir(file_path):
+            continue
 
         try:
             with open(file_path, "w", encoding="utf-8") as output_file:
