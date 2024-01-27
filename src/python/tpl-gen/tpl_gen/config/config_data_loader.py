@@ -26,6 +26,8 @@ class ConfigDataLoader:
         elif os.path.isdir(config_point): # Iterate over all files in the directory
             for filename in os.listdir(config_point): # for each yaml file loads it up
                 file_path = os.path.join(config_point, filename)
+                print(file_path)
+                print("eof file_path")
 
                 # Check if the file is a YAML file
                 if os.path.isfile(file_path) and filename.endswith('.yaml'):

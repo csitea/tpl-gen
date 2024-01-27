@@ -28,8 +28,6 @@ class RunEnv:
 
     def _initialize(self):
         try:
-            self.AWS_PROFILE = os.getenv("AWS_PROFILE")
-            self.AWS_REGION = os.getenv("AWS_REGION")
             self.TPL_SRC = os.getenv("TPL_SRC")
             self.CNF_SRC = os.getenv("CNF_SRC")
             self.ORG = os.getenv("ORG")
