@@ -1,8 +1,8 @@
 FROM python:3.8.3-alpine
 
 # START ::: add-os-user
-RUN test -z $(getent group $GID | cut -d: -f1) || \
-        groupmod -g $((GID+1000)) $(getent group $GID | cut -d: -f1)
+RUN if getent group $GID; then groupmod -g $((GID+3333)) $(getent group $GID | cut -d: -f1); fi
+RUN if getent passwd $UID; then usermod -u $((UID+3333)) $(getent passwd $UID | cut -d: -f1); fi
 
 # create a APPGRP and APPUSR
 RUN set -x ; addgroup -g "$GID" -S "$APPGRP" && \

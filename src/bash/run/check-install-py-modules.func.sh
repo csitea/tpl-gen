@@ -2,15 +2,13 @@
 
 # install the poetry for every python component project on the first level
 # of the src/python dir
-do_check_install_py_modules(){
+do_check_install_py_modules() {
 
   set -x
 
-  which poetry > /dev/null 2>&1 || {
+  which poetry >/dev/null 2>&1 || {
     do_check_install_poetry
   }
-
-
 
   while read -r f; do
     tgt_dir=$(dirname $f)
@@ -19,7 +17,7 @@ do_check_install_py_modules(){
         do_check_install_py_modules ::: the tgt_dir: $tgt_dir does not exist" && exit 1
 
     # if we want to filter by a sub component
-    if [[ ! -z "${MODULE:-}"  ]]; then
+    if [[ ! -z "${MODULE:-}" ]]; then
       if [[ "$tgt_dir" == *"$MODULE"* ]]; then
         test -f poetry.lock && rm -vf poetry.lock
         test -d .venv && rm -rv .venv
@@ -36,7 +34,7 @@ do_check_install_py_modules(){
       fi
     fi
     cd -
-  done < <(find $PRODUCT_DIR/src/python/ -name pyproject.toml)
+  done < <(find $PROJ_PATH/src/python/ -name pyproject.toml)
 
   export exit_code=0
 }

@@ -1,7 +1,7 @@
 FROM python:3.8.3-alpine
 
-WORKDIR $HOME_PRODUCT_DIR
+WORKDIR $HOME_PROJ_PATH
 
-RUN chmod 0755 "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
+RUN chmod 0755 "$HOME_PROJ_PATH/src/bash/scripts/docker-init-${MODULE}.sh"
 
-CMD exec /bin/bash -c "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
+CMD exec /bin/bash -c "$HOME_PROJ_PATH/src/bash/scripts/docker-init-${MODULE}.sh"

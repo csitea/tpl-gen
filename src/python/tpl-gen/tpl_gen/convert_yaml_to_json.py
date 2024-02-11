@@ -112,5 +112,5 @@ if __name__ == "__main__":
 
 
     # # Read the YAML file
-    # with open(env.PRODUCT_DIR + '/cnf/yaml/aws/aws-services.yaml', 'r') as f:
+    # with open(env.PROJ_PATH + '/cnf/yaml/aws/aws-services.yaml', 'r') as f:
     #     data = yaml.safe_load(f)

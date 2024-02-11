@@ -6,13 +6,13 @@ FROM python:3.10.11-slim-buster
 # START ::: args-vars
 ARG UID
 ARG GID
-ARG BASE_DIR
-ARG PRODUCT
+ARG BASE_PATH
+ARG PROJ
 ARG ORG_DIR
-ARG PRODUCT_DIR
+ARG PROJ_PATH
 ARG APPUSR
 ARG APPGRP
-ARG HOME_PRODUCT_DIR
+ARG HOME_PROJ_PATH
 ARG MOUNT_WORK_DIR
 ARG DOCKER_SHELL
 ARG DOCKER_HOME
@@ -20,16 +20,16 @@ ARG RUN_SCRIPT
 ARG DOCKER_INIT_SCRIPT
 
 ENV MODULE='tpl-gen'
-ENV BASE_DIR=$BASE_DIR
+ENV BASE_PATH=$BASE_PATH
 ENV ORG=$ORG
-ENV PRODUCT=$PRODUCT
+ENV PROJ=$PROJ
 ENV ORG_DIR=$ORG_DIR
-ENV PRODUCT_DIR=$PRODUCT_DIR
+ENV PROJ_PATH=$PROJ_PATH
 ENV EDITOR="vim"
 ENV APPUSR=$APPUSR
 ENV APPGRP=$APPGRP
 ENV PS1='`date "+%F %T"` \u@\h  \w \n\n  '
-ENV HOME_PRODUCT_DIR=$HOME_PRODUCT_DIR
+ENV HOME_PROJ_PATH=$HOME_PROJ_PATH
 ENV MOUNT_WORK_DIR=$MOUNT_WORK_DIR
 ENV DOCKER_SHELL=$DOCKER_SHELL
 ENV DOCKER_HOME=$DOCKER_HOME
@@ -61,21 +61,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends  \
 # # STOP  ::: python build utils
 
 
-
-
 # isntall python pip
 RUN wget https://bootstrap.pypa.io/get-pip.py ; sudo python3 get-pip.py ; sudo rm -v get-pip.py
 
 RUN pip3 install --upgrade pip
 RUN pip3 install wheel
 
-
-
 # START ::: add-os-user
-RUN if getent group $GID; then groupmod -g $((GID+2000)) $(getent group $GID | cut -d: -f1); fi
+RUN if getent group $GID; then groupmod -g $((GID+3333)) $(getent group $GID | cut -d: -f1); fi
+RUN if getent passwd $UID; then usermod -u $((UID+3333)) $(getent passwd $UID | cut -d: -f1); fi
 
 # create a APPGRP and APPUSR
-# START ::: add-os-user
 RUN set -x ; groupadd -g "$GID" "$APPGRP" && \
   useradd \
   --gid "$GID" \
@@ -108,10 +104,10 @@ ENV POETRY_VERSION=1.5.1
 
 # Check if Poetry is installed and install it if necessary
 RUN poetry --version >/dev/null 2>&1 \
-    && poetry_version=$(poetry --version | sed -n 's/Poetry version \(.*\)/\1/p') \
-    && test "$poetry_version" = "$POETRY_VERSION" \
-    || (curl -sSL https://install.python-poetry.org | python - \
-        && chmod 775 $HOME/.local/share/pypoetry/venv/bin/poetry )
+  && poetry_version=$(poetry --version | sed -n 's/Poetry version \(.*\)/\1/p') \
+  && test "$poetry_version" = "$POETRY_VERSION" \
+  || (curl -sSL https://install.python-poetry.org | python - \
+  && chmod 775 $HOME/.local/share/pypoetry/venv/bin/poetry )
 
 RUN echo 'export PATH=$PATH:$HOME/.local/bin/' >> $HOME/.bashrc
 
@@ -127,11 +123,11 @@ SHELL ["/bin/bash", "-c"]
 
 # START ::: copy-proj-dir
 
-COPY --chown=$APPUSR:$APPGRP . ${HOME_PRODUCT_DIR}
-COPY --chown=$APPUSR:$APPGRP ./src/bash/run/run.sh ${HOME_PRODUCT_DIR}/src/bash/run/run.sh
+COPY --chown=$APPUSR:$APPGRP . ${HOME_PROJ_PATH}
+COPY --chown=$APPUSR:$APPGRP ./src/bash/run/run.sh ${HOME_PROJ_PATH}/src/bash/run/run.sh
 
 # Create the 'run' symlink
-WORKDIR $HOME_PRODUCT_DIR
+WORKDIR $HOME_PROJ_PATH
 RUN ln -sfn src/bash/run/run.sh run
 
 
@@ -142,35 +138,33 @@ RUN ln -sfn src/bash/run/run.sh run
 
 RUN pip wheel --use-pep517 "pyyaml (==5.3.1)"
 # START ::: install poetry modules in the  module
-RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
-    while IFS= read -r -d '' f; do \
-        tgt_dir=$(dirname "$f"); \
-        echo "Working on tgt_dir: $tgt_dir"; \
-        sudo chmod -R ug+w $tgt_dir; \
-        cd "$tgt_dir"; \
-        if [ ! -z "${MODULE:-}" ] && [[ "$tgt_dir" == *"$MODULE"* ]]; then \
-            test -f poetry.lock && rm -vf poetry.lock; \
-            test -d .venv && rm -rv .venv; \
-            poetry config virtualenvs.create true; \
-            poetry install -vvv; \
-            sudo chmod -R ug+w poetry.lock; \
-            if [ $? -ne 0 ]; then \
-                echo "FATAL: failed to install $tgt_dir py modules"; \
-                exit 1; \
-            fi; \
-        fi; \
-        cd -; \
-    done
+RUN find $HOME_PROJ_PATH/src/python/ -name "pyproject.toml" -print0 | \
+  while IFS= read -r -d '' f; do \
+  tgt_dir=$(dirname "$f"); \
+  echo "Working on tgt_dir: $tgt_dir"; \
+  sudo chmod -R ug+w $tgt_dir; \
+  cd "$tgt_dir"; \
+  if [ ! -z "${MODULE:-}" ] && [[ "$tgt_dir" == *"$MODULE"* ]]; then \
+  test -f poetry.lock && rm -vf poetry.lock; \
+  test -d .venv && rm -rv .venv; \
+  poetry config virtualenvs.create true; \
+  poetry install -vvv; \
+  sudo chmod -R ug+w poetry.lock; \
+  if [ $? -ne 0 ]; then \
+  echo "FATAL: failed to install $tgt_dir py modules"; \
+  exit 1; \
+  fi; \
+  fi; \
+  cd -; \
+  done
 #
 # STOP  ::: install poetry modules in the  module
 
 
 
 
-WORKDIR $HOME_PRODUCT_DIR
+WORKDIR $HOME_PROJ_PATH
 
-RUN chmod 0755 "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
+RUN chmod 0755 "$HOME_PROJ_PATH/src/bash/scripts/docker-init-${MODULE}.sh"
 
-CMD exec /bin/bash -c "$HOME_PRODUCT_DIR/src/bash/scripts/docker-init-${MODULE}.sh"
-
-
+CMD exec /bin/bash -c "$HOME_PROJ_PATH/src/bash/scripts/docker-init-${MODULE}.sh"

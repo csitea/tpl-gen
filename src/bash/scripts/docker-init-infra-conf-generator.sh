@@ -1,12 +1,10 @@
 #!/bin/bash
 
+PROJ_PATH=$(echo $PROJ_PATH | perl -ne "s|/home/$APPUSR||g;print")
+BASE_PATH=$(echo $BASE_PATH | perl -ne "s|/home/$APPUSR||g;print")
 
-PRODUCT_DIR=$(echo $PRODUCT_DIR|perl -ne "s|/home/$APPUSR||g;print")
-BASE_DIR=$(echo $BASE_DIR|perl -ne "s|/home/$APPUSR||g;print")
-
-
-home_venv_path="$HOME_PRODUCT_DIR/src/python/$MODULE/.venv"
-venv_path="$PRODUCT_DIR/src/python/$MODULE/.venv"
+home_venv_path="$HOME_PROJ_PATH/src/python/$MODULE/.venv"
+venv_path="$PROJ_PATH/src/python/$MODULE/.venv"
 
 if [ -d "$venv_path" ]; then
   rm -r "$venv_path"
@@ -21,20 +19,18 @@ fi
 cp -r $home_venv_path $venv_path
 perl -pi -e "s|/home/$APPUSR||g" $venv_path/bin/activate
 
+# if it points to PROJ_PATH it will always be broken
+echo "source $PROJ_PATH/src/python/$MODULE/.venv/bin/activate" >>~/.bashrc
+echo "source $PROJ_PATH/src/python/$MODULE/.venv/bin/activate" >>~/.profile
 
-# if it points to PRODUCT_DIR it will always be broken
-echo "source $PRODUCT_DIR/src/python/$MODULE/.venv/bin/activate" >> ~/.bashrc
-echo "source $PRODUCT_DIR/src/python/$MODULE/.venv/bin/activate" >> ~/.profile
+echo 'export PATH=$PATH:$PROJ_PATH/src/python/$MODULE/.venv/bin/' >>~/.bashrc
+echo 'export PATH=$PATH:$PROJ_PATH/src/python/$MODULE/.venv/bin/' >>~/.profile
 
+echo "cd $PROJ_PATH" >>~/.bashrc
+echo "cd $PROJ_PATH" >>~/.profile
 
-echo 'export PATH=$PATH:$PRODUCT_DIR/src/python/$MODULE/.venv/bin/' >> ~/.bashrc
-echo 'export PATH=$PATH:$PRODUCT_DIR/src/python/$MODULE/.venv/bin/' >> ~/.profile
+cd $PROJ_PATH
 
-
-echo "cd $PRODUCT_DIR" >> ~/.bashrc
-echo "cd $PRODUCT_DIR" >> ~/.profile
-
-cd $PRODUCT_DIR;
-
-trap : TERM INT; sleep infinity & wait
-
+trap : TERM INT
+sleep infinity &
+wait

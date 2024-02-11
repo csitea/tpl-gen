@@ -4,17 +4,17 @@
 # usage:
 # MODULE=run.sh ./run -a do_zip_me_as_module
 do_zip_me_as_module() {
-  mkdir -p "$PRODUCT_DIR/cnf/lst/"
-  cd "$PRODUCT_DIR"
+  mkdir -p "$PROJ_PATH/cnf/lst/"
+  cd "$PROJ_PATH"
   do_require_var MODULE "${MODULE:-}"
 
   # Path to the exclude file containing the glob patterns
-  exclude_file="$PRODUCT_DIR/cnf/lst/$MODULE.exclude.lst"
+  exclude_file="$PROJ_PATH/cnf/lst/$MODULE.exclude.lst"
 
   # Contains the files to be included while packaging
-  component_include_list_fle="$PRODUCT_DIR/cnf/lst/$MODULE.include.lst"
+  component_include_list_fle="$PROJ_PATH/cnf/lst/$MODULE.include.lst"
 
-  zip_file="$BASE_DIR/$ORG_DIR/$MODULE.zip"
+  zip_file="$BASE_PATH/$ORG_DIR/$MODULE.zip"
   test -f "$zip_file" && rm -v "$zip_file"
 
   while read -r file; do
@@ -26,19 +26,19 @@ do_zip_me_as_module() {
         excluded=true
         break
       fi
-    done < "$exclude_file"
+    done <"$exclude_file"
 
     # Only add the file to the zip if it is not excluded
     if ! $excluded; then
       # if the file or symlink still exists in the bigger project, add it
-      if [ -f "$PRODUCT_DIR/$file" ] || [ -L "$PRODUCT_DIR/$file" ]; then
+      if [ -f "$PROJ_PATH/$file" ] || [ -L "$PROJ_PATH/$file" ]; then
         zip -y "$zip_file" "$file"
       fi
 
       # if the file does not exist, remove it from the list file
       test -f "$file" || perl -pi -e 's|^'"$file"'\n\r||gm' "$component_include_list_fle"
     fi
-  done < "$component_include_list_fle"
+  done <"$component_include_list_fle"
 
   do_log "INFO produced the $zip_file file"
 

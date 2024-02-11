@@ -4,20 +4,20 @@ FROM python:3.8.3-alpine
 
 
 # Iterate over each pyproject.toml file
-RUN find $HOME_PRODUCT_DIR/src/python/ -name "pyproject.toml" -print0 | \
-    while IFS= read -r -d '' f; do \
-        tgt_dir=$(dirname "$f"); \
-        echo "Working on tgt_dir: $tgt_dir"; \
-        cd "$tgt_dir"; \
-        if [ ! -z "${MODULE:-}" ] && [[ "$tgt_dir" == *"$MODULE"* ]]; then \
-            test -f poetry.lock && rm -vf poetry.lock; \
-            test -d .venv && rm -rv .venv; \
-            poetry config virtualenvs.create true; \
-            poetry install -vvv; \
-            if [ $? -ne 0 ]; then \
-                echo "FATAL: failed to install $tgt_dir py modules"; \
-                exit 1; \
-            fi; \
-        fi; \
-        cd -; \
-    done
+RUN find $HOME_PROJ_PATH/src/python/ -name "pyproject.toml" -print0 | \
+  while IFS= read -r -d '' f; do \
+  tgt_dir=$(dirname "$f"); \
+  echo "Working on tgt_dir: $tgt_dir"; \
+  cd "$tgt_dir"; \
+  if [ ! -z "${MODULE:-}" ] && [[ "$tgt_dir" == *"$MODULE"* ]]; then \
+  test -f poetry.lock && rm -vf poetry.lock; \
+  test -d .venv && rm -rv .venv; \
+  poetry config virtualenvs.create true; \
+  poetry install -vvv; \
+  if [ $? -ne 0 ]; then \
+  echo "FATAL: failed to install $tgt_dir py modules"; \
+  exit 1; \
+  fi; \
+  fi; \
+  cd -; \
+  done

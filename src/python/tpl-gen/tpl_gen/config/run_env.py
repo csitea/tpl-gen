@@ -7,7 +7,7 @@ class RunEnv:
     AWS_REGION = None
     TPL_SRC = None
     CNF_SRC = None
-    PRODUCT_DIR = None
+    PROJ_PATH = None
     ORG = None
     APP = None
     ENV = None
@@ -40,11 +40,11 @@ class RunEnv:
             self.SRC_PRF = os.getenv('SRC_PRF', 'src/tpl/')
             self.TGT_PRF = os.getenv('TGT_PRF', '')
 
-            product_dir = os.path.join(__file__, "..", "..", "..", "..", "..", "..")
-            self.PRODUCT_DIR = os.path.abspath(product_dir)
+            PROJ_dir = os.path.join(__file__, "..", "..", "..", "..", "..", "..")
+            self.PROJ_PATH = os.path.abspath(PROJ_dir)
 
-            base_dir = os.path.join(product_dir, "..", "..")
-            self.BASE_DIR = os.path.abspath(base_dir)
+            BASE_PATH = os.path.join(PROJ_dir, "..", "..")
+            self.BASE_PATH = os.path.abspath(BASE_PATH)
             self.HOME = os.getenv('HOME')
 
         except IndexError as error:
@@ -52,7 +52,3 @@ class RunEnv:
 
     def __call__(self):
         return self
-
-
-
-

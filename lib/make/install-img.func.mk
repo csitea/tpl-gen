@@ -31,13 +31,13 @@ define build-img
 	@DOCKER_BUILDKIT=${DOCKER_BUILDKIT} docker build . -t $(IMAGE_NAME) $(NO_CACHE) \
 		--build-arg UID=${UID} \
 		--build-arg GID=${GID} \
-		--build-arg BASE_DIR=${BASE_DIR} \
+		--build-arg BASE_PATH=${BASE_PATH} \
 		--build-arg ORG_DIR=${ORG_DIR} \
-		--build-arg PRODUCT=${PRODUCT} \
-		--build-arg PRODUCT_DIR=${PRODUCT_DIR} \
+		--build-arg PROJ=${PROJ} \
+		--build-arg PROJ_PATH=${PROJ_PATH} \
 		--build-arg APPUSR=${APPUSR} \
 		--build-arg APPGRP=${APPGRP} \
-		--build-arg HOME_PRODUCT_DIR=${HOME_PRODUCT_DIR} \
+		--build-arg HOME_PROJ_PATH=${HOME_PROJ_PATH} \
 		--build-arg MOUNT_WORK_DIR=${MOUNT_WORK_DIR} \
 		--build-arg DOCKER_HOME=${DOCKER_HOME} \
 		--build-arg RUN_SCRIPT=${RUN_SCRIPT} \

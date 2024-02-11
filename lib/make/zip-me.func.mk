@@ -3,7 +3,7 @@
 #
 # usage:
 # make zip_me
-# 
+#
 
 
 .ONESHELL: # Applies to every targets in the file!
@@ -15,4 +15,4 @@ zip_me:
 	@sleep 1
 	@clear
 	@echo done check
-	@echo $(PWD)/../$(PRODUCT).zip
+	@echo $(PWD)/../$(PROJ).zip
