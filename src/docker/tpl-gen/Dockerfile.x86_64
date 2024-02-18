@@ -165,6 +165,6 @@ RUN find $HOME_PROJ_PATH/src/python/ -name "pyproject.toml" -print0 | \
 
 WORKDIR $HOME_PROJ_PATH
 
-RUN chmod 0755 "$HOME_PROJ_PATH/src/bash/scripts/docker-init-${MODULE}.sh"
+RUN chmod 0775 "$HOME_PROJ_PATH/src/bash/scripts/docker-init-${MODULE}.sh"
 
 CMD exec /bin/bash -c "$HOME_PROJ_PATH/src/bash/scripts/docker-init-${MODULE}.sh"
