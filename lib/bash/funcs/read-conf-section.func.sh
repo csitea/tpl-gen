@@ -2,10 +2,10 @@
 #------------------------------------------------------------------------------
 # usage example:
 # source $PROJ/lib/bash/funcs/read-conf-section.sh
-# do_read_conf_section $PROJ_PATH/cnf/$ENV.env.json ".env"
-# do_read_conf_section $PROJ_PATH/cnf/$ENV.env.json ".env.app"
+# do_export_json_section_vars $PROJ_PATH/cnf/$ENV.env.json ".env"
+# do_export_json_section_vars $PROJ_PATH/cnf/$ENV.env.json ".env.app"
 #------------------------------------------------------------------------------
-do_read_conf_section() {
+do_export_json_section_vars() {
 
   PROJ_CONF_FILE=$1
   shift
@@ -16,7 +16,7 @@ do_read_conf_section() {
 
   section="$1"
   test -z "$section" &&
-    echo "ERROR : the section in do_read_conf_section is empty !!! Nothing to do !!!" && exit 1
+    echo "ERROR : the section in do_export_json_section_vars is empty !!! Nothing to do !!!" && exit 1
 
   do_flush_screen
 
