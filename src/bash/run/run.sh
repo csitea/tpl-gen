@@ -194,7 +194,7 @@ do_set_vars() {
     cd $unit_run_dir/../../..
     echo $(pwd)
   )
-  export ORG_DIR=$(echo $PROJ_PATH | xargs dirname | xargs basename)
+  export ORG_PATH=$(echo $PROJ_PATH | xargs dirname | xargs basename)
   export BASE_PATH=$(cd $unit_run_dir/../../../../.. && echo $(pwd))
   do_ensure_logical_link
   export PROJ=$(basename $PROJ_PATH)
@@ -227,11 +227,11 @@ do_ensure_logical_link() {
       cd $unit_run_dir
       echo $(pwd)
     )
-    export ORG_DIR=$(echo $PROJ_PATH | xargs dirname | xargs basename)
+    export ORG_PATH=$(echo $PROJ_PATH | xargs dirname | xargs basename)
     export BASE_PATH=$(cd $unit_run_dir/../.. && echo $(pwd))
     set -x
     echo PROJ_PATH: $PROJ_PATH
-    echo ORG_DIR: $ORG_DIR
+    echo ORG_PATH: $ORG_PATH
     echo BASE_PATH: $BASE_PATH
     sleep 5
   fi

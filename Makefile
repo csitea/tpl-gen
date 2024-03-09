@@ -17,17 +17,17 @@ SHELL := /bin/bash
 PROJ := $(shell basename $$PWD)
 PROJ := $(shell echo `basename $$PWD`|tr '[:upper:]' '[:lower:]')
 PROCESSOR_ARCHITECTURE := $(shell uname -m)
-ORG_DIR := $(shell basename $(dir $(abspath $(dir $$PWD))))
-org_dir := $(shell echo `basename $(dir $(abspath $(dir $$PWD)))|tr '[:upper:]' '[:lower:]'`)
+ORG_PATH := $(shell basename $(dir $(abspath $(dir $$PWD))))
+org_path := $(shell echo `basename $(dir $(abspath $(dir $$PWD)))|tr '[:upper:]' '[:lower:]'`)
 BASE_PATH := $(shell source $$PWD/lib/bash/funcs/resolve-dirname.func.sh ; resolve_dirname $$PWD"/../" )
 PROJ_PATH := $$PWD
 PYTHON_DIR := $(PROJ_PATH)/src/python/$(PROJ)
-TPG_PROJ_PATH := $(BASE_PATH)/$(ORG_DIR)/tpl-gen
+TPG_PROJ_PATH := $(BASE_PATH)/$(ORG_PATH)/tpl-gen
 
 APPUSR := appusr
 APPGRP := appgrp
-ROOT_DOCKER_NAME = ${ORG_DIR}-tpl-gen
-MOUNT_WORK_DIR := $(BASE_PATH)/$(ORG_DIR)
+ROOT_DOCKER_NAME = ${ORG_PATH}-tpl-gen
+MOUNT_WORK_DIR := $(BASE_PATH)/$(ORG_PATH)
 HOST_AWS_DIR := $(HOME)/.aws
 DOCKER_AWS_DIR := /home/${APPUSR}/.aws
 HOST_SSH_DIR := $(HOME)/.ssh
@@ -36,8 +36,8 @@ HOST_KUBE_DIR := $(HOME)/.kube
 DOCKER_KUBE_DIR := /home/${APPUSR}/.kube
 
 # dockerfile variables
-PROJ_PATH := $(BASE_PATH)/$(ORG_DIR)/$(PROJ)
-HOME_PROJ_PATH := "/home/$(APPUSR)$(BASE_PATH)/$(ORG_DIR)/$(PROJ)"
+PROJ_PATH := $(BASE_PATH)/$(ORG_PATH)/$(PROJ)
+HOME_PROJ_PATH := "/home/$(APPUSR)$(BASE_PATH)/$(ORG_PATH)/$(PROJ)"
 DOCKER_HOME := /home/$(APPUSR)
 DOCKER_SHELL := /bin/$(SHELL)
 RUN_SCRIPT := $(HOME_PROJ_PATH)/run
@@ -57,4 +57,3 @@ install:
 .PHONY: clean-line-feeds ## @-> remove the winblows line feeds
 clean-line-feeds:
 	find $(PROJ_PATH) -type f -not \( -path "*/.git/*" -o -path "*/.venv/*" -o -path "*/node_modules/*" \) -exec perl -pi -e 's/\r\n/\n/g' {} +
-

@@ -12,22 +12,22 @@ do_morph_module() {
   do_require_var SRC_MODULE ${SRC_MODULE:-}
   do_require_var TGT_MODULE ${TGT_MODULE:-}
 
-  # echo produce the $BASE_PATH/$ORG_DIR/$SRC_MODULE.zip
+  # echo produce the $BASE_PATH/$ORG_PATH/$SRC_MODULE.zip
   MODULE=$SRC_MODULE do_zip_me_as_module
 
-  # mkdir -p $BASE_PATH/$ORG_DIR/$TGT_MODULE ; cd $BASE_PATH/$ORG_DIR/$TGT_MODULE
-  test -d $BASE_PATH/$ORG_DIR/$TGT_MODULE && rm -r $BASE_PATH/$ORG_DIR/$TGT_MODULE
-  mkdir -p $BASE_PATH/$ORG_DIR/$TGT_MODULE
+  # mkdir -p $BASE_PATH/$ORG_PATH/$TGT_MODULE ; cd $BASE_PATH/$ORG_PATH/$TGT_MODULE
+  test -d $BASE_PATH/$ORG_PATH/$TGT_MODULE && rm -r $BASE_PATH/$ORG_PATH/$TGT_MODULE
+  mkdir -p $BASE_PATH/$ORG_PATH/$TGT_MODULE
   cd $_
   sudo chmod 0775 src/bash/run/run.sh
   ln -sfn src/bash/run/run.sh run
-  unzip -o $BASE_PATH/$ORG_DIR/$SRC_MODULE.zip -d .
-  cp -v $PROJ_PATH/cnf/lst/$SRC_MODULE.include.lst $BASE_PATH/$ORG_DIR/$TGT_MODULE/cnf/lst/$TGT_MODULE.include.lst
-  cp -v $PROJ_PATH/cnf/lst/$SRC_MODULE.exclude.lst $BASE_PATH/$ORG_DIR/$TGT_MODULE/cnf/lst/$TGT_MODULE.exclude.lst
+  unzip -o $BASE_PATH/$ORG_PATH/$SRC_MODULE.zip -d .
+  cp -v $PROJ_PATH/cnf/lst/$SRC_MODULE.include.lst $BASE_PATH/$ORG_PATH/$TGT_MODULE/cnf/lst/$TGT_MODULE.include.lst
+  cp -v $PROJ_PATH/cnf/lst/$SRC_MODULE.exclude.lst $BASE_PATH/$ORG_PATH/$TGT_MODULE/cnf/lst/$TGT_MODULE.exclude.lst
 
   # Action !!! do search and replace src & tgt module into the new dir
   test $SRC_MODULE != 'run.sh' && STR_TO_SRCH=$SRC_MODULE STR_TO_REPL=$TGT_MODULE \
-    DIR_TO_MORPH=$BASE_PATH/$ORG_DIR/$TGT_MODULE do_morph_dir
+    DIR_TO_MORPH=$BASE_PATH/$ORG_PATH/$TGT_MODULE do_morph_dir
 
   SRC_MODULE_UNDERSCORED=$(echo ${SRC_MODULE:-} | perl -ne 's|-|_|g;print')
   TGT_MODULE_UNDERSCORED=$(echo ${TGT_MODULE:-} | perl -ne 's|-|_|g;print')
@@ -37,7 +37,7 @@ do_morph_module() {
 
   # Action !!! do search and replace src & tgt module into the new dir UNDERSCORED
   test $SRC_MODULE != 'run.sh' && STR_TO_SRCH=$SRC_MODULE_UNDERSCORED STR_TO_REPL=$TGT_MODULE_UNDERSCORED \
-    DIR_TO_MORPH=$BASE_PATH/$ORG_DIR/$TGT_MODULE do_morph_dir
+    DIR_TO_MORPH=$BASE_PATH/$ORG_PATH/$TGT_MODULE do_morph_dir
 
   cd $PROJ_PATH
 

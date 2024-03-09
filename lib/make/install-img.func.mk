@@ -32,7 +32,7 @@ define build-img
 		--build-arg UID=${UID} \
 		--build-arg GID=${GID} \
 		--build-arg BASE_PATH=${BASE_PATH} \
-		--build-arg ORG_DIR=${ORG_DIR} \
+		--build-arg ORG_PATH=${ORG_PATH} \
 		--build-arg PROJ=${PROJ} \
 		--build-arg PROJ_PATH=${PROJ_PATH} \
 		--build-arg APPUSR=${APPUSR} \
@@ -117,4 +117,3 @@ define stop-and-remove-docker-container
 	-@docker container stop $(shell docker ps -aqf "name=${CONTAINER_NAME}") 2> /dev/null
 	-@docker container rm $(shell docker ps -aqf "name=${CONTAINER_NAME}") 2> /dev/null
 endef
-

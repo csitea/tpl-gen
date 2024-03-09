@@ -14,7 +14,7 @@ do_zip_me_as_module() {
   # Contains the files to be included while packaging
   component_include_list_fle="$PROJ_PATH/cnf/lst/$MODULE.include.lst"
 
-  zip_file="$BASE_PATH/$ORG_DIR/$MODULE.zip"
+  zip_file="$BASE_PATH/$ORG_PATH/$MODULE.zip"
   test -f "$zip_file" && rm -v "$zip_file"
 
   while read -r file; do
