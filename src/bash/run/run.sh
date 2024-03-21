@@ -165,9 +165,6 @@ do_log() {
 }
 
 do_check_install_min_req_bins() {
-
-  while read -r f; do source $f; done < <(find $PROJ_PATH/lib/bash/funcs/ -type f)
-
   which perl >/dev/null 2>&1 || {
     run_os_func install_bins perl
   }
@@ -229,11 +226,9 @@ do_ensure_logical_link() {
     )
     export ORG_PATH=$(echo $PROJ_PATH | xargs dirname | xargs basename)
     export BASE_PATH=$(cd $unit_run_dir/../.. && echo $(pwd))
-    set -x
     echo PROJ_PATH: $PROJ_PATH
     echo ORG_PATH: $ORG_PATH
     echo BASE_PATH: $BASE_PATH
-    sleep 5
   fi
 
 }

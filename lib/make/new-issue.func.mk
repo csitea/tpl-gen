@@ -1,4 +1,4 @@
-.PHONY: new-issue ## @-> prints new issueid
+.PHONY: new-issue ## @-> 99.99 prints new issueid
 new-issue:
 	@clear
 	@echo ==================================
