@@ -1,0 +1,17 @@
+#!/bin/sh
+
+git_msg="$1"
+
+# Pattern to match a JIRA ticket ID
+PATTERN="[a-zA-Z]{1,9}\-[0-9]{1,9}"
+
+
+if ! echo "$(cat $git_msg)" | grep -E "$PATTERN" ; then
+    echo -e "Add Issue Handling System ID as suffix to your msg !!! \n\n\n Valid Examples:"
+    echo "HEAL-300 fix the kin file"
+    echo "HEAL-301 add the debian os to the run.sh"
+    exit 1
+fi
+
+exit 0
+
