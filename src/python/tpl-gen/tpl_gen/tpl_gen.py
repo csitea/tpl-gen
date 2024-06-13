@@ -64,11 +64,11 @@ def main():
     write_output_files(tpl_paths,rendered_files_and_contents)
     ignore_list = get_ignored_paths()
     # Usage:
-    print_info_heading("CONVERT YAML TO JSON")
+    print_info_heading("TPL-GEN CONVERT YAML TO JSON ")
 
     paths_to_iterate = [
-        Path(env.HOME, ".aws"),
-        Path(env.HOME, ".ssh"),
+        # Path(env.HOME, ".aws"),
+        # Path(env.HOME, ".ssh"),
         Path(env.CNF_SRC),
     ]
 

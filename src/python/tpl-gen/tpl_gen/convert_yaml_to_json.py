@@ -16,16 +16,15 @@ from libs.utils.convert_utils import *
 
 
 
-
 def main():
 
     env = run_env.RunEnv()
 
-    print_info_heading("CONVERT YAML TO JSON")
+    print_info_heading(" ::: CONVERT YAML TO JSON ::: ")
 
     paths_to_iterate = [
-        Path(env.HOME, ".aws"),
-        Path(env.HOME, ".ssh"),
+        # Path(env.HOME, ".aws"),
+        # Path(env.HOME, ".ssh"),
         Path(env.CNF_SRC),
     ]
     ignore_list = get_ignored_paths()
@@ -102,8 +101,6 @@ def create_tgt_path(env: run_env,
     converted_path = converted_path.replace(env.SRC_PRF, env.TGT_PRF, 1) # optional from 4.0
     converted_path = Path(converted_path.replace(env.SRC_EXT, env.TGT_EXT)) # optional from 4.0
     return converted_path
-
-
 
 
 if __name__ == "__main__":
