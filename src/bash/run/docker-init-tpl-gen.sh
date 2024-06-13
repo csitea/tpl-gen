@@ -3,7 +3,7 @@
 MODULE='tpl-gen'
 
 test -z ${PROJ:-} && PROJ=${MODULE:-}
-PROJ_PATH=${APPLICATION_PATH}/${PROJ}
+PROJ_PATH=${APP_PATH}/${PROJ}
 PROJ_PATH=$(echo $PROJ_PATH | perl -ne "s|/home/$APPUSR||g;print")
 BASE_PATH=$(echo $BASE_PATH | perl -ne "s|/home/$APPUSR||g;print")
 
