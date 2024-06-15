@@ -9,6 +9,7 @@ def list_files_and_dirs(path_str):
                 files.append(os.path.join(dirpath, filename))
         return sorted(files)
     else:
+        print(glob.glob(path_str))
         return sorted(glob.glob(path_str))
 
 
