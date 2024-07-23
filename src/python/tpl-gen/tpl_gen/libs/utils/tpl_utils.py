@@ -27,5 +27,3 @@ def render_file(tpl_obj: Template, cnf: any,data_key_path:str) -> str:
         return ""
 
     return rendered
-
-

@@ -30,7 +30,7 @@ def main():
     cnf = obj_config_data_loader.read_yaml_files(config_end_point, data_key_path=data_key_path)
     tpl_paths = list_files_and_dirs(f'{env.TPL_SRC}')
 
-    tpl_loader = Environment(loader=csieLoader,undefined=StrictUndefined)
+    tpl_loader = Environment(loader=BaseLoader,undefined=StrictUndefined)
 
     rendered_files_and_contents: list[tuple[Path, str]] = []
     for tpl_path in tpl_paths:
