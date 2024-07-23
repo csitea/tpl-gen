@@ -288,4 +288,17 @@ do_resolve_os() {
   'do_set_vars_on_'"$OS"
 }
 
+# usage:
+# checks the return code of the last command and exits with the proper
+# quit_on "restoring the mysql dump to the server"
+quit_on() {
+    rv=$?
+    if [ $rv -ne 0 ]; then
+        do_log "FATAL Error: Failed to $1"
+        exit $rv
+    fi
+}
+
+
+
 main "$@"
