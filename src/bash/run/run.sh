@@ -122,7 +122,6 @@ do_flush_screen() {
 #  - host_name - the short hostname of the host / container running on
 #------------------------------------------------------------------------------
 do_log() {
-
   print_ok() {
     GREEN_COLOR="\033[0;32m"
     DEFAULT="\033[0m"
@@ -148,11 +147,23 @@ do_log() {
   }
 
   type_of_msg=$(echo $* | cut -d" " -f1)
-  msg="$(echo $* | cut -d" " -f2-)"
+  action=$(echo $* | cut -d" " -f2)
+  rest_of_msg=$(echo $* | cut -d" " -f3-)
+
+  # Check if the action is START or STOP and adjust the length
+  if [[ "$action" == "START" || "$action" == "STOP" ]]; then
+    # Adjust the length of 'START' or 'STOP' token for alignment
+    formatted_action=$(printf "%-5s" "$action") # 5 characters wide, adjust as needed
+    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${host_name:-}] [$$] $formatted_action $rest_of_msg"
+  else
+    # Handle other types of messages without formatting the action
+    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${host_name:-}] [$$] $action $rest_of_msg"
+  fi
+
   log_dir="${PROJ_PATH:-}/dat/log/bash"
   mkdir -p $log_dir
   log_file="$log_dir/${PROJ:-}."$(date "+%Y%m%d")'.log'
-  msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${host_name:-}] [$$] $msg "
+
   case "$type_of_msg" in
   'FATAL') print_fail "$msg" | tee -a $log_file ;;
   'ERROR') print_fail "$msg" | tee -a $log_file ;;
@@ -161,10 +172,12 @@ do_log() {
   'OK') print_ok "$msg" | tee -a $log_file ;;
   *) echo "$msg" | tee -a $log_file ;;
   esac
-
 }
 
 do_check_install_min_req_bins() {
+
+  while read -r f; do source $f; done < <(find $PROJ_PATH/lib/bash/funcs/ -type f)
+
   which perl >/dev/null 2>&1 || {
     run_os_func install_bins perl
   }
@@ -185,18 +198,29 @@ do_set_vars() {
   unit_run_dir=$(perl -e 'use File::Basename; use Cwd "abs_path"; print dirname(abs_path(@ARGV[0]));' -- "$0")
   export RUN_UNIT=$(
     cd $unit_run_dir
-    basename $(pwd) .sh
+    basename $(pwd).sh
   )
   export PROJ_PATH=$(
     cd $unit_run_dir/../../..
     echo $(pwd)
   )
-  export ORG_PATH=$(echo $PROJ_PATH | xargs dirname | xargs basename)
-  export BASE_PATH=$(cd $unit_run_dir/../../../../.. && echo $(pwd))
+  export APP_PATH=$(
+    cd $unit_run_dir/../../../..
+    echo $(pwd)
+  )
+
+  export ORG_PATH=$(cd $unit_run_dir/../../../../.. && echo $(pwd))
+
+  export BASE_PATH=$(cd $unit_run_dir/../../../../../.. && echo $(pwd))
   do_ensure_logical_link
   export PROJ=$(basename $PROJ_PATH)
   ENV="${ENV:=lde}" # <- remove this one IF you want to enforce the caller to provide the ENV var
   cd $PROJ_PATH
+  do_log "INFO using: BASE_PATH: $BASE_PATH"
+  do_log "INFO using: ORG_PATH: $ORG_PATH"
+  do_log "INFO using: APP_PATH: $APP_PATH"
+  do_log "INFO using: PROJ_PATH: $PROJ_PATH"
+
   # workaround for github actions running on docker
   test -z ${GROUP:-} && export GROUP=$(id -gn)
   test -z ${GROUP:-} && export GROUP=$(ps -o group,supgrp $$ | tail -n 1 | awk '{print $1}')
@@ -224,10 +248,10 @@ do_ensure_logical_link() {
       cd $unit_run_dir
       echo $(pwd)
     )
-    export ORG_PATH=$(echo $PROJ_PATH | xargs dirname | xargs basename)
+    export ORG_DIR=$(echo $PROJ_PATH | xargs dirname | xargs basename)
     export BASE_PATH=$(cd $unit_run_dir/../.. && echo $(pwd))
     echo PROJ_PATH: $PROJ_PATH
-    echo ORG_PATH: $ORG_PATH
+    echo ORG_DIR: $ORG_DIR
     echo BASE_PATH: $BASE_PATH
   fi
 
@@ -264,22 +288,24 @@ run_os_func() {
 
 do_resolve_os() {
   if [[ $(uname -s) == *"Linux"* ]]; then
-    distro=$(cat /etc/os-release | egrep '^ID=' | cut -d= -f2 | tr -d '"')
-    if [[ $distro == 'ubuntu' ]] || [[ $distro == "pop" ]]; then
-      export OS='ubuntu'
-    elif [[ $distro == "alpine" ]]; then
-      export OS='alpine'
-    elif [[ $distro == 'manjaro' ]]; then
-      export OS='manjaro'
-    elif [[ "$distro" == "opensuse-tumbleweed" ]]; then
-      export OS="suse"
+    distro=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+    case "$distro" in
+    ubuntu | pop) export OS='ubuntu' ;;
+    alpine) export OS='alpine' ;;
+    manjaro) export OS='manjaro' ;;
+    fedora) export OS='fedora' ;;
+    debian) export OS='debian' ;;
+    opensuse-tumbleweed | opensuse-leap | suse)
+      export OS='suse'
       echo "your Linux distro has limited support !!!"
-    else
+      ;;
+    *)
       echo "your Linux distro is not supported !!!"
       exit 1
-    fi
+      ;;
+    esac
   elif [[ $(uname -s) == *"Darwin"* ]]; then
-    export OS=mac
+    export OS='mac'
   else
     echo "your OS distro is not supported !!!"
     exit 1
@@ -292,13 +318,18 @@ do_resolve_os() {
 # checks the return code of the last command and exits with the proper
 # quit_on "restoring the mysql dump to the server"
 quit_on() {
-    rv=$?
-    if [ $rv -ne 0 ]; then
-        do_log "FATAL Error: Failed to $1"
-        exit $rv
-    fi
+  rv=$?
+  if [ $rv -ne 0 ]; then
+    do_log "FATAL Error: Failed in $1"
+    exit $rv
+  fi
 }
 
-
-
 main "$@"
+
+# Version: 2.0.3
+# VersionHistory:
+# 2.0.3 - 2024-07-25 - fix the base path resolution bug
+# 2.0.2 - 2024-07-22 - remove the kin functions
+# 2.0.1 - 2024-07-17 - add the quit_on func to the base vars
+# 2.0.0 - 2024-04-09 - added the explict levels up docs to the base vars
