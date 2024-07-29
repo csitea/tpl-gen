@@ -90,9 +90,11 @@ def create_tgt_path(env: run_env,
 
 
     # Convert data to JSON
-    json_data_str = json.dumps(cnf)
+    # todo: remove ?!
+    # json_data_str = json.dumps(cnf)
     #json_obj = json.loads(json_data_str)
     #Execute jq query using jq.py library
+    print (f"data_key_path: {data_key_path}")
     opt_dict = jq(data_key_path).transform(cnf)
 
     opt_dict.update(env_dict)
