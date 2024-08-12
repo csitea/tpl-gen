@@ -8,10 +8,10 @@ ENV POETRY_VERSION=1.5.0
 
 # Check if Poetry is installed and install it if necessary
 RUN poetry --version >/dev/null 2>&1 \
-    && poetry_version=$(poetry --version | sed -n 's/Poetry version \(.*\)/\1/p') \
-    && test "$poetry_version" = "$POETRY_VERSION" \
-    || (curl -sSL https://install.python-poetry.org | python - \
-        && chmod 775 $HOME/.local/share/pypoetry/venv/bin/poetry )
+  && poetry_version=$(poetry --version | sed -n 's/Poetry version \(.*\)/\1/p') \
+  && test "$poetry_version" = "$POETRY_VERSION" \
+  || (curl -sSL https://install.python-poetry.org | python - \
+  && chmod 775 $HOME/.local/share/pypoetry/venv/bin/poetry )
 
 RUN echo 'export PATH=$PATH:$HOME/.local/bin/' >> $HOME/.bashrc
 
@@ -22,4 +22,3 @@ SHELL ["/bin/bash", "-c"]
 
 
 # STOP  ::: install-poetry
-

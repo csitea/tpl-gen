@@ -320,7 +320,7 @@ do_resolve_os() {
 quit_on() {
   rv=$?
   if [ $rv -ne 0 ]; then
-    do_log "FATAL Error: Failed in $1"
+    do_log "FATAL Error: Failed to $1"
     exit $rv
   fi
 }

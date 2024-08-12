@@ -34,4 +34,3 @@ do_require_var() {
   # Return the value of the environment variable
   echo "${ENV_VAR_VALUE}"
 }
-
