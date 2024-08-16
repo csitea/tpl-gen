@@ -1,5 +1,5 @@
 #!/bin/bash
 
 do_set_vars_on_mac() {
-  export host_name=$(hostname -s)
+  export HOST_NAME=$(hostname -s)
 }

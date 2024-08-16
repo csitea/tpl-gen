@@ -30,6 +30,6 @@ do_scan_to_list_file() {
 
   do_log INFO produced the $component_include_list_fle file
 
-  test -f $component_include_list_fle && export exit_code="0"
+  test -f $component_include_list_fle && export EXIT_CODE="0"
 
 }

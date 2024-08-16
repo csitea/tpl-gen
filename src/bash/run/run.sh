@@ -92,10 +92,10 @@ do_run_actions() {
     do_log "INFO START ::: running action :: $run_func"
     echo $run_func
     $run_func
-    if [[ "${exit_code:-}" != "0" ]]; then
+    if [[ "${EXIT_CODE:-}" != "0" ]]; then
       msg="FATAL failed to run action: $run_func !!!"
       do_log $msg
-      exit $exit_code
+      exit $EXIT_CODE
     fi
     do_log "INFO STOP ::: running function :: $run_func"
   done < <(echo "$run_funcs")
@@ -119,7 +119,7 @@ do_flush_screen() {
 # depts:
 #  - PROJ_PATH - the root dir of the sfw project
 #  - PROJ - the name of the software project dir
-#  - host_name - the short hostname of the host / container running on
+#  - HOST_NAME - the short hostname of the host / container running on
 #------------------------------------------------------------------------------
 do_log() {
   print_ok() {
@@ -154,10 +154,10 @@ do_log() {
   if [[ "$action" == "START" || "$action" == "STOP" ]]; then
     # Adjust the length of 'START' or 'STOP' token for alignment
     formatted_action=$(printf "%-5s" "$action") # 5 characters wide, adjust as needed
-    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${host_name:-}] [$$] $formatted_action $rest_of_msg"
+    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${HOST_NAME:-}] [$$] $formatted_action $rest_of_msg"
   else
     # Handle other types of messages without formatting the action
-    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${host_name:-}] [$$] $action $rest_of_msg"
+    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${HOST_NAME:-}] [$$] $action $rest_of_msg"
   fi
 
   log_dir="${PROJ_PATH:-}/dat/log/bash"
@@ -193,8 +193,8 @@ do_check_install_min_req_bins() {
 do_set_vars() {
   set -u -o pipefail
   do_read_cmd_args "$@"
-  export host_name="$(hostname -s)"
-  export exit_code=1 # assume failure for each action, enforce return code usage
+  export HOST_NAME="$(hostname -s)"
+  export EXIT_CODE=1 # assume failure for each action, enforce return code usage
   unit_run_dir=$(perl -e 'use File::Basename; use Cwd "abs_path"; print dirname(abs_path(@ARGV[0]));' -- "$0")
   export RUN_UNIT=$(
     cd $unit_run_dir
@@ -265,7 +265,7 @@ do_finalize() {
          $RUN_UNIT run completed
   :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 EOF_FIN_MSG
-  exit $exit_code
+  exit $EXIT_CODE
 }
 
 do_load_functions() {

@@ -49,7 +49,7 @@ do_help_to_history() {
   else
     echo "README.md not found at $proj_path."
   fi
-  export exit_code=0
+  export EXIT_CODE=0
 }
 
 # To use this function, set PROJ

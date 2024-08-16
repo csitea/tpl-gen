@@ -30,6 +30,6 @@ do_zip_me_as_module() {
 
   do_log "INFO produced the $zip_file file"
 
-  test -f $component_include_list_fle && export exit_code="0"
+  test -f $component_include_list_fle && export EXIT_CODE="0"
 
 }

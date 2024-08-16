@@ -26,5 +26,5 @@ do_restart_container() {
   echo -e "to debug re-run using DOCKER_BUILDKIT=0"
   echo -e "\n\n"
 
-  export exit_code=$?
+  export EXIT_CODE=$?
 }

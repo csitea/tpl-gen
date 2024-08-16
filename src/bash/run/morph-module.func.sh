@@ -69,7 +69,7 @@ do_morph_module() {
       )
     done < <(find $DIR_TO_MORPH -type f -not -path "*/*.venv/*" -not -path "*/*.git/*" -not -path "*/*node_modules/*")
 
-    export exit_code=0
+    export EXIT_CODE=0
 
   }
 
@@ -104,5 +104,5 @@ do_morph_module() {
 
   cd $PROJ_PATH
 
-  exit_code="0"
+  EXIT_CODE="0"
 }

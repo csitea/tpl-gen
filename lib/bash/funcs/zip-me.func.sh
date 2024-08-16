@@ -21,6 +21,6 @@ do_zip_me() {
     echo $(pwd)
   )/$(basename $(pwd)).zip -d /tmp/whatever-tgt_dir \n\n"
 
-  export exit_code=$rv
+  export EXIT_CODE=$rv
 
 }

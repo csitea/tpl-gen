@@ -1,3 +1,3 @@
-do_set_vars_on_alpine(){
-   export host_name=$(hostname -s)
+do_set_vars_on_alpine() {
+  export HOST_NAME=$(hostname -s)
 }

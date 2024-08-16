@@ -28,7 +28,7 @@ do_log() {
   type_of_msg=$(echo $* | cut -d" " -f1)
   action=$(echo $* | cut -d" " -f2)
   rest_of_msg=$(echo $* | cut -d" " -f3-)
-  test -z ${host_name:-} && export host_name=$(hostname -s)
+  test -z ${HOST_NAME:-} && export HOST_NAME=$(hostname -s)
   [ -z "${PROJ_PATH}" ] &&
     export PROJ_PATH=$(cd $(dirname $(perl -e 'use File::Basename; use Cwd "abs_path"; print dirname(abs_path($ARGV[0]))' -- "$0"))/../../.. && pwd)
   [ -z "${PROJ}" ] && export PROJ=$(basename $PROJ_PATH)
@@ -37,10 +37,10 @@ do_log() {
   if [[ "$action" == "START" || "$action" == "STOP" ]]; then
     # Adjust the length of 'START' or 'STOP' token for alignment
     formatted_action=$(printf "%-5s" "$action") # 5 characters wide, adjust as needed
-    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${host_name:-}] [$$] $formatted_action $rest_of_msg"
+    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${HOST_NAME:-}] [$$] $formatted_action $rest_of_msg"
   else
     # Handle other types of messages without formatting the action
-    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${host_name:-}] [$$] $action $rest_of_msg"
+    msg=" [$type_of_msg] $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${HOST_NAME:-}] [$$] $action $rest_of_msg"
   fi
 
   log_dir="${PROJ_PATH:-}/dat/log/bash"
@@ -68,7 +68,7 @@ do_log() {
 # - Requires the following environment variables:
 #   * PROJ_PATH: The root directory of the software project.
 #   * PROJ: The name of the software project directory. If not set, it is derived from PROJ_PATH.
-#   * host_name: The short hostname of the host/container. Automatically set if not provided.
+#   * HOST_NAME: The short hostname of the host/container. Automatically set if not provided.
 # - Relies on external commands: `hostname`, `perl`, `dirname`.
 #
 # USAGE:
