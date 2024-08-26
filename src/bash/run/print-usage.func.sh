@@ -64,6 +64,7 @@ EOF_ENVS_01
   dev
   tst
   prd
+  all
 EOF_ENVS
   )
 
