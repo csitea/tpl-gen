@@ -11,14 +11,14 @@ RUN set -x ; addgroup -g "$GID" -S "$APPGRP" && \
   -g "$GID" \
   -D \
   -s "$DOCKER_SHELL" \
-  -h "$HOME_DIR" \
+  -h "$DOCKER_HOME" \
   -u "$UID" \
   -G "$APPGRP" "$APPUSR" && exit 0 ; exit 1
 
 RUN echo "$APPUSR ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-RUN echo "export PS1=\"$PS1\"" >> $HOME_DIR/.bashrc && \
-  sudo chown -R $APPUSR:$APPGRP $HOME_DIR && \
-  sudo chmod -R 0775 $HOME_DIR
+RUN echo "export PS1=\"$PS1\"" >> $DOCKER_HOME/.bashrc && \
+  sudo chown -R $APPUSR:$APPGRP $DOCKER_HOME && \
+  sudo chmod -R 0775 $DOCKER_HOME
 
 # ensure the default shell for this user is the bash bin
 RUN sudo chsh -s /bin/bash $APPUSR

@@ -14,9 +14,6 @@ from libs.utils.tpl_utils import render_file
 from libs.utils.string_utils import string_contains
 from libs.utils.convert_utils import *
 
-
-
-
 def main():
 
     print_info_heading("START ::: TPL-GEN")
@@ -131,7 +128,6 @@ def create_tgt_path(env: run_env,
     str_path = str(tpl_file)
     env_dict = get_env_as_dict_lower()
 
-
     # Convert data to JSON
     json_data_str = json.dumps(cnf)
     #json_obj = json.loads(json_data_str)
@@ -148,11 +144,8 @@ def create_tgt_path(env: run_env,
     return converted_path
 
 
-
-
 if __name__ == "__main__":
     main()
-
 
 
     # # Read the YAML file

@@ -20,6 +20,7 @@ do_morph_dir() {
 
   do_log "INFO DIR_TO_MORPH: \"$DIR_TO_MORPH\" "
   do_log "INFO STR_TO_SRCH:\"$STR_TO_REPL\" "
+
   do_log "INFO STR_TO_REPL:\"$STR_TO_REPL\" "
   sleep 2
 
@@ -38,8 +39,8 @@ do_morph_dir() {
         continue
         ;;
       esac
-      perl -pi -e "s|\Q$STR_TO_REPL\E|$STR_TO_REPL|g" "$file"
-      sed -i '' -e 's/$STR_TO_REPL/$STR_TO_REPL/g' "$file"
+      perl -pi -e "s|\Q$STR_TO_SRCH\E|$STR_TO_REPL|g" "$file"
+      sed -i '' -e 's/$STR_TO_SRCH/$STR_TO_REPL/g' "$file"
     )
   done < <(find $DIR_TO_MORPH -type f -not -path "*/*.venv/*" -not -path "*/*.git/*" -not -path "*/*node_modules/*" -exec file {} \; | grep text | cut -d: -f1)
 
@@ -57,15 +58,15 @@ do_morph_dir() {
         continue
         ;;
       esac
-      echo $dir | perl -nle '$o=$_;s#'"\Q$STR_TO_REPL\E"'#'"$STR_TO_REPL"'#g;$n=$_;`mkdir -p $n` ;'
-      find $dir -depth -name '*'$STR_TO_REPL'*' -execdir bash -c 'for file; do mv -- "$file" "${file//'$STR_TO_REPL'/'$STR_TO_REPL'}"; done' bash {} +
+      echo $dir | perl -nle '$o=$_;s#'"\Q$STR_TO_SRCH\E"'#'"$STR_TO_REPL"'#g;$n=$_;`mkdir -p $n` ;'
+      find $dir -depth -name '*'$STR_TO_SRCH'*' -execdir bash -c 'for file; do mv -- "$file" "${file//'$STR_TO_SRCH'/'$STR_TO_REPL'}"; done' bash {} +
     )
   done < <(find $DIR_TO_MORPH -type d -not -path "*/*.venv/*" -not -path "*/*.git/*" -not -path "*/*node_modules/*")
 
   # rename the files according to the pattern
   while read -r file; do
     (
-      echo $file | perl -nle '$o=$_;s|'"\Q$STR_TO_REPL\E"'|'"$STR_TO_REPL"'|g;$n=$_;rename($o,$n) unless -e $n ;'
+      echo $file | perl -nle '$o=$_;s|'"\Q$STR_TO_SRCH\E"'|'"$STR_TO_REPL"'|g;$n=$_;rename($o,$n) unless -e $n ;'
     )
   done < <(find $DIR_TO_MORPH -type f -not -path "*/*.venv/*" -not -path "*/*.git/*" -not -path "*/*node_modules/*")
 

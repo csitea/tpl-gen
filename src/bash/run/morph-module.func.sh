@@ -15,11 +15,11 @@ do_morph_module() {
     # set -x
     # some initial checks the users should set the vars in their shells !!!
     do_require_var DIR_TO_MORPH $DIR_TO_MORPH
-    do_require_var STR_TO_SRCH $STR_TO_REPL
+    do_require_var STR_TO_SRCH $STR_TO_SRCH
     do_require_var STR_TO_REPL $STR_TO_REPL
 
     do_log "INFO DIR_TO_MORPH: \"$DIR_TO_MORPH\" "
-    do_log "INFO STR_TO_SRCH:\"$STR_TO_REPL\" "
+    do_log "INFO STR_TO_SRCH:\"$STR_TO_SRCH\" "
     do_log "INFO STR_TO_REPL:\"$STR_TO_REPL\" "
     sleep 2
 
@@ -38,8 +38,8 @@ do_morph_module() {
           continue
           ;;
         esac
-        perl -pi -e "s|\Q$STR_TO_REPL\E|$STR_TO_REPL|g" "$file"
-        sed -i '' -e 's/$STR_TO_REPL/$STR_TO_REPL/g' "$file"
+        perl -pi -e "s|\Q$STR_TO_SRCH\E|$STR_TO_REPL|g" "$file"
+        sed -i '' -e 's/$STR_TO_SRCH/$STR_TO_REPL/g' "$file"
       )
     done < <(find $DIR_TO_MORPH -type f -not -path "*/*.venv/*" -not -path "*/*.git/*" -not -path "*/*node_modules/*" -exec file {} \; | grep text | cut -d: -f1)
 
@@ -65,7 +65,7 @@ do_morph_module() {
     # rename the files according to the pattern
     while read -r file; do
       (
-        echo $file | perl -nle '$o=$_;s|'"\Q$STR_TO_REPL\E"'|'"$STR_TO_REPL"'|g;$n=$_;rename($o,$n) unless -e $n ;'
+        echo $file | perl -nle '$o=$_;s|'"\Q$STR_TO_SRCH\E"'|'"$STR_TO_REPL"'|g;$n=$_;rename($o,$n) unless -e $n ;'
       )
     done < <(find $DIR_TO_MORPH -type f -not -path "*/*.venv/*" -not -path "*/*.git/*" -not -path "*/*node_modules/*")
 

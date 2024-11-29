@@ -39,7 +39,7 @@ define build-img
 		--build-arg APPGRP=${APPGRP} \
 		--build-arg HOME_PROJ_PATH=${HOME_PROJ_PATH} \
 		--build-arg MOUNT_WORK_DIR=${MOUNT_WORK_DIR} \
-		--build-arg HOME_DIR=${HOME_DIR} \
+		--build-arg DOCKER_HOME=${DOCKER_HOME} \
 		--build-arg RUN_SCRIPT=${RUN_SCRIPT} \
 		--build-arg DOCKER_INIT_SCRIPT=${DOCKER_INIT_SCRIPT} \
 		-f src/docker/$(1)/Dockerfile.x86_64

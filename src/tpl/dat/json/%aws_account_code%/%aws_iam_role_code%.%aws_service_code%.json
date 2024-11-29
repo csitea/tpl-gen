@@ -1,0 +1,19 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*"
+      },
+      {
+      "Effect": "Allow",
+      "Action": [
+          {%- for aws_permission in data['conf']['aws-services-data'] -%}
+          "{{ cservice_code}}:{{ aws_permission }}"{% if not loop.last %},{% endif %}
+          {% endfor %}
+      ],
+      "Resource": "*"
+      }
+  ]
+  }
