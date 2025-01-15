@@ -26,7 +26,7 @@ do_check_install_py_modules() {
         poetry config virtualenvs.in $tgt_dir/.venv
         poetry config settings.virtualenvs.in-project true
         poetry config --list
-        sleep 10
+        sleep 3
         poetry intall cleo
         poetry install -vvv
         poetry -vvv update
