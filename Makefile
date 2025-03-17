@@ -38,7 +38,7 @@ DOCKER_KUBE_DIR := /home/${APPUSR}/.kube
 # dockerfile variables
 PROJ_PATH := $(BASE_PATH)/$(ORG_PATH)/$(PROJ)
 HOME_PROJ_PATH := "/home/$(APPUSR)$(BASE_PATH)/$(ORG_PATH)/$(PROJ)"
-DOCKER_HOME := /home/$(APPUSR)
+HOME_DIR := /home/$(APPUSR)
 DOCKER_SHELL := /bin/$(SHELL)
 RUN_SCRIPT := $(HOME_PROJ_PATH)/run
 DOCKER_INIT_SCRIPT := $(HOME_PROJ_PATH)/src/bash/run/docker-init-$(PROJ).sh
