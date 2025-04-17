@@ -8,10 +8,15 @@ do_zip_me_as_module() {
 
   mkdir -p $PROJ_PATH/cnf/lst/
   cd $PROJ_PATH
+  DEFAULT_MODULE=$(basename $PROJ_PATH)
+  MODULE=${MODULE:-$DEFAULT_MODULE}  # Set MODULE explicitly
   do_require_var MODULE ${MODULE:-}
 
   # contains the files to be included while packaging
   component_include_list_fle=$PROJ_PATH/cnf/lst/$MODULE.include.lst
+  do_log "INFO using the following include file: $component_include_list_fle"
+  test -f $component_include_list_fle
+  quit_on "the list file containing the relative file paths to include: $component_include_list_fle does not exist !!!"
 
   zip_file=$PROJ_PATH.zip
   test -f $zip_file && rm -v $zip_file
