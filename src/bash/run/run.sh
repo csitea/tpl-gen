@@ -286,6 +286,7 @@ run_os_func() {
 
 }
 
+
 do_resolve_os() {
   if [[ $(uname -s) == *"Linux"* ]]; then
     distro=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
@@ -299,6 +300,9 @@ do_resolve_os() {
       export OS='suse'
       echo "your Linux distro has limited support !!!"
       ;;
+    rhel | centos) export OS='redhat' ;;  # Add Red Hat support
+
+
     *)
       echo "your Linux distro is not supported !!!"
       exit 1
