@@ -60,6 +60,11 @@ def override_env(cnf:any,data_key_path:str):
     try:
         # Execute jq query using jq.py library
         sub_data = jq(data_key_path).transform(cnf)
+
+        # Handle case when step doesn't exist in config (jq returns None)
+        if sub_data is None:
+            return cnf
+
         overridable_dict = get_scalar_key_vals(sub_data)
 
         for key, val in overridable_dict.items():

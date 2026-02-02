@@ -21,8 +21,8 @@ def render_file(tpl_obj: Template, cnf: any,data_key_path:str) -> str:
 
         rendered = tpl_obj.render(args)
     except UndefinedError as err:
-        print_warn(err.message)
-        return "There was an error during template generation, check the template"
+        print_fatal(f"Template rendering failed: {err.message}")
+        raise SystemExit(1)
     except UnicodeDecodeError:
         return ""
 

@@ -21,6 +21,10 @@ def print_error(msg: str):
     console.print(f"ERROR ::: {msg} ::: :x:", style="deep_pink2")
 
 
+def print_fatal(msg: str):
+    err_console.print(f"FATAL ::: {msg} ::: :skull:", style="bold red")
+
+
 def print_success(msg: str):
     console.print(
         f"SUCCESS ::: {msg} ::: :white_heavy_check_mark:", style="green_yellow"

@@ -19,6 +19,20 @@ def main():
     print_info_heading("START ::: TPL-GEN")
     env = run_env.RunEnv()
 
+    # Validate required environment variables
+    required_vars = {
+        'ENV': env.ENV,
+        'ORG': env.ORG,
+        'APP': env.APP,
+        'TPL_SRC': env.TPL_SRC,
+        'CNF_SRC': env.CNF_SRC,
+        'TGT': env.TGT,
+    }
+    missing_vars = [name for name, value in required_vars.items() if not value]
+    if missing_vars:
+        print_fatal(f"Required environment variables not defined: {', '.join(missing_vars)}")
+        raise SystemExit(1)
+
     config_end_point = env.CNF_SRC
 
     data_key_path = env.DATA_KEY_PATH or '.'
@@ -26,6 +40,10 @@ def main():
     obj_config_data_loader = config_data_loader.ConfigDataLoader()
     cnf = obj_config_data_loader.read_yaml_files(config_end_point, data_key_path=data_key_path)
     tpl_paths = list_files_and_dirs(f'{env.TPL_SRC}')
+
+    if not tpl_paths:
+        print_fatal(f"No template files found matching pattern: {env.TPL_SRC}")
+        raise SystemExit(1)
 
     tpl_loader = Environment(loader=BaseLoader,undefined=StrictUndefined)
 
@@ -134,7 +152,13 @@ def create_tgt_path(env: run_env,
     #Execute jq query using jq.py library
     print("data_key_path")
     print(data_key_path)
-    opt_dict = jq(data_key_path).transform(cnf)
+    jq_result = jq(data_key_path).transform(cnf)
+
+    # Handle case when step doesn't exist in config (jq returns None)
+    if jq_result is None:
+        opt_dict = {}
+    else:
+        opt_dict = jq_result
 
     opt_dict.update(env_dict)
     converted_path = pkey_replace(str_path, opt_dict)
