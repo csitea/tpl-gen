@@ -62,16 +62,17 @@ do_run_actions() {
   run_funcs=''
   while read -d ' ' arg_action; do
     while read -r fnc_file; do
-      #debug func fnc_file:$fnc_file
+      # Skip files that don't match the action name BEFORE spawning subprocess
+      action_name=$(basename "$fnc_file" .func.sh)
+      action_name="do_${action_name//-/_}"
+      test "$action_name" != "$arg_action" && continue
+
+      # Only call get_function_list for matching files
       while read -r fnc_name; do
-        #debug fnc_name:$fnc_name
-        action_name=$(echo $(basename $fnc_file) | sed -e 's/.func.sh//g')
-        action_name=$(echo do_$action_name | sed -e 's/-/_/g')
-        # debug  action_name: $action_name
-        test "$action_name" != "$arg_action" && continue
+        do_log "DEBUG Sourcing $fnc_file for action $arg_action"
         source $fnc_file
         actions_found=$((actions_found + 1))
-        test "$action_name" == "$arg_action" && run_funcs="$(echo -e "${run_funcs}\n$fnc_name")"
+        run_funcs="$(echo -e "${run_funcs}\n$fnc_name")"
       done < <(get_function_list "$fnc_file")
     done < <(find "src/bash/run/" "lib/bash/funcs" -type f -name '*.func.sh' | sort)
 
