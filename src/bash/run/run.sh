@@ -82,7 +82,7 @@ do_run_actions() {
   test $actions_found -eq 0 && {
     do_log "FATAL action(s) requested: \"$actions\" NOT found !!!"
     do_log "FATAL 1. check the spelling of your action"
-    do_log "FATAL 2. check the available actions by: ENV=lde ./run --help"
+    do_log "FATAL 2. check the available actions by: ENV=lcl ./run --help"
     do_log "FATAL the run failed !"
     exit 1
   }
@@ -215,7 +215,7 @@ do_set_vars() {
   export BASE_PATH=$(cd $unit_run_dir/../../../../../.. && echo $(pwd))
   do_ensure_logical_link
   export PROJ=$(basename $PROJ_PATH)
-  ENV="${ENV:=lde}" # <- remove this one IF you want to enforce the caller to provide the ENV var
+  ENV="${ENV:=lcl}" # <- remove this one IF you want to enforce the caller to provide the ENV var
   cd $PROJ_PATH
   do_log "INFO using: BASE_PATH: $BASE_PATH"
   do_log "INFO using: ORG_PATH: $ORG_PATH"
