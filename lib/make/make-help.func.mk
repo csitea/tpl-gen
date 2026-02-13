@@ -14,6 +14,10 @@ usage:
 	@./run -a do_help_to_history
 
 
+.PHONY: help-with  ## @-> search shell actions by keyword (usage: make help-with SRCH=keyword)
+help-with: demand_var-SRCH
+	@SRCH=$(SRCH) ./run -a do_help_with
+
 .PHONY: tf-help  ## @-> show this help  the default action
 tf-help:
 	# @clear
