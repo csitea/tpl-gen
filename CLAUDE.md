@@ -17,6 +17,24 @@ Jinja2 template generator — renders YAML configuration into technical output f
 
 The shell action framework is how this project automates everything. By always using shell actions, the codebase gets continuously tested and enlarged. Each `*.func.sh` file contains a `do_*` function invoked via `./run -a do_action_name`. Use `SRCH=<keyword> ./run -a do_help_with` to search for relevant actions by keyword.
 
+## MANDATORY: Run as ysg User
+
+**Claude Code runs as `claude-user`, but ALL shell actions, tests, and project commands MUST be executed as `ysg` user.** The project is set up for `ysg` first — `claude-user` is a secondary automation user.
+
+Always use `sudo -u ysg` to run commands:
+```bash
+# Shell actions
+sudo -u ysg bash -c 'cd /opt/bnc/bnc-cpt/bnc-cpt-utl && ./run -a do_action_name'
+
+# npm / node commands
+sudo -u ysg bash -c 'cd /opt/bnc/bnc-cpt/bnc-cpt-wui/src/nodejs/the-bot && ORG=bnc APP=cpt ENV=dev npm test'
+
+# Git operations
+sudo -u ysg git -c safe.directory=/opt/bnc/bnc-cpt/<repo> -C /opt/bnc/bnc-cpt/<repo> status
+```
+
+**Why:** File ownership is `ysg:ysg`, Chrome/Puppeteer cache is under `/home/ysg`, KeePassXC credentials are at `/home/ysg/.ssh/.bnc/`, and GCP keys are at `/home/ysg/.gcp/.bnc/`. Running as `ysg` ensures all paths resolve correctly.
+
 ## Team / *nix Users
 
 This project is used by multiple developers. Use `$USER` instead of hardcoded usernames:
