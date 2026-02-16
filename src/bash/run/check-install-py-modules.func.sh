@@ -19,7 +19,6 @@ do_check_install_py_modules() {
     # if we want to filter by a sub component
     if [[ ! -z "${MODULE:-}" ]]; then
       if [[ "$tgt_dir" == *"$MODULE"* ]]; then
-        test -f poetry.lock && rm -vf poetry.lock
         test -d .venv && rm -rv .venv
         poetry env use python3.8
         poetry config virtualenvs.create true

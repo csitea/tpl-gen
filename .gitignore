@@ -29,7 +29,6 @@ __pycache__/
 *.pyc
 .venv/
 *.egg-info/
-src/python/**/poetry.lock
 src/python/**/.coverage
 src/python/**/build/
 src/python/**/dist/
