@@ -8,6 +8,7 @@ class RunEnv:
     TPL_SRC = None
     CNF_SRC = None
     PROJ_PATH = None
+    ORG_APP = None
     ORG = None
     APP = None
     ENV = None
@@ -30,8 +31,9 @@ class RunEnv:
         try:
             self.TPL_SRC = os.getenv("TPL_SRC")
             self.CNF_SRC = os.getenv("CNF_SRC")
-            self.ORG = os.getenv("ORG")
-            self.APP = os.getenv("APP")
+            self.ORG_APP = os.getenv("ORG_APP")
+            self.ORG = self.ORG_APP.split("-")[0] if self.ORG_APP else os.getenv("ORG")
+            self.APP = self.ORG_APP.split("-")[1] if self.ORG_APP else os.getenv("APP")
             self.ENV = os.getenv("ENV")
             self.DATA_KEY_PATH = os.getenv("DATA_KEY_PATH")
             self.TGT = os.getenv("TGT")
