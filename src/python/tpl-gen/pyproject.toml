@@ -24,7 +24,7 @@ jq = "^1.4.1"
 setuptools="^67.8.0"
 
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pylint = "^2.8.3"
 autopep8 = "^1.5.7"
 pytest = "^6.2.4"
