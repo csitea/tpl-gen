@@ -24,13 +24,13 @@ The shell action framework is how this project automates everything. By always u
 Always use `sudo -u ysg` to run commands:
 ```bash
 # Shell actions
-sudo -u ysg bash -c 'cd /opt/csi/csi-web/csi-web-utl && ./run -a do_action_name'
+sudo -u ysg bash -c 'cd /opt/bnc/bnc-cpt/bnc-cpt-utl && ./run -a do_action_name'
 
 # npm / node commands
-sudo -u ysg bash -c 'cd /opt/csi/csi-web/csi-web-wui/src/nodejs/the-bot && ORG=csi APP=web ENV=dev npm test'
+sudo -u ysg bash -c 'cd /opt/bnc/bnc-cpt/bnc-cpt-wui/src/nodejs/the-bot && ORG=csi APP=web ENV=dev npm test'
 
 # Git operations
-sudo -u ysg git -c safe.directory=/opt/csi/csi-web/<repo> -C /opt/csi/csi-web/<repo> status
+sudo -u ysg git -c safe.directory=/opt/bnc/bnc-cpt/<repo> -C /opt/bnc/bnc-cpt/<repo> status
 ```
 
 **Why:** File ownership is `ysg:ysg`, Chrome/Puppeteer cache is under `/home/ysg`, KeePassXC credentials are at `/home/ysg/.ssh/.csi/`, and GCP keys are at `/home/ysg/.gcp/.csi/`. Running as `ysg` ensures all paths resolve correctly.
@@ -84,9 +84,9 @@ The Python engine:
 | `ENV` | Target environment | `dev`, `tst`, `prd` |
 | `ORG` | Organization code | `csi` |
 | `APP` | Application code | `web` |
-| `TPL_SRC` | Template source directory | `/opt/csi/csi-web/csi-web-inf` |
-| `CNF_SRC` | Configuration source | `/opt/csi/csi-web/csi-web-cnf/csi-web` |
-| `TGT` | Output target directory | `/opt/csi/csi-web/csi-web-cnf/csi-web` |
+| `TPL_SRC` | Template source directory | `/opt/bnc/bnc-cpt/bnc-cpt-inf` |
+| `CNF_SRC` | Configuration source | `/opt/bnc/bnc-cpt/bnc-cpt-cnf/bnc-cpt` |
+| `TGT` | Output target directory | `/opt/bnc/bnc-cpt/bnc-cpt-cnf/bnc-cpt` |
 | `STEP` | Terraform step name | `029-create-gcp-secrets` |
 
 ## Shell Actions
@@ -110,15 +110,15 @@ Key packages (managed by Poetry in `src/python/tpl-gen/`):
 
 ## Typical Usage
 
-Template generation is usually triggered from `csi-web-utl` via Make:
+Template generation is usually triggered from `bnc-cpt-utl` via Make:
 
 ```bash
-cd /opt/csi/csi-web/csi-web-utl
+cd /opt/bnc/bnc-cpt/bnc-cpt-utl
 make do-generate-config-for-step ENV=dev STEP=029-create-gcp-secrets
 ```
 
 ## Related Paths
 
-- CNF (config source): `/opt/csi/csi-web/csi-web-cnf`
-- INF (template source): `/opt/csi/csi-web/csi-web-inf`
-- UTL (orchestrator): `/opt/csi/csi-web/csi-web-utl`
+- CNF (config source): `/opt/bnc/bnc-cpt/bnc-cpt-cnf`
+- INF (template source): `/opt/bnc/bnc-cpt/bnc-cpt-inf`
+- UTL (orchestrator): `/opt/bnc/bnc-cpt/bnc-cpt-utl`
