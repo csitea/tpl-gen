@@ -25,13 +25,13 @@ The shell action framework is how this project automates everything. By always u
 Always use `sudo -u ysg` to run commands:
 ```bash
 # Shell actions
-sudo -u ysg bash -c 'cd /opt/bnc/bnc-cpt/bnc-cpt-utl && ./run -a do_action_name'
+sudo -u ysg bash -c 'cd /opt/ark/ark-vcs/ark-vcs-utl && ./run -a do_action_name'
 
 # npm / node commands
-sudo -u ysg bash -c 'cd /opt/bnc/bnc-cpt/bnc-cpt-wui/src/nodejs/the-bot && ORG=csi APP=web ENV=dev npm test'
+sudo -u ysg bash -c 'cd /opt/ark/ark-vcs/ark-vcs-wui/src/nodejs/the-bot && ORG=csi APP=web ENV=dev npm test'
 
 # Git operations
-sudo -u ysg git -c safe.directory=/opt/bnc/bnc-cpt/<repo> -C /opt/bnc/bnc-cpt/<repo> status
+sudo -u ysg git -c safe.directory=/opt/ark/ark-vcs/<repo> -C /opt/ark/ark-vcs/<repo> status
 ```
 
 **Why:** File ownership is `ysg:ysg`, Chrome/Puppeteer cache is under `/home/ysg`, KeePassXC credentials are at `/home/ysg/.ssh/.csi/`, and GCP keys are at `/home/ysg/.gcp/.csi/`. Running as `ysg` ensures all paths resolve correctly.
@@ -85,9 +85,9 @@ The Python engine:
 | `ENV` | Target environment | `dev`, `tst`, `prd` |
 | `ORG` | Organization code | `csi` |
 | `APP` | Application code | `web` |
-| `TPL_SRC` | Template source directory | `/opt/bnc/bnc-cpt/bnc-cpt-inf` |
-| `CNF_SRC` | Configuration source | `/opt/bnc/bnc-cpt/bnc-cpt-cnf/bnc-cpt` |
-| `TGT` | Output target directory | `/opt/bnc/bnc-cpt/bnc-cpt-cnf/bnc-cpt` |
+| `TPL_SRC` | Template source directory | `/opt/ark/ark-vcs/ark-vcs-inf` |
+| `CNF_SRC` | Configuration source | `/opt/ark/ark-vcs/ark-vcs-cnf/ark-vcs` |
+| `TGT` | Output target directory | `/opt/ark/ark-vcs/ark-vcs-cnf/ark-vcs` |
 | `STEP` | Terraform step name | `029-create-gcp-secrets` |
 
 ## Shell Actions
@@ -111,15 +111,15 @@ Key packages (managed by Poetry in `src/python/tpl-gen/`):
 
 ## Typical Usage
 
-Template generation is usually triggered from `bnc-cpt-utl` via Make:
+Template generation is usually triggered from `ark-vcs-utl` via Make:
 
 ```bash
-cd /opt/bnc/bnc-cpt/bnc-cpt-utl
+cd /opt/ark/ark-vcs/ark-vcs-utl
 make do-generate-config-for-step ENV=dev STEP=029-create-gcp-secrets
 ```
 
 ## Related Paths
 
-- CNF (config source): `/opt/bnc/bnc-cpt/bnc-cpt-cnf`
-- INF (template source): `/opt/bnc/bnc-cpt/bnc-cpt-inf`
-- UTL (orchestrator): `/opt/bnc/bnc-cpt/bnc-cpt-utl`
+- CNF (config source): `/opt/ark/ark-vcs/ark-vcs-cnf`
+- INF (template source): `/opt/ark/ark-vcs/ark-vcs-inf`
+- UTL (orchestrator): `/opt/ark/ark-vcs/ark-vcs-utl`
