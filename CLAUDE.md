@@ -18,6 +18,7 @@ Jinja2 template generator — renders YAML configuration into technical output f
 The shell action framework is how this project automates everything. By always using shell actions, the codebase gets continuously tested and enlarged. Each `*.func.sh` file contains a `do_*` function invoked via `./run -a do_action_name`. Use `SRCH=<keyword> ./run -a do_help_with` to search for relevant actions by keyword.
 
 ## MANDATORY: Run as ysg User
+**IMPERATIVE — File Ownership:** ALL files under `/opt/ark/` MUST be owned by `ysg:ysg`. Never create or leave files owned by another user. After creating or editing any file, ensure ownership is correct. Fix with: `sudo chown ysg:ysg <file>`.
 
 **Claude Code runs as `claude-user`, but ALL shell actions, tests, and project commands MUST be executed as `ysg` user.** The project is set up for `ysg` first — `claude-user` is a secondary automation user.
 
