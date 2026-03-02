@@ -19,5 +19,4 @@ do_check_install_poetry() {
   poetry --version
 
   #poetry self update
-  export EXIT_CODE=0
 }

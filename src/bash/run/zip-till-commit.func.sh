@@ -29,6 +29,5 @@ do_zip_till_commit() {
   git checkout $current_branch
   git stash pop
 
-  export EXIT_CODE=0
 
 }

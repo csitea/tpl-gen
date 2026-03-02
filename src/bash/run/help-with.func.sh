@@ -22,8 +22,7 @@ do_help_with() {
     do_log "INFO Usage: SRCH=<keyword> ./run -a do_help_with"
     do_log "INFO Example: SRCH=push ./run -a do_help_with"
     do_log "INFO Example: SRCH=gcp ./run -a do_help_with 2>&1 | less"
-    export EXIT_CODE=1
-    return 1
+  return 1
   fi
 
   do_log "INFO Searching for functions containing: '$keyword'"
@@ -119,5 +118,4 @@ do_help_with() {
     do_log "INFO Found $found_count function(s) matching '$keyword'"
   fi
 
-  export EXIT_CODE=0
 }

@@ -266,7 +266,7 @@ do_finalize() {
          $RUN_UNIT run completed
   :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 EOF_FIN_MSG
-  exit $EXIT_CODE
+  exit 0
 }
 
 do_load_functions() {

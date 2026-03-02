@@ -34,5 +34,4 @@ do_check_install_py_modules() {
     cd -
   done < <(find $PROJ_PATH/src/python/ -name pyproject.toml)
 
-  export EXIT_CODE=0
 }
