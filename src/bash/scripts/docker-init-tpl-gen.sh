@@ -16,8 +16,17 @@ fi
 
 # test -d $venv_path && sudo rm -r $venv_path
 # do not use this one ^^^^!!! Big GOTCHA !!!
-cp -r $home_venv_path $venv_path
-perl -pi -e "s|/home/$APPUSR||g" $venv_path/bin/activate
+if [ -d "$home_venv_path" ]; then
+  cp -r $home_venv_path $venv_path
+  perl -pi -e "s|/home/$APPUSR||g" $venv_path/bin/activate
+else
+  # CI fallback: no pre-existing .venv — create one via poetry install
+  cd "$PROJ_PATH/src/python/$MODULE"
+  poetry config virtualenvs.create true
+  poetry config virtualenvs.in-project true
+  poetry install --no-interaction
+  cd "$PROJ_PATH"
+fi
 
 # if it points to PROJ_PATH it will always be broken
 echo "source $PROJ_PATH/src/python/$MODULE/.venv/bin/activate" >>~/.bashrc
