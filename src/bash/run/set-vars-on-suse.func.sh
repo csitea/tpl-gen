@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#------------------------------------------------------------------------------
+# @description Set vars on suse.
+#------------------------------------------------------------------------------
 do_set_vars_on_suse() {
 
   # add any Suse Linux specific vars settings here

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#------------------------------------------------------------------------------
+# @description Print usage.
+#------------------------------------------------------------------------------
 do_print_usage() {
   # if $run_unit is --help, then message will be "--help deployer PURPOSE"
   cat <<EOF_USAGE

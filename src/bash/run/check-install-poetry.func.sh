@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+#------------------------------------------------------------------------------
+# @description Check install poetry.
+#------------------------------------------------------------------------------
 do_check_install_poetry() {
   ver=$(poetry --version 2>/dev/null)
   err=$?

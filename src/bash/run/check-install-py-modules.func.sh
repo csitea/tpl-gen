@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# install the poetry for every python component project on the first level
-# of the src/python dir
+#------------------------------------------------------------------------------
+# @description install the poetry for every python component project on the first level of the src/python dir
+#------------------------------------------------------------------------------
 do_check_install_py_modules() {
 
   set -x

@@ -1,8 +1,7 @@
-# !/bin/bash
-# Function to add bash commands from README.md to .bash_history, reload history,
-# clear the screen, and display the last 15 commands, excluding empty lines,
-# lines with only whitespace, and commented lines.
-# ./run -a do_help_to_history
+#------------------------------------------------------------------------------
+# @description !/bin/bash Function to add bash commands from README.md to .bash_history, reload history, clear the screen, and display the last 15 commands, excluding empty lines, lines with only whitespace, and commented lines.
+# @example ./run -a do_help_to_history
+#------------------------------------------------------------------------------
 do_help_to_history() {
   local proj_path="${PROJ_PATH:-$(pwd)}" # Use PROJ_PATH if set, otherwise current directory
   local readme_file="$proj_path/README.md"

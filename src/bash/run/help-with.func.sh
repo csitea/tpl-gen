@@ -1,18 +1,11 @@
 #!/bin/bash
+
 #------------------------------------------------------------------------------
-# Purpose:
-# To provide documentation for shell action functions by searching for
-# functions containing a keyword and displaying their comments.
-#
-# Usage:
-# SRCH=push ./run -a do_help_with
-# SRCH=pull ./run -a do_help_with
-# SRCH=gcp ./run -a do_help_with
-#
-# With pager for long output:
-# SRCH=gcp ./run -a do_help_with 2>&1 | less
-#
-# Note: The variable must be on the SAME LINE before ./run (inline assignment)
+# @description To provide documentation for shell action functions by searching for functions containing a keyword and displaying their comments. Note: The variable must be on the SAME LINE before ./run (inline assignment)
+# @example SRCH=push ./run -a do_help_with
+# @example SRCH=pull ./run -a do_help_with
+# @example SRCH=gcp ./run -a do_help_with
+# @example SRCH=gcp ./run -a do_help_with 2>&1 | less
 #------------------------------------------------------------------------------
 do_help_with() {
   local keyword="${SRCH:-}"

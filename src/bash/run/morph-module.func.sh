@@ -1,12 +1,8 @@
 #!/bin/bash
-#
-# create a kind of morphed clone module of the source module specified
-# usage:
-# to "morph" the run.sh into a foo-bar module do:
-# SRC_MODULE=run.sh TGT_MODULE=foo-bar ./run -a do_morph_module
-# to "morph" the foo-bar into a foo-baz module do:
-# SRC_MODULE=foo-bar TGT_MODULE=foo-baz ./run -a do_morph_module
-#
+
+#------------------------------------------------------------------------------
+# @description Morph module.
+#------------------------------------------------------------------------------
 do_morph_module() {
   do_require_var SRC_MODULE ${SRC_MODULE:-}
   do_require_var TGT_MODULE ${TGT_MODULE:-}

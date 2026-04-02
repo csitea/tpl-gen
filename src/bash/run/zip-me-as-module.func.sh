@@ -1,9 +1,8 @@
 #!/bin/bash
-#
-# create a component zip file to be unzipped to the component project back
-# usage:
-# MODULE=run.sh ./run -a do_zip_me_as_module
-#
+
+#------------------------------------------------------------------------------
+# @description Zip me as module.
+#------------------------------------------------------------------------------
 do_zip_me_as_module() {
 
   mkdir -p $PROJ_PATH/cnf/lst/

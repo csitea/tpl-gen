@@ -1,8 +1,8 @@
 #!/bin/bash
-#
-# produce a list of files to be packaged
-# usage:
-# clear ; ./run -a do_scan_to_list_file
+
+#------------------------------------------------------------------------------
+# @description Scan to list file.
+#------------------------------------------------------------------------------
 do_scan_to_list_file() {
 
   mkdir -p $PROJ_PATH/cnf/lst/
