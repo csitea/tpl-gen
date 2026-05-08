@@ -1,5 +1,11 @@
 #!/bin/bash
-
+#------------------------------------------------------------------------------
+# @description Output messages to both terminal and log file with timestamps and metadata.
+# @description Color-codes messages by type (INFO=blue, OK=green, WARNING=yellow, ERROR/FATAL=red).
+# @param MESSAGE (required) - Log message prefixed with type: INFO, OK, WARNING, ERROR, FATAL
+# @example do_log "INFO Starting process"
+# @example do_log "ERROR Something failed"
+#------------------------------------------------------------------------------
 do_log() {
   print_ok() {
     GREEN_COLOR="\033[0;32m"
@@ -19,94 +25,66 @@ do_log() {
     echo -e "${BLUE_COLOR} ℹ ${1:-} ${DEFAULT_COLOR}"
   }
 
+
+  print_debug() {
+    CYAN_COLOR="\033[0;36m"
+    DEFAULT_COLOR="\033[0m"
+    echo -e "${CYAN_COLOR} ⚙ ${1:-} ${DEFAULT_COLOR}"
+  }
+
   print_fail() {
     RED_COLOR="\033[0;31m"
     DEFAULT_COLOR="\033[0m"
-    echo -e "${RED_COLOR} ✘ ${1:-}${DEFAULT_COLOR}"
+    echo -e "${RED_COLOR} ❌ [NOK] ${1:-}${DEFAULT_COLOR}"
   }
 
-  print_debug() {
-    GRAY_COLOR="\033[0;37m"
+  print_fatal() {
+    RED_COLOR="\033[0;31m"
     DEFAULT_COLOR="\033[0m"
-    echo -e "${GRAY_COLOR} ⚙ ${1:-}${DEFAULT_COLOR}"
+    echo -e "${RED_COLOR} 💣 [FATAL] ${1:-}${DEFAULT_COLOR}"
   }
 
   type_of_msg=$(echo $* | cut -d" " -f1)
   action=$(echo $* | cut -d" " -f2)
   rest_of_msg=$(echo $* | cut -d" " -f3-)
-  test -z ${HOST_NAME:-} && export HOST_NAME=$(hostname -s)
-  [ -z "${PROJ_PATH}" ] &&
-    export PROJ_PATH=$(cd $(dirname $(perl -e 'use File::Basename; use Cwd "abs_path"; print dirname(abs_path($ARGV[0]))' -- "$0"))/../../.. && pwd)
-  [ -z "${PROJ}" ] && export PROJ=$(basename $PROJ_PATH)
 
-  # Pad [TYPE] to 9 chars (longest is [WARNING]) so dates align vertically
-  local padded_type
-  [[ "$type_of_msg" == "WARNING" ]] && type_of_msg="WARN"
-  padded_type=$(printf "%-7s" "[$type_of_msg]")
+  local display_type="${type_of_msg/WARNING/WARN}"
+  local type_padded
+  type_padded=$(printf "%-7s" "[$display_type]")
 
-  # Check if the action is START or STOP and adjust the length
   if [[ "$action" == "START" || "$action" == "STOP" ]]; then
-    # Adjust the length of 'START' or 'STOP' token for alignment
-    formatted_action=$(printf "%-5s" "$action") # 5 characters wide, adjust as needed
-    msg="${padded_type} $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${HOST_NAME:-}] [$$] $formatted_action $rest_of_msg"
+    formatted_action=$(printf "%-5s" "$action")
+    msg=" $type_padded $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${HOST_NAME:-}] [$$] $formatted_action $rest_of_msg"
   else
-    # Handle other types of messages without formatting the action
-    msg="${padded_type} $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${HOST_NAME:-}] [$$] $action $rest_of_msg"
+    msg=" $type_padded $(date "+%Y-%m-%d %H:%M:%S %Z") [${PROJ:-}][@${HOST_NAME:-}] [$$] $action $rest_of_msg"
   fi
 
-  log_dir="${PROJ_PATH:-}/dat/log/bash"
-  mkdir -p "$log_dir" 2>/dev/null || { log_dir="$HOME/var/log/${PROJ:-}"; mkdir -p "$log_dir" 2>/dev/null; }
-  log_file="$log_dir/${PROJ:-}."$(date "+%Y%m%d")'.log'
+  local _log_dir
+  if [[ -n "${LOG_DIR:-}" ]]; then
+    _log_dir="$LOG_DIR"
+    mkdir -p "$_log_dir" 2>/dev/null || true
+  elif [[ -n "${PROJ:-}" && -n "${ORG:-}" && -n "${APP:-}" ]]; then
+    _log_dir="${VAR_DIR:-/var}/${ORG}/${APP}/${PROJ}/dat/log/bash"
+    if ! mkdir -p "$_log_dir" 2>/dev/null; then
+      _log_dir="${PROJ_PATH:-$(pwd)}/dat/log/bash"
+      mkdir -p "$_log_dir" 2>/dev/null || true
+    fi
+  else
+    _log_dir="${PROJ_PATH:-$(pwd)}/dat/log/bash"
+    mkdir -p "$_log_dir" 2>/dev/null || true
+  fi
+  log_dir="$_log_dir"
+  export LOG_DIR="$log_dir"
+  log_file="$log_dir/${PROJ:-run}."$(date "+%Y%m%d")'.log'
 
   case "$type_of_msg" in
-  'FATAL') print_fail "$msg" | tee -a "$log_file" 2>/dev/null ;;
-  'ERROR') print_fail "$msg" | tee -a "$log_file" 2>/dev/null ;;
-  'WARNING'|'WARN') print_warning "$msg" | tee -a "$log_file" 2>/dev/null ;;
-  'INFO') print_info "$msg" | tee -a "$log_file" 2>/dev/null ;;
-  'OK') print_ok "$msg" | tee -a "$log_file" 2>/dev/null ;;
-  'DEBUG') print_debug "$msg" | tee -a "$log_file" 2>/dev/null ;;
-  *) echo " · $msg" | tee -a "$log_file" 2>/dev/null ;;
+  'FATAL') print_fatal "$msg" | tee -a $log_file ;;
+  'ERROR') print_fail "$msg" | tee -a $log_file ;;
+  'WARNING'|'WARN') print_warning "$msg" | tee -a $log_file ;;
+  'INFO') print_info "$msg" | tee -a $log_file ;;
+  'OK')    print_ok    "$msg" | tee -a $log_file ;;
+  'DEBUG') print_debug "$msg" | tee -a $log_file ;;
+  *) echo "$msg" | tee -a $log_file ;;
   esac
 }
-
-#------------------------------------------------------------------------------
-# do_log: A truly reusable logging function.
-#------------------------------------------------------------------------------
-# PURPOSE:
-# To output messages to both the terminal and a log file, each message is
-# prefixed with a timestamp, the type of message (INFO, ERROR, DEBUG, WARNING),
-# and other relevant metadata.
-#
-# DEPENDENCIES:
-# - Requires the following environment variables:
-#   * PROJ_PATH: The root directory of the software project.
-#   * PROJ: The name of the software project directory. If not set, it is derived from PROJ_PATH.
-#   * HOST_NAME: The short hostname of the host/container. Automatically set if not provided.
-# - Relies on external commands: `hostname`, `perl`, `dirname`.
-#
-# USAGE:
-# ----------------
-# Source the script before using the function:
-# source ./lib/bash/funcs/log.func.sh
-#
-# Example calls:
-# do_log "INFO Some informational message"
-# do_log "ERROR An error occurred"
-# do_log "DEBUG Debugging data: x = $x"
-# do_log "WARNING Warning: Configuration file not found"
-#
-# LOG FILE:
-# - Messages are logged to a file named `<PROJ>.<date>.log` in the directory
-#   `$PROJ_PATH/dat/log/bash`. If this directory is not writable, it falls back to
-#   `$HOME/var/log/$PROJ`.
-# - The log file includes the date, message type, project name, hostname, process ID,
-#   and the message itself.
-#
-# NOTES:
-# - The function dynamically adjusts the message layout for START and STOP actions
-#   for better readability.
-# - Color-coding is used for terminal output: green for OK, yellow for WARNING,
-#   blue for INFO, and red for ERROR/FATAL messages.
-#------------------------------------------------------------------------------
-
-# eof file: lib/bash/funcs/log.func.sh
+# run-bsh ::: v3.8.0

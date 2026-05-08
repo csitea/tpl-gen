@@ -1,10 +1,12 @@
 #!/bin/bash
 #------------------------------------------------------------------------------
-# usage example:
-# clear ; source lib/bash/funcs/export-json-section-vars.func.sh
-# do_export_json_section_vars $org/dev.env.json '.env.steps."004-aws-iam"'
-# dependencies:
-# jq
+# @description Exports key-value pairs from a specific JSON section as environment variables.
+# @description Only string values are exported. Keys are converted to UPPERCASE.
+# @param JSON_FILE (required) - Path to the JSON file to parse
+# @param SECTION (required) - jq filter for the section to export (e.g., '.env.vars')
+# @param SENSITIVENESS (optional) - If non-empty, masks values in the log output
+# @example do_export_json_section_vars "$org/dev.env.json" '.env.steps."004-aws-iam"'
+# @prereq jq, perl
 #------------------------------------------------------------------------------
 do_export_json_section_vars() {
 
@@ -42,3 +44,4 @@ do_export_json_section_vars() {
   # thanks ChatGPT: 'to_entries | map(select(.value | type == "string")) | from_entries'
   # ok cat /opt/spe/spe-infra-conf/prp/dev.env.json | jq -r '.env.steps."004-aws-iam"|to_entries| map(select(.value | type == "string"))|from_entries|keys_unsorted[] as $key|"\($key):\"\(.[$key])\""'
 }
+# run-bsh ::: v3.7.0

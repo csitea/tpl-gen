@@ -1,13 +1,13 @@
 #!/bin/bash
-# ---------------------------------------------------------
-# cat cnf/qto.dev.host-name.cnf
-# [MainSection]
-# postgres_db_name     = dev_qto
-# postgres_db_host     = host-name
-#
-# call by:
-# source lib/bash/funcs/parse-ini-section-vars.func.sh ; do_parse_ini_section_vars $AWS_SHARED_CREDENTIALS_FILE "profile $AWS_PROFILE"
-# ---------------------------------------------------------
+#------------------------------------------------------------------------------
+# @description Parses an INI configuration file section and exports key-value pairs as environment variables.
+# @description Supports skipping comments and trimming whitespace.
+# @param CNF_FILE (required) - Path to the INI configuration file
+# @param INI_SECTION (required) - Name of the section to parse (without brackets)
+# @example do_parse_ini_section_vars "cnf/qto.dev.host-name.cnf" "MainSection"
+# @example do_parse_ini_section_vars "$AWS_SHARED_CREDENTIALS_FILE" "profile default"
+# @prereq sed, perl, comm
+#------------------------------------------------------------------------------
 do_parse_ini_section_vars() {
 
   cnf_file=$1
@@ -39,3 +39,4 @@ do_parse_ini_section_vars() {
   echo "INFO added the following vars from section: [$INI_SECTION]"
   comm -3 ~/vars.before ~/vars.after | perl -ne 's#\s+##g;print "\n $_ "'
 }
+# run-bsh ::: v3.7.0

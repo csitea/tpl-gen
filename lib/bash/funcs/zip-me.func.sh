@@ -1,10 +1,10 @@
 #!/bin/bash
 #------------------------------------------------------------------------------
-# usage example:
-# source $PROJ/lib/bash/funcs/export-json-section-vars.sh
-# ./run -a do_zip_me
-# binary dependencies:
-# zip
+# @description Zips the current directory into a zip file named after the directory.
+# @description The zip file is created in the parent directory.
+# @description Excludes common development directories: .git, .terraform, .venv, node_modules.
+# @example do_zip_me
+# @prereq zip
 #------------------------------------------------------------------------------
 do_zip_me() {
 
@@ -21,6 +21,7 @@ do_zip_me() {
     echo $(pwd)
   )/$(basename $(pwd)).zip -d /tmp/whatever-tgt_dir \n\n"
 
-  return $rv
+  export EXIT_CODE=$rv
 
 }
+# run-bsh ::: v3.7.0
