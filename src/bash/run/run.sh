@@ -394,6 +394,30 @@ quit_on(){
   fi
 }
 
+do_require_run_vars() {
+  local var_list=("$@")
+  local set_vars=()
+  local unset_vars=()
+
+  for var in "${var_list[@]}"; do
+    if [[ -v $var && -n "${!var}" ]]; then
+      set_vars+=("$var=${!var}")
+    else
+      unset_vars+=("$var")
+    fi
+  done
+
+  if [[ ${#unset_vars[@]} -gt 0 ]]; then
+    echo "FATAL: The following variables are not set or empty:" >&2
+    printf '%s\n' "${unset_vars[@]}" >&2
+    return 1
+  fi
+
+  printf "All required variables are set and non-empty:\n"
+  printf '%s\n' "${set_vars[@]}" | sort
+  return 0
+}
+
 main "$@"
 
 #==============================================================================
