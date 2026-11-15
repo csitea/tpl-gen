@@ -5,9 +5,9 @@
 #
 # Supports two PAT file formats:
 #   1. Shell export format:  export CONFLUENCE_PAT="token-value"
-#      → file is sourced directly so all export statements take effect
+#      → file is sourced directly; the export attribute is then removed
 #   2. Raw token format:     token-value
-#      → first line is read and exported as the PAT variable
+#      → first line is read into the PAT variable
 #
 # @param $1  service name: CONFLUENCE or JIRA  (required)
 #
@@ -18,9 +18,14 @@
 #   CONFLUENCE_PAT_FILE  path to the Confluence PAT file
 #   JIRA_PAT_FILE        path to the JIRA PAT file
 #
-# Environment produced:
+# Shell variable produced, NOT exported:
 #   CONFLUENCE_PAT  (when service=CONFLUENCE)
 #   JIRA_PAT        (when service=JIRA)
+# The token is a plain shell variable: the action reads it in-process, and no
+# child process (python, terraform, curl, ...) inherits it in its environment,
+# where `ps eww` would show it. An inherited, already exported <SERVICE>_PAT
+# and the aliases an export-format file may set (<SERVICE>_API_TOKEN,
+# <SERVICE>_TOKEN, <SERVICE>_PERSONAL_ACCESS_TOKEN) are un-exported too.
 #------------------------------------------------------------------------------
 
 do_load_pat() {
@@ -29,7 +34,19 @@ do_load_pat() {
     do_log "ERROR do_load_pat requires a service argument: CONFLUENCE or JIRA"
     return 11
   fi
+  local rc=0 name
+  _do_load_pat_read "$service" || rc=$?
+  for name in "${service}_PAT" "${service}_API_TOKEN" "${service}_TOKEN" \
+    "${service}_PERSONAL_ACCESS_TOKEN"; do
+    # shellcheck disable=SC2163 # un-export the variable that $name names
+    export -n "$name"
+  done
+  return $rc
+}
 
+# The reader behind do_load_pat: sets <SERVICE>_PAT, exports nothing itself
+_do_load_pat_read() {
+  local service="$1"
   local pat_var="${service}_PAT"
   local pat_file_var="${service}_PAT_FILE"
   local pat_file="${!pat_file_var:-}"
@@ -57,8 +74,8 @@ do_load_pat() {
     # shellcheck source=/dev/null
     source "$pat_file"
   else
-    # Raw token format — export the first line as the PAT value
-    export "${pat_var}=${first_line}"
+    # Raw token format — the first line is the PAT value
+    printf -v "$pat_var" '%s' "$first_line"
   fi
 
   if [[ -z "${!pat_var:-}" ]]; then
